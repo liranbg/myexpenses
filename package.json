@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
+    "src/**/*.jsx": [
       "prettier --single-quote --write",
       "git add"
     ]
@@ -24,6 +24,7 @@
     "parcel-bundler": "^1.5.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2",
     "semantic-ui-css": "^2.2.14",
     "semantic-ui-react": "^0.77.2"
   },
