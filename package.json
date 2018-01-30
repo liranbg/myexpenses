@@ -10,8 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "lint-staged": {
-    "*.js(x?)": [
-      "prettier --write",
+    "*.{js,jsx}": [
+      "prettier --single-quote --write",
       "git add"
     ]
   },
