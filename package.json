@@ -23,7 +23,9 @@
     "babel-preset-react": "^6.24.1",
     "parcel-bundler": "^1.5.1",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "semantic-ui-css": "^2.2.14",
+    "semantic-ui-react": "^0.77.2"
   },
   "devDependencies": {
     "husky": "^0.14.3",
