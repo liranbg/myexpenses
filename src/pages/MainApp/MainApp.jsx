@@ -9,7 +9,7 @@ const Main = () => (
     <Container style={{ marginTop: '4em' }}>
       <Switch>
         <Route exact path="/" render={() => <Redirect to="/expenses" />} />
-        <Route exact path="expenses" component={ExpensesPage} />
+        <Route exact path="/expenses" component={ExpensesPage} />
       </Switch>
     </Container>;
   </main>
