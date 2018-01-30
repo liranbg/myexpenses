@@ -1,0 +1,27 @@
+[
+  {
+    "key": 1,
+    "name": "Fuel",
+    "icon": "ion-model-s"
+  },
+  {
+    "key": 2,
+    "name": "Entertainment",
+    "icon": "md-beer"
+  },
+  {
+    "key": 3,
+    "name": "Food",
+    "icon": "md-pizza"
+  },
+  {
+    "key": 4,
+    "name": "Health",
+    "icon": "md-medical"
+  },
+  {
+    "key": 5,
+    "name": "HealthB",
+    "icon": "md-egg"
+  }
+]

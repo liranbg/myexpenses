@@ -1,0 +1,42 @@
+[
+  {
+    "key": 1,
+    "name": "Expense A",
+    "amount": "100",
+    "currency": "NIS",
+    "date": "2017-05-20",
+    "tag": null
+  },
+  {
+    "key": 2,
+    "name": "Expense A",
+    "amount": "120",
+    "currency": "NIS",
+    "date": "2017-05-22",
+    "tag": null
+  },
+  {
+    "key": 3,
+    "name": "Expense C",
+    "amount": "130",
+    "currency": "USD",
+    "date": "2017-05-23",
+    "tag": null
+  },
+  {
+    "key": 4,
+    "name": "Expense D",
+    "amount": "150",
+    "currency": "EUR",
+    "date": "2017-05-24",
+    "tag": null
+  },
+  {
+    "key": 5,
+    "name": "הוצאה מעצבנת",
+    "amount": "130",
+    "currency": "NIS",
+    "date": "2017-05-25",
+    "tag": null
+  }
+]
