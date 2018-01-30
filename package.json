@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "lint-staged": {
-    "src/**/*.jsx": [
+    "src/**/*.{js,jsx}": [
       "prettier --single-quote --write",
       "git add"
     ]
