@@ -5,6 +5,8 @@ import { Expense, Tag } from '../../interfaces/interfaces';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { incTagUses, setExpenseTag, unsetExpenseTag } from '../../actions';
+import TimeAgo from 'react-timeago';
+import DateFormat from 'dateformat';
 
 class ExpenseCard extends Component {
   componentWillMount() {
@@ -22,7 +24,6 @@ class ExpenseCard extends Component {
 
   handleSearchChange = (e, { value }) => {
     this.setState({ isLoading: true, value });
-
     setTimeout(() => {
       if (this.state.value.length < 1) return this.resetSearchComponent();
       const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
@@ -44,10 +45,21 @@ class ExpenseCard extends Component {
         <Card.Content>
           <Card.Meta>
             <p>
-              <Icon name="calendar" /> {expense.date}
+              <Icon name="calendar" />
+              <span>
+                {DateFormat(new Date(expense.date), 'dddd, mmmm dS, yyyy')} (<TimeAgo
+                  date={expense.date}
+                />)
+              </span>
             </p>
             <p>
-              <Icon name="money" /> {expense.amount}
+              <Icon name="money" />
+              <span>
+                {new Intl.NumberFormat('en-IN', {
+                  style: 'currency',
+                  currency: expense.currency
+                }).format(expense.amount)}
+              </span>
             </p>
           </Card.Meta>
           <Card.Description>{expense.notes}</Card.Description>
@@ -70,9 +82,7 @@ class ExpenseCard extends Component {
                   fluid
                   icon="tags"
                   iconPosition="left"
-                  label={{ tag: true, content: 'Set  Tag', as: 'a' }}
-                  labelPosition="right"
-                  placeholder="Enter tag"
+                  placeholder="Enter a Tag's name..."
                 />
               }
             />

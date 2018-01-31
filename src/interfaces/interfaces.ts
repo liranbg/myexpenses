@@ -8,7 +8,7 @@ export interface Expense {
     key?: string,
     name: string,
     date: string,
-    amount: string,
+    amount: number,
     tag: string,
     currency: string
 }
