@@ -2,26 +2,26 @@
   {
     "key": 1,
     "name": "Fuel",
-    "icon": "ion-model-s"
+    "uses": 0
   },
   {
     "key": 2,
     "name": "Entertainment",
-    "icon": "md-beer"
+    "uses": 0
   },
   {
     "key": 3,
     "name": "Food",
-    "icon": "md-pizza"
+    "uses": 0
   },
   {
     "key": 4,
     "name": "Health",
-    "icon": "md-medical"
+    "uses": 0
   },
   {
     "key": 5,
     "name": "HealthB",
-    "icon": "md-egg"
+    "uses": 0
   }
 ]

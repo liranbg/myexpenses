@@ -9,6 +9,7 @@ import {
 } from 'semantic-ui-react';
 import { Tag } from '../../interfaces/interfaces';
 import { connect } from 'react-redux';
+import { addTag, deleteTag } from '../../actions';
 
 class TagsPage extends Component {
   constructor(props) {
@@ -20,29 +21,18 @@ class TagsPage extends Component {
     this.newTagNameKeyPressed = this.newTagNameKeyPressed.bind(this);
   }
 
-  componentWillMount() {
-    const tags = require('../../mocks/tags');
-    this.setState({ tags: tags });
-  }
-
   deleteTag(tag: Tag) {
-    this.props.dispatch({
-      key: tag.key,
-      type: 'REMOVE_TAG'
-    });
+    this.props.dispatch(deleteTag(tag.key));
   }
 
   addTag() {
     if (!this.state.newTagName.trim()) return;
     let newTag: Tag = {
-      id: this.state.tags.length + 1,
+      id: this.props.tags.length + 1,
       name: this.state.newTagName.trim(),
-      icon: ''
+      uses: 0
     };
-    this.props.dispatch({
-      ...newTag,
-      type: 'ADD_TAG'
-    });
+    this.props.dispatch(addTag(newTag));
   }
 
   jsUcfirst(s) {
@@ -72,7 +62,8 @@ class TagsPage extends Component {
               size="small"
               onClick={() => this.deleteTag(tag)}
             />
-            <Icon name="tag" /> {tag.name} <Label circular>0 uses</Label>
+            <Icon name="tag" /> {tag.name}{' '}
+            <Label circular>{tag.uses} uses</Label>
           </Segment>
         ))}
         <Segment>
@@ -99,7 +90,5 @@ class TagsPage extends Component {
   }
 }
 
-const mapStateToProps = state => ({ tags: state.tags });
-TagsPage = connect(mapStateToProps)(TagsPage);
-
+TagsPage = connect(state => ({ tags: state.tags }))(TagsPage);
 export default TagsPage;
