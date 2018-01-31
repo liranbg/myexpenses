@@ -1,6 +1,15 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { Search, Input, Label, Card, Icon } from 'semantic-ui-react';
+import {
+  Search,
+  Input,
+  Label,
+  Card,
+  Icon,
+  Checkbox,
+  Divider,
+  Segment
+} from 'semantic-ui-react';
 import { Expense, Tag } from '../../interfaces/interfaces';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -71,21 +80,27 @@ class ExpenseCard extends Component {
               {expense.tag}
             </Label>
           ) : (
-            <Search
-              loading={isLoading}
-              onResultSelect={this.handleResultSelect}
-              onSearchChange={this.handleSearchChange}
-              results={results}
-              value={value}
-              input={
-                <Input
-                  fluid
-                  icon="tags"
-                  iconPosition="left"
-                  placeholder="Enter a Tag's name..."
-                />
-              }
-            />
+            <Segment vertical>
+              <Search
+                loading={isLoading}
+                onResultSelect={this.handleResultSelect}
+                onSearchChange={this.handleSearchChange}
+                results={results}
+                value={value}
+                input={
+                  <Input
+                    fluid
+                    icon="tags"
+                    iconPosition="left"
+                    placeholder="Enter a Tag's name..."
+                  />
+                }
+              />
+              <div style={{ marginTop: 20 }}>
+                Apply for all expenses with the same name
+                <Checkbox toggle style={{ float: 'right' }} />
+              </div>
+            </Segment>
           )}
         </Card.Content>
       </Card>
