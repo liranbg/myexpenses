@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { Menu, Container } from 'semantic-ui-react';
+import { Icon, Menu, Container } from 'semantic-ui-react';
 import ExpensesPage from '../Expenses/Expenses';
 import { ChartsPage } from '../Charts/Charts';
 import TagsPage from '../Tags/Tags';
@@ -28,17 +28,18 @@ Main.propTypes = {
 const Header = () => (
   <Menu fixed="top" inverted>
     <Container>
-      <Menu.Item as="a" header>
-        Project Name
+      <Menu.Item header>
+        <Icon name="won" />
+        My Expenses
       </Menu.Item>
-      <Menu.Item>
-        <Link to="/expenses">Expenses</Link>
+      <Menu.Item as={Link} to={'/expenses'}>
+        Expenses
       </Menu.Item>
-      <Menu.Item>
-        <Link to="/tags">Tags</Link>
+      <Menu.Item as={Link} to={'/tags'}>
+        Tags
       </Menu.Item>
-      <Menu.Item>
-        <Link to="/charts">Charts</Link>
+      <Menu.Item as={Link} to={'/charts'}>
+        Charts
       </Menu.Item>
     </Container>
   </Menu>
