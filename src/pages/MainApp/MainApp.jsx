@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { Icon, Menu, Container } from 'semantic-ui-react';
+import { Segment, Icon, Menu, Container } from 'semantic-ui-react';
 import ExpensesPage from '../Expenses/Expenses';
 import { ChartsPage } from '../Charts/Charts';
 import TagsPage from '../Tags/Tags';
@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import './MainApp.css';
 
 const Main = ({ store }) => (
-  <Container style={{ marginTop: '4em' }}>
+  <Container>
     <Provider store={store}>
       <Switch>
         <Route exact path="/" render={() => <Redirect to="/expenses" />} />
@@ -25,25 +25,51 @@ Main.propTypes = {
   store: PropTypes.object.isRequired
 };
 
-const Header = () => (
-  <Menu fixed="top" inverted>
-    <Container>
-      <Menu.Item header>
-        <Icon name="won" />
-        My Expenses
-      </Menu.Item>
-      <Menu.Item as={Link} to={'/expenses'}>
-        Expenses
-      </Menu.Item>
-      <Menu.Item as={Link} to={'/tags'}>
-        Tags
-      </Menu.Item>
-      <Menu.Item as={Link} to={'/charts'}>
-        Charts
-      </Menu.Item>
-    </Container>
-  </Menu>
-);
+class Header extends Component {
+  state = { activeItem: '/expenses' };
+
+  handleItemClick = (e, { to }) => this.setState({ activeItem: to });
+
+  render() {
+    const { activeItem } = this.state;
+    return (
+      <Segment inverted>
+        <Menu inverted pointing secondary>
+          <Container>
+            <Menu.Item header>
+              <Icon name="won" />
+              My Expenses
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              active={activeItem === '/expenses'}
+              to={'/expenses'}
+              onClick={this.handleItemClick}
+            >
+              Expenses
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              active={activeItem === '/tags'}
+              to={'/tags'}
+              onClick={this.handleItemClick}
+            >
+              Tags
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              active={activeItem === '/charts'}
+              to={'/charts'}
+              onClick={this.handleItemClick}
+            >
+              Charts
+            </Menu.Item>
+          </Container>
+        </Menu>
+      </Segment>
+    );
+  }
+}
 
 export default class MainApp extends Component {
   render() {

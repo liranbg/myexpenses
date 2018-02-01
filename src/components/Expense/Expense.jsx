@@ -7,13 +7,12 @@ import {
   Card,
   Icon,
   Checkbox,
-  Divider,
   Segment
 } from 'semantic-ui-react';
 import { Expense, Tag } from '../../interfaces/interfaces';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { incTagUses, setExpenseTag, unsetExpenseTag } from '../../actions';
+import { incTagUses, setExpenseTag } from '../../actions';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 
@@ -23,11 +22,22 @@ class ExpenseCard extends Component {
   }
 
   resetSearchComponent = () =>
-    this.setState({ isLoading: false, results: [], value: '' });
+    this.setState({
+      isLoading: false,
+      results: [],
+      value: '',
+      applyForAll: false
+    });
 
   handleResultSelect = (e, { result }) => {
     this.setState({ value: result.title });
-    this.props.dispatch(setExpenseTag(this.props.expense.key, result.title));
+    this.props.dispatch(
+      setExpenseTag(
+        this.props.expense.key,
+        result.title,
+        this.state.applyForAll
+      )
+    );
     this.props.dispatch(incTagUses(result.key));
   };
 
@@ -98,7 +108,14 @@ class ExpenseCard extends Component {
               />
               <div style={{ marginTop: 20 }}>
                 Apply for all expenses with the same name
-                <Checkbox toggle style={{ float: 'right' }} />
+                <Checkbox
+                  toggle
+                  style={{ float: 'right' }}
+                  checked={this.state.applyForAll}
+                  onChange={() =>
+                    this.setState({ applyForAll: !this.state.applyForAll })
+                  }
+                />
               </div>
             </Segment>
           )}

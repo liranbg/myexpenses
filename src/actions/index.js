@@ -17,8 +17,11 @@ export function incTagUses(tagKey) {
   return { type: INC_TAG, payload: { key: tagKey } };
 }
 
-export function setExpenseTag(expenseKey, tagName) {
-  return { type: SET_TAG, payload: { key: expenseKey, tag: tagName } };
+export function setExpenseTag(expenseKey, tagName, applyForAll = false) {
+  return {
+    type: SET_TAG,
+    payload: { key: expenseKey, tag: tagName, applyForAll: applyForAll }
+  };
 }
 
 export function unsetExpenseTag(expenseKey) {
