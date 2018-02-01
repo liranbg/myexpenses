@@ -7,13 +7,12 @@ import {
   Card,
   Icon,
   Checkbox,
-  Divider,
   Segment
 } from 'semantic-ui-react';
 import { Expense, Tag } from '../../interfaces/interfaces';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { incTagUses, setExpenseTag, unsetExpenseTag } from '../../actions';
+import { incTagUses, setExpenseTag } from '../../actions';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 

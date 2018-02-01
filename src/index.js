@@ -9,7 +9,10 @@ import expensesApp from './reducers/index';
 const expenses = require('./mocks/expenses');
 const tags = require('./mocks/tags');
 
-const store = createStore(expensesApp, { expenses: expenses, tags: tags });
+const store = createStore(expensesApp, {
+  expenses: expenses,
+  tags: tags
+});
 
 ReactDOM.render(
   <BrowserRouter>
