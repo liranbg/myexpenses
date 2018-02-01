@@ -5,15 +5,8 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "precommit": "lint-staged",
     "start": "parcel ./src/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx}": [
-      "prettier --single-quote --write",
-      "git add"
-    ]
   },
   "keywords": [],
   "author": "",
@@ -37,9 +30,6 @@
     "semantic-ui-react": "^0.77.2"
   },
   "devDependencies": {
-    "babel-preset-react-app": "^3.1.1",
-    "husky": "^0.14.3",
-    "lint-staged": "^6.1.0",
-    "prettier": "1.10.2"
+    "babel-preset-react-app": "^3.1.1"
   }
 }
