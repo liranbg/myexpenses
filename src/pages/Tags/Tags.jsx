@@ -14,7 +14,7 @@ import { addTag, deleteTag } from '../../actions';
 class TagsPage extends Component {
   constructor(props) {
     super(props);
-    this.state = { newTagName: '' };
+    this.state = {newTagName: ''};
 
     this.addTag = this.addTag.bind(this);
     this.newTagNameInputHandler = this.newTagNameInputHandler.bind(this);
@@ -40,7 +40,7 @@ class TagsPage extends Component {
   }
 
   newTagNameInputHandler(e) {
-    this.setState({ newTagName: this.jsUcfirst(e.target.value) });
+    this.setState({newTagName: this.jsUcfirst(e.target.value)});
   }
 
   newTagNameKeyPressed(e) {
@@ -51,8 +51,8 @@ class TagsPage extends Component {
     return (
       <Container>
         <h1 className="App-Title">1 React-Parcel Example</h1>
-        {this.props.tags.map(tag => (
-          <Segment key={tag.key}>
+        {this.props.tags.map((tag, index) => (
+          <Segment key={index}>
             <Button
               compact
               negative
@@ -62,7 +62,7 @@ class TagsPage extends Component {
               size="small"
               onClick={() => this.deleteTag(tag)}
             />
-            <Icon name="tag" /> {tag.name}{' '}
+            <Icon name="tag"/> {tag.name}{' '}
             <Label circular>{tag.uses} uses</Label>
           </Segment>
         ))}
@@ -90,5 +90,5 @@ class TagsPage extends Component {
   }
 }
 
-TagsPage = connect(state => ({ tags: state.tags }))(TagsPage);
+TagsPage = connect(state => ({tags: state.tags}))(TagsPage);
 export default TagsPage;
