@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  Header,
   Container,
   Segment,
   Button,
@@ -8,7 +9,7 @@ import {
   Input
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import { addTag, deleteTag } from '../../actions';
+import { addTag, deleteTag, filterExpensesByTag } from '../../actions';
 import { Tag } from "../../interfaces";
 import PropTypes from "prop-types";
 
@@ -51,7 +52,7 @@ class TagsPage extends Component {
   render() {
     return (
       <Container>
-        <h1 className="App-Title">1 React-Parcel Example</h1>
+        <Header size="huge" content="Tags"/>
         {this.props.tags.map((tag, index) => (
           <Segment key={index}>
             <Button
@@ -64,7 +65,12 @@ class TagsPage extends Component {
               onClick={() => this.deleteTag(tag)}
             />
             <Icon name="tag"/> {tag.name}{' '}
-            <Label circular>{tag.uses} uses</Label>
+            <Label circular as={"a"} onClick={() => {
+              this.props.dispatch(filterExpensesByTag(tag.name, true));
+              this.props.history.replace("/expenses")
+            }
+
+            }>{tag.uses} uses</Label>
           </Segment>
         ))}
         <Segment>

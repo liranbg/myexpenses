@@ -4,6 +4,8 @@ import { FILTER_EXPENSES_BY_TAG, REM_FILTER_EXPENSES_BY_TAG } from '../actions';
 const expensesView = (state = [], action) => {
   switch (action.type) {
     case FILTER_EXPENSES_BY_TAG:
+      if (action.payload.replaceAll)
+        return {...state, filterTags: [action.payload.tagName]};
       return {...state, filterTags: _.union(state.filterTags, [action.payload.tagName])};
     case REM_FILTER_EXPENSES_BY_TAG:
       return {...state, filterTags: state.filterTags.filter(e => e !== action.payload.tagName)};
