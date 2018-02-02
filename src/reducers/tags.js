@@ -8,7 +8,7 @@ const tags = (state = [], action) => {
     case ADD_TAG:
       return [...state, { ...action.payload }];
     case REMOVE_TAG:
-      return state.filter(f => f.key !== action.payload.key);
+      return [...state.filter(f => f.key !== action.payload.key)];
     default:
       return state;
   }
