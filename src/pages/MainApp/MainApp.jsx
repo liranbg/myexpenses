@@ -1,43 +1,36 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
-import { Provider } from 'react-redux';
 import { Segment, Icon, Menu, Container } from 'semantic-ui-react';
 import ExpensesPage from '../Expenses/Expenses';
 import { ChartsPage } from '../Charts/Charts';
 import TagsPage from '../Tags/Tags';
-import PropTypes from 'prop-types';
+import { BrowserRouter } from 'react-router-dom';
 import './MainApp.css';
 
-const Main = ({ store }) => (
+const Main = () => (
   <Container>
-    <Provider store={store}>
-      <Switch>
-        <Route exact path="/" render={() => <Redirect to="/expenses" />} />
-        <Route exact path="/expenses" component={ExpensesPage} />
-        <Route exact path="/tags" component={TagsPage} />
-        <Route exact path="/charts" component={ChartsPage} />
-      </Switch>
-    </Provider>
+    <Switch>
+      <Route exact path="/" render={() => <Redirect to="/expenses"/>}/>
+      <Route exact path="/expenses" component={ExpensesPage}/>
+      <Route exact path="/tags" component={TagsPage}/>
+      <Route exact path="/charts" component={ChartsPage}/>
+    </Switch>
   </Container>
 );
 
-Main.propTypes = {
-  store: PropTypes.object.isRequired
-};
-
 class Header extends Component {
-  state = { activeItem: '/expenses' };
+  state = {activeItem: '/expenses'};
 
-  handleItemClick = (e, { to }) => this.setState({ activeItem: to });
+  handleItemClick = (e, {to}) => this.setState({activeItem: to});
 
   render() {
-    const { activeItem } = this.state;
+    const {activeItem} = this.state;
     return (
       <Segment inverted>
         <Menu inverted pointing secondary>
           <Container>
             <Menu.Item header>
-              <Icon name="won" />
+              <Icon name="won"/>
               My Expenses
             </Menu.Item>
             <Menu.Item
@@ -74,14 +67,12 @@ class Header extends Component {
 export default class MainApp extends Component {
   render() {
     return (
-      <div className="App">
-        <Header />
-        <Main store={this.props.store} />
-      </div>
+      <BrowserRouter>
+        <div className="App">
+          <Header/>
+          <Main/>
+        </div>
+      </BrowserRouter>
     );
   }
 }
-
-MainApp.propTypes = {
-  store: PropTypes.object.isRequired
-};
