@@ -6,7 +6,7 @@ const expensesView = (state = [], action) => {
     case FILTER_EXPENSES_BY_TAG:
       return {...state, filterTags: _.union(state.filterTags, [action.payload.tagName])};
     case REM_FILTER_EXPENSES_BY_TAG:
-      return {...state, filterTags: _.filter(state.filterTags, [action.payload.tagName])};
+      return {...state, filterTags: state.filterTags.filter(e => e !== action.payload.tagName)};
     default:
       return state;
   }

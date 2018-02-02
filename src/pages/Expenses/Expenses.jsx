@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import {
+  Segment,
   Checkbox,
   Header,
   Card,
@@ -9,7 +10,8 @@ import {
   Input,
   Divider
 } from 'semantic-ui-react';
-import { Expense } from '../../interfaces/interfaces';
+import PropTypes from 'prop-types';
+import { Expense, Tag } from '../../interfaces';
 import ExpenseCard from '../../components/Expense/Expense';
 import { connect } from 'react-redux';
 import { filterExpensesByTag, remFilterExpensesByTag } from "../../actions";
@@ -18,7 +20,6 @@ class ExpensesPage extends Component {
   constructor() {
     super();
     this.state = {
-      tagsList: [],
       isLoading: false,
       results: [],
       value: '',
@@ -27,7 +28,6 @@ class ExpensesPage extends Component {
 
   componentWillMount() {
     this.resetSearchComponent();
-    this.setState({tagsList: new Set(this.props.expenses.filter(e => e.tag).map(e => e.tag))});
   }
 
   resetSearchComponent = () => {
@@ -54,7 +54,7 @@ class ExpensesPage extends Component {
       let results = _.filter(this.props.expenses, isMatch);
       this.setState({
         isLoading: false,
-        results: results.map((expense: Expense) => ({
+        results: results.map((expense) => ({
           ...expense,
           title: expense.name
         }))
@@ -70,8 +70,8 @@ class ExpensesPage extends Component {
   };
 
   render() {
-    const {tagsList, isLoading, value, results} = this.state;
-    const expensesToDisplay = this.props.expenses;
+    const {isLoading, value, results} = this.state;
+    const {expenses, tags} = this.props;
     return (
       <Container>
         <Header size="huge">My Expenses</Header>
@@ -91,21 +91,25 @@ class ExpensesPage extends Component {
             />
           }
         />
-        <Divider/>
-        {
-          Array.from(tagsList).map(tagName => (
-            <Checkbox checked={this.props.expensesView.filterTags.indexOf(tagName) !== -1}
-                      label={tagName}
-                      key={tagName}
-                      onClick={this.handleFilterByTag}
-            />)
-          )
-        }
+        <Segment.Group horizontal>
+          {
+            tags.map(tag => (
+              <Segment key={tag.key}>
+                <Checkbox checked={this.props.expensesView.filterTags.indexOf(tag.name) !== -1}
+                          label={tag.name}
+
+                          onClick={this.handleFilterByTag}
+                />
+              </Segment>
+            ))}
+        </Segment.Group>
         <Divider/>
         <Card.Group itemsPerRow={3}>
-          {expensesToDisplay.map((expense: Expense, i) => (
-            <ExpenseCard key={i} expense={expense}/>
-          ))}
+          {
+            expenses.map((expense, i) => (
+              <ExpenseCard key={i} expense={expense}/>
+            ))
+          }
         </Card.Group>
       </Container>
     );
@@ -119,7 +123,12 @@ const getExpensesFilterByTags = (expenses, tags) => {
 
 const mapStateToProps = state => ({
   expenses: getExpensesFilterByTags(state.expenses, state.expensesView.filterTags),
-  expensesView: state.expensesView
+  expensesView: state.expensesView,
+  tags: state.tags
 });
 ExpensesPage = connect(mapStateToProps)(ExpensesPage);
+ExpensesPage.propTypes = {
+  expenses: PropTypes.arrayOf(Expense),
+  tags: PropTypes.arrayOf(Tag),
+};
 export default ExpensesPage;

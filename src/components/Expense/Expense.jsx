@@ -11,7 +11,6 @@ import {
   Checkbox,
   Segment
 } from 'semantic-ui-react';
-import { Expense, Tag } from '../../interfaces/interfaces';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { filterExpensesByTag, incTagUses, setExpenseTag } from '../../actions';
@@ -46,7 +45,7 @@ class ExpenseCard extends Component {
       let results = _.filter(this.props.tags, isMatch);
       this.setState({
         isLoading: false,
-        results: results.map((tag: Tag) => ({...tag, title: tag.name}))
+        results: results.map((tag) => ({...tag, title: tag.name}))
       });
     }, 100);
   };
@@ -56,7 +55,7 @@ class ExpenseCard extends Component {
   };
 
   render() {
-    let expense: Expense = this.props.expense;
+    let expense = this.props.expense;
     const {isLoading, value, results} = this.state;
     return (
       <Card>

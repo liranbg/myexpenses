@@ -7,7 +7,6 @@ import {
   Label,
   Input
 } from 'semantic-ui-react';
-import { Tag } from '../../interfaces/interfaces';
 import { connect } from 'react-redux';
 import { addTag, deleteTag } from '../../actions';
 
@@ -21,14 +20,14 @@ class TagsPage extends Component {
     this.newTagNameKeyPressed = this.newTagNameKeyPressed.bind(this);
   }
 
-  deleteTag(tag: Tag) {
+  deleteTag(tag) {
     this.props.dispatch(deleteTag(tag.key));
   }
 
   addTag() {
     if (!this.state.newTagName.trim()) return;
-    let newTag: Tag = {
-      id: this.props.tags.length + 1,
+    let newTag = {
+      key: this.props.tags.length + 10,
       name: this.state.newTagName.trim(),
       uses: 0
     };
