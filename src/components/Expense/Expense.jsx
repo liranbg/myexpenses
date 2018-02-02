@@ -13,7 +13,7 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { filterExpensesByTag, incTagUses, setExpenseTag } from '../../actions';
+import { filterExpensesByTag, incTagUses, setExpenseTag, decTagUses } from '../../actions';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 
@@ -22,16 +22,20 @@ class ExpenseCard extends Component {
     this.resetSearchComponent();
   }
 
+  isExpenseUntagged = () => this.props.expense.tag === "Untagged";
+
   resetSearchComponent = () =>
     this.setState({
       isLoading: false,
       results: [],
-      value: this.props.expense.tag || "",
+      value: "",
       applyForAll: false
     });
 
   handleResultSelect = (e, {result}) => {
     this.setState({value: result.title});
+    let prevTagKey = this.props.tags.find(tag => tag.name === this.props.expense.tag).key;
+    this.props.dispatch(decTagUses(prevTagKey));
     this.props.dispatch(setExpenseTag(this.props.expense.key, result.title, this.state.applyForAll));
     this.props.dispatch(incTagUses(result.key));
   };
@@ -50,6 +54,15 @@ class ExpenseCard extends Component {
     }, 100);
   };
 
+  deleteExpenseTag = () => {
+    let untaggedTag = this.props.tags.find(tag=>tag.name === "Untagged");
+    let prevTagKey = this.props.tags.find(tag => tag.name === this.props.expense.tag).key;
+    this.props.dispatch(setExpenseTag(this.props.expense.key, untaggedTag.name));
+    this.props.dispatch(incTagUses(untaggedTag.key));
+    this.props.dispatch(decTagUses(prevTagKey));
+    this.resetSearchComponent();
+  };
+
   handleFilterByTag = (e, {content}) => {
     this.props.dispatch(filterExpensesByTag(content));
   };
@@ -65,7 +78,14 @@ class ExpenseCard extends Component {
                  icon={<Icon name="tag"/>}
                  content={expense.tag || "Untagged"}
           />
-          <Button floated="right" compact basic negative icon={{name: "trash"}} size="mini"/></Segment>
+          {
+            this.isExpenseUntagged() ? null :
+              <Button floated="right" compact basic negative
+                      onClick={this.deleteExpenseTag}
+                      icon={{name: "trash"}} size="mini"/>
+          }
+
+        </Segment>
         <Card.Header as="h1" content={expense.name} textAlign="center" style={{margin: 12}}/>
         <Card.Content>
           <Card.Meta>
@@ -89,9 +109,22 @@ class ExpenseCard extends Component {
           </Card.Meta>
           <Card.Description>{expense.notes}</Card.Description>
         </Card.Content>
+        {!this.isExpenseUntagged() ? null :
         <Card.Content extra>
           <Segment vertical>
+            <Container>
+              Apply for all expenses with the same name
+              <Checkbox
+                toggle
+                style={{float: 'right'}}
+                checked={this.state.applyForAll}
+                onChange={() =>
+                  this.setState({applyForAll: !this.state.applyForAll})
+                }
+              />
+            </Container>
             <Search
+              style={{marginTop: 20}}
               loading={isLoading}
               onResultSelect={this.handleResultSelect}
               onSearchChange={this.handleSearchChange}
@@ -106,22 +139,10 @@ class ExpenseCard extends Component {
                 />
               }
             />
-            <Container style={{marginTop: 20}}>
-              Apply for all expenses with the same name
-              <Checkbox
-                toggle
-                style={{float: 'right'}}
-                checked={this.state.applyForAll}
-                onChange={() =>
-                  this.setState({applyForAll: !this.state.applyForAll})
-                }
-              />
-            </Container>
-          </Segment></Card.Content>
-        {!expense.tag ? (
-          null
-        ) : null}
 
+          </Segment>
+        </Card.Content>
+        }
       </Card>
     );
   }

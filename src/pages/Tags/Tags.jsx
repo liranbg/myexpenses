@@ -9,6 +9,8 @@ import {
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { addTag, deleteTag } from '../../actions';
+import { Tag } from "../../interfaces";
+import PropTypes from "prop-types";
 
 class TagsPage extends Component {
   constructor(props) {
@@ -27,7 +29,7 @@ class TagsPage extends Component {
   addTag() {
     if (!this.state.newTagName.trim()) return;
     let newTag = {
-      key: this.props.tags.length + 10,
+      key: (this.props.tags.length + 10).toString(),
       name: this.state.newTagName.trim(),
       uses: 0
     };
@@ -89,5 +91,8 @@ class TagsPage extends Component {
   }
 }
 
+TagsPage.propTypes = {
+  tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+};
 TagsPage = connect(state => ({tags: state.tags}))(TagsPage);
 export default TagsPage;

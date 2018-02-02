@@ -14,3 +14,7 @@ export const Expense = {
   tag: PropTypes.string,
   currency: PropTypes.string
 };
+
+export const ExpensesView = {
+  filterTags: PropTypes.arrayOf(PropTypes.string)
+};

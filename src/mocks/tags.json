@@ -1,26 +1,31 @@
 [
   {
-    "key": 1,
+    "key": "0",
+    "name": "Untagged",
+    "uses": 4
+  },
+  {
+    "key": "1",
     "name": "Fuel",
     "uses": 0
   },
   {
-    "key": 2,
+    "key": "2",
     "name": "Entertainment",
     "uses": 0
   },
   {
-    "key": 3,
+    "key": "3",
     "name": "Food",
     "uses": 1
   },
   {
-    "key": 4,
+    "key": "4",
     "name": "Health",
     "uses": 0
   },
   {
-    "key": 5,
+    "key": "5",
     "name": "HealthB",
     "uses": 0
   }

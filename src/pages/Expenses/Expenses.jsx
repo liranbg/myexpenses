@@ -11,7 +11,7 @@ import {
   Divider
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import { Expense, Tag } from '../../interfaces';
+import { Expense, ExpensesView, Tag } from '../../interfaces';
 import ExpenseCard from '../../components/Expense/Expense';
 import { connect } from 'react-redux';
 import { filterExpensesByTag, remFilterExpensesByTag } from "../../actions";
@@ -71,7 +71,7 @@ class ExpensesPage extends Component {
 
   render() {
     const {isLoading, value, results} = this.state;
-    const {expenses, tags} = this.props;
+    const {expenses, tags, expensesView} = this.props;
     return (
       <Container>
         <Header size="huge">My Expenses</Header>
@@ -95,7 +95,7 @@ class ExpensesPage extends Component {
           {
             tags.map(tag => (
               <Segment key={tag.key}>
-                <Checkbox checked={this.props.expensesView.filterTags.indexOf(tag.name) !== -1}
+                <Checkbox checked={expensesView.filterTags.indexOf(tag.name) !== -1}
                           label={tag.name}
 
                           onClick={this.handleFilterByTag}
@@ -121,14 +121,15 @@ const getExpensesFilterByTags = (expenses, tags) => {
   else return _.filter(expenses, (expense) => _.includes(tags, expense.tag));
 };
 
+ExpensesPage.propTypes = {
+  expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
+  tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+  expensesView: PropTypes.shape(ExpensesView)
+};
 const mapStateToProps = state => ({
   expenses: getExpensesFilterByTags(state.expenses, state.expensesView.filterTags),
   expensesView: state.expensesView,
   tags: state.tags
 });
 ExpensesPage = connect(mapStateToProps)(ExpensesPage);
-ExpensesPage.propTypes = {
-  expenses: PropTypes.arrayOf(Expense),
-  tags: PropTypes.arrayOf(Tag),
-};
 export default ExpensesPage;
