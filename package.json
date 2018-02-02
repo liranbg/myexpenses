@@ -12,24 +12,24 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-react": "^6.24.1",
     "chart.js": "^2.7.1",
     "dateformat": "^3.0.2",
+    "history": "^4.7.2",
     "lodash": "^4.17.4",
-    "parcel-bundler": "^1.5.1",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-chartjs-2": "^2.7.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
-    "react-router-dom": "^4.2.2",
+    "react-router-redux": "^5.0.0-alpha.9",
     "react-timeago": "^3.4.3",
     "redux": "^3.7.2",
     "semantic-ui-css": "^2.2.14",
-    "semantic-ui-react": "^0.77.2"
+    "semantic-ui-react": "^0.77.2",
+    "react-router": "latest"
   },
   "devDependencies": {
-    "babel-preset-react-app": "^3.1.1"
+    "babel-preset-react-app": "^3.1.1",
+    "parcel-bundler": "^1.5.1"
   }
 }

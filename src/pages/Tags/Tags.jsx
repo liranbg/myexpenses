@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import { addTag, deleteTag, filterExpensesByTag } from '../../actions';
 import { Tag } from "../../interfaces";
 import PropTypes from "prop-types";
+import { push } from "react-router-redux";
 
 class TagsPage extends Component {
   constructor(props) {
@@ -67,7 +68,7 @@ class TagsPage extends Component {
             <Icon name="tag"/> {tag.name}{' '}
             <Label circular as={"a"} onClick={() => {
               this.props.dispatch(filterExpensesByTag(tag.name, true));
-              this.props.history.replace("/expenses")
+              this.props.dispatch(push("/expenses"));
             }
 
             }>{tag.uses} uses</Label>
