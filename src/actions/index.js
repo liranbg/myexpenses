@@ -17,8 +17,8 @@ export function deleteTag(tagKey) {
   return {type: REMOVE_TAG, payload: {key: tagKey}};
 }
 
-export function filterExpensesByTag(tagName) {
-  return {type: FILTER_EXPENSES_BY_TAG, payload: {'tagName': tagName}};
+export function filterExpensesByTag(tagName, replaceAll=false) {
+  return {type: FILTER_EXPENSES_BY_TAG, payload: {'tagName': tagName, 'replaceAll': replaceAll}};
 }
 
 export function remFilterExpensesByTag(tagName) {

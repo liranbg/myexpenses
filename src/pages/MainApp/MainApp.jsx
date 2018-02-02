@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
 import { Segment, Icon, Menu, Container } from 'semantic-ui-react';
 import ExpensesPage from '../Expenses/Expenses';
-import { ChartsPage } from '../Charts/Charts';
+import ChartsPage  from '../Charts/Charts';
 import TagsPage from '../Tags/Tags';
 import { BrowserRouter } from 'react-router-dom';
 import './MainApp.css';

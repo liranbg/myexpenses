@@ -74,7 +74,7 @@ class ExpensesPage extends Component {
     const {expenses, tags, expensesView} = this.props;
     return (
       <Container>
-        <Header size="huge">My Expenses</Header>
+        <Header size="huge" content="My Expenses"/>
         <Divider/>
         <Search
           loading={isLoading}
@@ -97,7 +97,6 @@ class ExpensesPage extends Component {
               <Segment key={tag.key}>
                 <Checkbox checked={expensesView.filterTags.indexOf(tag.name) !== -1}
                           label={tag.name}
-
                           onClick={this.handleFilterByTag}
                 />
               </Segment>
