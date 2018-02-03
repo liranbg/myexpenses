@@ -1,56 +1,60 @@
 import React, { Component } from 'react';
-import { Header, Button, Grid, Message, Form, Segment, Container } from 'semantic-ui-react';
-import { auth } from '../../firebase';
+import { Loader, Dimmer, Header, Grid, Container, Segment } from 'semantic-ui-react';
+import { auth, firebase } from '../../firebase';
 import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { setUser } from "../../actions";
+import GoogleButton from '../../components/GoogleLoginButton';
 
-
-const INITIAL_STATE = {
-  email: '',
-  password: '',
-  error: null,
-};
 
 class SignInForm extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {...INITIAL_STATE};
     this.state = {
-      email: 'liranbg@gmail.com',
-      password: 'G6K*$BAq*h45W1df',
-      error: {message: "Demo Bad Credentials"}
+      loginLoading: !!localStorage.getItem('auth')
     };
   }
 
-  onSubmit = (event) => {
-    const {
-      email,
-      password,
-    } = this.state;
+  setAuthRemember = () => localStorage.setItem('auth', {status: "inProcess"});
 
-    this.props.dispatch(setUser({email: email}));
-    // this.props.dispatch(push("/expenses"));
+  rememberAfterRedirect = () => localStorage.getItem('auth');
 
-    // auth.doSignInWithEmailAndPassword(email, password)
-    // .then((e) => {
-    //   console.log(e);
-    //   this.setState(() => ({...INITIAL_STATE}));
-    //   this.props.dispatch({type: "AUTH_USER_SET", authUser: {email: e.email}});
-    //   this.props.dispatch(push("/expenses"));
-    // })
-    // .catch(error => {
-    //   this.setState({error: error});
-    // });
-    // event.preventDefault();
+  deleteAuthRemember = () => localStorage.removeItem('auth');
+
+  setLoading = () => this.setState({loginLoading: true});
+
+  backFromAuthPage() {
+    if (this.rememberAfterRedirect()) {
+      this.setLoading();
+      this.deleteAuthRemember();
+    }
+  }
+
+  handleGoogleLogin = () => {
+    this.setAuthRemember();
+    this.setLoading();
+    firebase.auth.signInWithRedirect(firebase.authGoogleProvider);
   };
 
+  componentWillMount() {
+    // After coming back from auth-redirect
+    this.backFromAuthPage();
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // store the token
+        this.props.dispatch(setUser(user));
+        this.props.dispatch(push("/expenses"));
+      }
+    });
+  }
+
   render() {
-    const {email, password, error} = this.state;
-
-    const isInvalid = password === '' || email === '';
-
+    if (this.state.loginLoading)
+      return (
+        <Dimmer active={this.state.loginLoading}>
+          <Loader active={this.state.loginLoading} size='huge'>Loading</Loader>
+        </Dimmer>
+      );
     return (
       <Container>
         <Grid
@@ -59,31 +63,10 @@ class SignInForm extends Component {
           verticalAlign='middle'
         >
           <Grid.Column style={{maxWidth: 450}}>
-            <Header as='h2' color='teal' textAlign='center' content="Log-in to your account"/>
-            <Form size='large' onSubmit={this.onSubmit}>
-              <Segment stacked>
-                <Form.Input
-                  fluid
-                  value={email}
-                  onChange={event => this.setState({email: event.target.value})}
-                  icon='user'
-                  iconPosition='left'
-                  placeholder='Email Address'
-                />
-                <Form.Input
-                  fluid
-                  value={password}
-                  onChange={event => this.setState({password: event.target.value})}
-                  icon='lock'
-                  iconPosition='left'
-                  placeholder='Password'
-                  autoComplete='true'
-                  type='password'
-                />
-                <Button disabled={isInvalid} color='teal' fluid size='large'>Sign In</Button>
-              </Segment>
-            </Form>
-            {error && <Message negative content={error.message}/>}
+            <Segment padded>
+              <Header textAlign='center' content="Sign In"/>
+              <GoogleButton style={{width: -1}} onClick={this.handleGoogleLogin} type={"dark"}/>
+            </Segment>
           </Grid.Column>
         </Grid>
       </Container>
