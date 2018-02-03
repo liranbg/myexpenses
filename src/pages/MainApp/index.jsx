@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router';
-import ExpensesPage from '../Expenses/Expenses';
+import ExpensesPage from '../Expenses';
 import { ConnectedRouter } from 'react-router-redux';
-import ChartsPage from '../Charts/Charts';
-import TagsPage from '../Tags/Tags';
-import Header from '../../components/Header/Header'
+import ChartsPage from '../Charts';
+import TagsPage from '../Tags';
+import Header from '../../components/Header';
+import SignIn from '../SignIn';
 
 export default class MainApp extends Component {
   render() {
@@ -13,6 +14,7 @@ export default class MainApp extends Component {
         <Header/>
         <ConnectedRouter history={this.props.history}>
           <div>
+            <Route exact path="/signin" component={SignIn}/>
             <Route exact path="/expenses" component={ExpensesPage}/>
             <Route exact path="/tags" component={TagsPage}/>
             <Route exact path="/charts" component={ChartsPage}/>

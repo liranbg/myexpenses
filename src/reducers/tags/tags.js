@@ -1,6 +1,6 @@
-import { INC_TAG, ADD_TAG, REMOVE_TAG, DEC_TAG } from '../actions';
+import { INC_TAG, ADD_TAG, REMOVE_TAG, DEC_TAG } from '../../actions';
 
-const tags = (state = [], action) => {
+const tagsReducer = (state = [], action) => {
   switch (action.type) {
     case DEC_TAG:
       state.find(s => s.key === action.payload.key).uses--;
@@ -9,7 +9,7 @@ const tags = (state = [], action) => {
       state.find(s => s.key === action.payload.key).uses++;
       return [...state];
     case ADD_TAG:
-      return [...state, { ...action.payload }];
+      return [...state, {...action.payload}];
     case REMOVE_TAG:
       return [...state.filter(f => f.key !== action.payload.key)];
     default:
@@ -17,4 +17,4 @@ const tags = (state = [], action) => {
   }
 };
 
-export default tags;
+export default tagsReducer;

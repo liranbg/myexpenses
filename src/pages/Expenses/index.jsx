@@ -11,8 +11,8 @@ import {
   Divider
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import { Expense, ExpensesView, Tag } from '../../interfaces';
-import ExpenseCard from '../../components/Expense/Expense';
+import { Expense, ExpensesView, Tag } from '../../proptypes';
+import ExpenseCard from '../../components/Expense';
 import { connect } from 'react-redux';
 import { filterExpensesByTag, remFilterExpensesByTag } from "../../actions";
 

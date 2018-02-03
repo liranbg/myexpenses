@@ -3,7 +3,7 @@ import { Header, Card, Container } from 'semantic-ui-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Expense, Tag } from "../../interfaces";
+import { Expense, Tag } from "../../proptypes";
 
 export class ChartsPage extends Component {
   componentWillMount() {

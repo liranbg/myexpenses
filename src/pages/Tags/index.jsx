@@ -10,7 +10,7 @@ import {
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { addTag, deleteTag, filterExpensesByTag } from '../../actions';
-import { Tag } from "../../interfaces";
+import { Tag } from "../../proptypes";
 import PropTypes from "prop-types";
 import { push } from "react-router-redux";
 
@@ -101,5 +101,5 @@ class TagsPage extends Component {
 TagsPage.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
 };
-TagsPage = connect(state => ({tags: state.tags}))(TagsPage);
+TagsPage = connect(state => ({tags: state.tags, session:state.sessionState, user:state.userState}))(TagsPage);
 export default TagsPage;

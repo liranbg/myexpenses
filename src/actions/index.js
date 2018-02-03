@@ -9,6 +9,12 @@ export const UNSET_TAG = 'UNSET_TAG';
 export const FILTER_EXPENSES_BY_TAG = 'FILTER_EXPENSES_BY_TAG';
 export const REM_FILTER_EXPENSES_BY_TAG = 'REM_FILTER_EXPENSES_BY_TAG';
 
+export const SET_USER = 'SET_USER';
+
+export function setUser(authUser) {
+  return {type: SET_USER, payload: authUser};
+}
+
 export function addTag(tag) {
   return {type: ADD_TAG, payload: tag};
 }
@@ -17,7 +23,7 @@ export function deleteTag(tagKey) {
   return {type: REMOVE_TAG, payload: {key: tagKey}};
 }
 
-export function filterExpensesByTag(tagName, replaceAll=false) {
+export function filterExpensesByTag(tagName, replaceAll = false) {
   return {type: FILTER_EXPENSES_BY_TAG, payload: {'tagName': tagName, 'replaceAll': replaceAll}};
 }
 
