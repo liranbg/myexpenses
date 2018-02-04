@@ -1,5 +1,6 @@
 export const INC_TAG = 'INC_TAG';
 export const DEC_TAG = 'DEC_TAG';
+export const SET_TAGS = 'SET_TAGS';
 export const ADD_TAG = 'ADD_TAG';
 export const REMOVE_TAG = 'REMOVE_TAG';
 
@@ -37,6 +38,14 @@ export function incTagUses(tagKey) {
 
 export function decTagUses(tagKey) {
   return {type: DEC_TAG, payload: {key: tagKey}};
+}
+
+export function setTags(tags) {
+  return {
+    type: SET_TAGS,
+    payload: tags
+  };
+
 }
 
 export function setExpenseTag(expenseKey, tagName, applyForAll = false) {

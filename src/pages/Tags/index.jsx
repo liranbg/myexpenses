@@ -8,34 +8,51 @@ import {
   Label,
   Input
 } from 'semantic-ui-react';
+import { fetchTags, addTag as addTagFirebase, deleteTag as deleteTagFirebase } from '../../firebase/tags';
 import { connect } from 'react-redux';
-import { addTag, deleteTag, filterExpensesByTag } from '../../actions';
+import { addTag, deleteTag, filterExpensesByTag, setTags } from '../../actions';
 import { Tag } from "../../proptypes";
 import PropTypes from "prop-types";
 import { push } from "react-router-redux";
 
+
+const INITIAL_STATE = {newTagName: '', actionAddTagLoading: false, actionDeleteTagLoading: false};
+
 class TagsPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {newTagName: ''};
+    this.state = INITIAL_STATE;
 
     this.addTag = this.addTag.bind(this);
     this.newTagNameInputHandler = this.newTagNameInputHandler.bind(this);
     this.newTagNameKeyPressed = this.newTagNameKeyPressed.bind(this);
   }
 
+  setActionAddTagLoading = (bool) => this.setState({actionAddTagLoading: bool});
+
+  setActionDeleteTagLoading = (bool) => this.setState({actionDeleteTagLoading: bool});
+
+  componentWillMount() {
+    fetchTags().then(tags => {
+      this.props.dispatch(setTags(tags));
+    });
+  }
+
   deleteTag(tag) {
+    this.setActionDeleteTagLoading(true);
     this.props.dispatch(deleteTag(tag.key));
+    //Deletion is under the hood
+    deleteTagFirebase(tag.key).then(() => this.setActionDeleteTagLoading(false));
   }
 
   addTag() {
     if (!this.state.newTagName.trim()) return;
-    let newTag = {
-      key: (this.props.tags.length + 10).toString(),
-      name: this.state.newTagName.trim(),
-      uses: 0
-    };
-    this.props.dispatch(addTag(newTag));
+    this.setActionAddTagLoading(true);
+    let tagName = this.state.newTagName.trim();
+    addTagFirebase(tagName).then(newTag => {
+      this.setActionAddTagLoading(false);
+      this.props.dispatch(addTag(newTag));
+    });
   }
 
   jsUcfirst(s) {
@@ -59,6 +76,8 @@ class TagsPage extends Component {
             <Button
               compact
               negative
+              loading={this.state.actionDeleteTagLoading}
+              disabled={this.state.actionDeleteTagLoading}
               content="Delete"
               floated="right"
               icon={'trash'}
@@ -76,6 +95,8 @@ class TagsPage extends Component {
         ))}
         <Segment>
           <Button
+            loading={this.state.actionAddTagLoading}
+            disabled={this.state.actionAddTagLoading}
             compact
             positive
             content="Add"
@@ -101,5 +122,5 @@ class TagsPage extends Component {
 TagsPage.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
 };
-TagsPage = connect(state => ({tags: state.tags, session:state.sessionState, user:state.userState}))(TagsPage);
+TagsPage = connect(state => ({tags: state.tags}))(TagsPage);
 export default TagsPage;
