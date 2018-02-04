@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { push, replace } from "react-router-redux";
 import { connect } from "react-redux";
-import { auth } from '../../firebase';
 import {
   Item,
   Image,
@@ -26,25 +25,24 @@ const SIGNED_IN_ROUTES = [
 class Header extends Component {
 
   componentWillMount() {
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        this.props.dispatch(setUser(user));
-      }
-    });
+    // auth.onAuthStateChanged(user => {
+    //   if (user) {
+    //     this.props.dispatch(setUser(user));
+    //   }
+    // });
   }
 
   handleSignOut = () => {
-    auth.doSignOut().then(() => {
-      this.props.dispatch(setUser(null));
-      this.props.dispatch(replace("/signin"));
-    });
+    // auth.doSignOut().then(() => {
+    //   this.props.dispatch(setUser(null));
+    //   this.props.dispatch(replace("/signin"));
+    // });
 
   };
 
   handleItemClick = (e, {to}) => this.props.dispatch(replace(to));
 
   render() {
-    const {user} = this.props.session;
     let activeItem = this.props.history.location ? this.props.history.location.pathname : "";
     return (
       <Segment style={{padding: 0, backgroundColor: "#42A5F5"}}>
@@ -55,7 +53,7 @@ class Header extends Component {
               My Expenses
             </MenuItem>
             {
-              user ?
+              this.props.profile.isLoaded ?
                 SIGNED_IN_ROUTES.map(item => (
                   <MenuItem
                     style={{alignSelf: "normal"}}
@@ -77,19 +75,19 @@ class Header extends Component {
                 />
             }
             {
-              user &&
+              this.props.profile.isLoaded &&
               <Item className={"right"}>
                 <Dropdown icon={
                   <Image
                     centered
                     avatar
-                    src={user.photoURL}
-                    title={user.email}
+                    src={this.props.profile.photoURL}
+                    title={this.props.profile.email}
                   />
                 }>
                   <DropdownMenu style={{marginTop: 12}}>
                     <Dropdown.Header>
-                      Hey {user.displayName},
+                      Hey {this.props.profile.displayName},
                     </Dropdown.Header>
                     <DropdownItem
                       content="SignOut"
@@ -108,4 +106,4 @@ class Header extends Component {
 
 Header = connect((state) => ({history: state.router, session: state.session}))(Header);
 
-export default Header;
+export default connect(({ firebase: { profile } }) => ({ profile }))(Header);

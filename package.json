@@ -22,10 +22,12 @@
     "react-chartjs-2": "^2.7.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
+    "react-redux-firebase": "^2.0.3",
     "react-router": "^4.2.0",
     "react-router-redux": "^5.0.0-alpha.9",
     "react-timeago": "^3.4.3",
     "redux": "^3.7.2",
+    "redux-firestore": "^0.2.6",
     "semantic-ui-css": "^2.2.14",
     "semantic-ui-react": "^0.77.2"
   },

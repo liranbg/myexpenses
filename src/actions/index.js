@@ -7,12 +7,6 @@ export const UNSET_TAG = 'UNSET_TAG';
 export const FILTER_EXPENSES_BY_TAG = 'FILTER_EXPENSES_BY_TAG';
 export const REM_FILTER_EXPENSES_BY_TAG = 'REM_FILTER_EXPENSES_BY_TAG';
 
-export const SET_USER = 'SET_USER';
-
-export function setUser(authUser) {
-  return {type: SET_USER, payload: authUser};
-}
-
 export function deleteTag(tagKey) {
   return {type: REMOVE_TAG, payload: {key: tagKey}};
 }

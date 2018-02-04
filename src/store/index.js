@@ -1,33 +1,38 @@
 import { createStore, applyMiddleware } from 'redux';
-import { setTags } from "../actions";
 import reducers, { INITIAL_STATE } from "../reducers";
 import createHistory from "history/createBrowserHistory";
 import { routerMiddleware } from "react-router-redux";
-import { tagsCollection } from "../firebase/tags";
+import firebase  from "../firebase";
+import { reactReduxFirebase } from "react-redux-firebase";
+import { reduxFirestore } from "redux-firestore";
+import { compose } from "redux";
 
 
 const history = createHistory();
 const middleware = routerMiddleware(history);
 
 
-const useMock = false;
+const useMock = true;
 const initialState = (state) => {
   state.expenses = useMock ? require('../mocks/expenses') : [];
   state.tags = useMock ? require('../mocks/tags') : [];
   return state;
 };
 
-if (!useMock) {
-  tagsCollection.onSnapshot((docs) =>
-    store.dispatch(setTags(docs.docs.map(tag => (
-      {
-        key: tag.id,
-        ...tag.data()
-      }
-    )))));
-}
+const rrfConfig = {
+  userProfile: 'users',
+  presence: 'presence',
+  sessions: 'sessions' ,
+  useFirestoreForProfile: true
+};
 
-const store = createStore(reducers, initialState(INITIAL_STATE), applyMiddleware(middleware));
+const createStoreWithFirebase = compose(
+  reactReduxFirebase(firebase, rrfConfig),
+  reduxFirestore(firebase)
+)(createStore);
+
+
+const store = createStoreWithFirebase(reducers, initialState(INITIAL_STATE), applyMiddleware(middleware));
 
 
 export default store;

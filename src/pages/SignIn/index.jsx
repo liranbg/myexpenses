@@ -1,52 +1,59 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import { Loader, Dimmer, Header, Grid, Container, Segment } from 'semantic-ui-react';
-import { auth, firebase } from '../../firebase';
-import { push } from "react-router-redux";
-import { connect } from "react-redux";
-import { setUser } from "../../actions";
 import GoogleButton from '../../components/GoogleLoginButton';
+import PropTypes from 'prop-types';
+import { firestoreConnect } from "react-redux-firebase";
 
 
 class SignInForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loginLoading: !!localStorage.getItem('auth')
+      loginLoading: !!localStorage.getItem('authRemember')
     };
   }
 
-  setAuthRemember = () => localStorage.setItem('auth', {status: "inProcess"});
+  componentWillReceiveProps() {
+    if (this.props.auth.uid) {
+      this.setLoading(false);
+      //     this.props.dispatch(push("/expenses"));
+    }
+  }
 
-  rememberAfterRedirect = () => localStorage.getItem('auth');
+  componentWillMount() {
+    // After coming back from auth-redirect
+    this.backFromAuthPage();
+    if (this.props.auth) {
+      // this.setLoading(false);
+      //     this.props.dispatch(push("/expenses"));
+    }
+  }
 
-  deleteAuthRemember = () => localStorage.removeItem('auth');
+  setAuthRemember = () => localStorage.setItem('authRemember', {status: "inProcess"});
 
-  setLoading = () => this.setState({loginLoading: true});
+  rememberAfterRedirect = () => localStorage.getItem('authRemember');
+
+  deleteAuthRemember = () => localStorage.removeItem('authRemember');
+
+  setLoading = (bool) => this.setState({loginLoading: bool});
 
   backFromAuthPage() {
     if (this.rememberAfterRedirect()) {
-      this.setLoading();
+      this.setLoading(true);
       this.deleteAuthRemember();
     }
   }
 
   handleGoogleLogin = () => {
     this.setAuthRemember();
-    this.setLoading();
-    firebase.auth.signInWithRedirect(firebase.authGoogleProvider);
-  };
-
-  componentWillMount() {
-    // After coming back from auth-redirect
-    this.backFromAuthPage();
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        // store the token
-        this.props.dispatch(setUser(user));
-        this.props.dispatch(push("/expenses"));
-      }
+    this.setLoading(true);
+    this.props.firebase.login({
+      provider: 'google',
+      type: 'redirect'
     });
-  }
+  };
 
   render() {
     if (this.state.loginLoading)
@@ -74,5 +81,13 @@ class SignInForm extends Component {
   }
 }
 
-SignInForm = connect()(SignInForm);
-export default SignInForm;
+SignInForm.propTypes = {
+  firebase: PropTypes.shape({
+    login: PropTypes.func.isRequired
+  }),
+  auth: PropTypes.object
+};
+export default compose(
+  firestoreConnect(),
+  connect(({firebase: {auth}}) => ({auth}))
+)(SignInForm);
