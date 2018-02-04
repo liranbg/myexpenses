@@ -29,7 +29,6 @@ class Header extends Component {
     auth.onAuthStateChanged(user => {
       if (user) {
         this.props.dispatch(setUser(user));
-        this.props.dispatch(push("/expenses"));
       }
     });
   }
