@@ -16,9 +16,9 @@ function unSetTag(state, payload) {
 const expensesReducer = (state = [], action) => {
   switch (action.type) {
     case SET_TAG:
-      return Object.assign(state, setTag(state, action.payload));
+      return [...setTag(state, action.payload)];
     case UNSET_TAG:
-      return Object.assign(state, unSetTag(state, action.payload));
+      return [...unSetTag(state, action.payload)];
     default:
       return state;
   }

@@ -40,8 +40,7 @@ class ExpensesPage extends Component {
 
   handleResultSelect = (e, {result}) => {
     this.setState({
-      value: result.title,
-      expensesToDisplay: this.props.expenses.filter(expense => expense.name === result.title)
+      value: result.title
     });
   };
 
@@ -54,10 +53,7 @@ class ExpensesPage extends Component {
       let results = _.filter(this.props.expenses, isMatch);
       this.setState({
         isLoading: false,
-        results: results.map((expense) => ({
-          ...expense,
-          title: expense.name
-        }))
+        results: results.map((expense) => ({...expense, title: expense.name}))
       });
     }, 100);
   };
@@ -72,6 +68,7 @@ class ExpensesPage extends Component {
   render() {
     const {isLoading, value, results} = this.state;
     const {expenses, tags, expensesView} = this.props;
+    const expensesToDisplay = this.state.value ? this.props.expenses.filter(r => r.name === this.state.value) : expenses;
     return (
       <Container>
         <Header size="huge" content="My Expenses"/>
@@ -93,6 +90,9 @@ class ExpensesPage extends Component {
         />
         <Segment.Group horizontal>
           {
+            !tags.length && <Segment secondary textAlign={"center"} content={"No Tags"}/>
+          }
+          {
             tags.map(tag => (
               <Segment key={tag.key}>
                 <Checkbox checked={expensesView.filterTags.indexOf(tag.name) !== -1}
@@ -100,13 +100,14 @@ class ExpensesPage extends Component {
                           onClick={this.handleFilterByTag}
                 />
               </Segment>
-            ))}
+            ))
+          }
         </Segment.Group>
         <Divider/>
         <Card.Group itemsPerRow={3}>
           {
-            expenses.map((expense, i) => (
-              <ExpenseCard key={i} expense={expense}/>
+            expensesToDisplay.map((expense, i) => (
+              <ExpenseCard key={i} expense={{...expense}}/>
             ))
           }
         </Card.Group>

@@ -11,10 +11,9 @@ import {
   Checkbox,
   Segment
 } from 'semantic-ui-react';
-import { incTagUses as incTagUsesFirestore, decTagUses as decTagUsesFirestore } from '../../firebase/tags';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { filterExpensesByTag, incTagUses, setExpenseTag, decTagUses } from '../../actions';
+import { filterExpensesByTag, setExpenseTag } from '../../actions';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 
@@ -33,18 +32,9 @@ class ExpenseCard extends Component {
       applyForAll: false
     });
 
-  replaceTag(prevTag, nextTag, applyForAll = false) {
-    this.props.dispatch(setExpenseTag(this.props.expense.key, nextTag.name, applyForAll));
-    this.props.dispatch(incTagUses(nextTag.key));
-    this.props.dispatch(decTagUses(prevTag.key));
-    incTagUsesFirestore(nextTag.key);
-    decTagUsesFirestore(prevTag.key);
-  }
-
   handleResultSelect = (e, {result}) => {
     this.setState({value: result.title});
-    const prevTag = this.props.tags.find(tag => tag.name === this.props.expense.tag);
-    this.replaceTag(prevTag, result, this.state.applyForAll);
+    this.props.dispatch(setExpenseTag(this.props.expense.key, result.title, this.state.applyForAll));
   };
 
   handleSearchChange = (e, {value}) => {
@@ -62,9 +52,7 @@ class ExpenseCard extends Component {
   };
 
   deleteExpenseTag = () => {
-    let untaggedTag = this.props.tags.find(tag => tag.name === "Untagged");
-    let prevTag = this.props.tags.find(tag => tag.name === this.props.expense.tag);
-    this.replaceTag(prevTag, untaggedTag, this.state.applyForAll);
+    this.props.dispatch(setExpenseTag(this.props.expense.key, "Untagged"));
     this.resetSearchComponent();
   };
 

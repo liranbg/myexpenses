@@ -2,8 +2,7 @@ import PropTypes from 'prop-types';
 
 export const Tag = {
   key: PropTypes.string,
-  name: PropTypes.string,
-  icon: PropTypes.number,
+  name: PropTypes.string
 };
 
 export const Expense = {

@@ -14,6 +14,7 @@ import { deleteTag, filterExpensesByTag } from '../../actions';
 import { Tag } from "../../proptypes";
 import PropTypes from "prop-types";
 import { push } from "react-router-redux";
+import { addTag as addTagAPI } from "../../store/tags";
 
 
 const INITIAL_STATE = {newTagName: '', actionAddTagLoading: false, actionDeleteTagLoading: false};
@@ -39,14 +40,16 @@ class TagsPage extends Component {
     this.setActionDeleteTagLoading(true);
     this.props.dispatch(deleteTag(tag.key));
     //Deletion is under the hood
-    deleteTagFirebase(tag.key).then(() => this.setActionDeleteTagLoading(false));
+    deleteTagFirebase(tag.key);
+    this.setActionDeleteTagLoading(false)
   }
 
   addTag() {
     if (!this.state.newTagName.trim()) return;
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
-    addTagFirebase(tagName).then(() => this.setActionAddTagLoading(false));
+    addTagAPI(tagName);
+    this.setActionAddTagLoading(false);
   }
 
   jsUcfirst(s) {
@@ -84,7 +87,7 @@ class TagsPage extends Component {
               this.props.dispatch(push("/expenses"));
             }
 
-            }>{tag.uses} uses</Label>
+            }>{this.props.tagsUses[tag.name] || 0} uses</Label>
           </Segment>
         ))}
         <Segment>
@@ -113,8 +116,15 @@ class TagsPage extends Component {
   }
 }
 
+function tagUses(expenses) {
+  let counts = {};
+  const sorted = expenses.map(expense => expense.tag).sort();
+  sorted.forEach(x => counts[x] = (counts[x] || 0) + 1);
+  return counts;
+}
+
 TagsPage.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
 };
-TagsPage = connect(state => ({tags: state.tags}))(TagsPage);
+TagsPage = connect(state => ({tags: state.tags, tagsUses: tagUses(state.expenses)}))(TagsPage);
 export default TagsPage;

@@ -1,5 +1,3 @@
-export const INC_TAG = 'INC_TAG';
-export const DEC_TAG = 'DEC_TAG';
 export const SET_TAGS = 'SET_TAGS';
 export const REMOVE_TAG = 'REMOVE_TAG';
 
@@ -25,14 +23,6 @@ export function filterExpensesByTag(tagName, replaceAll = false) {
 
 export function remFilterExpensesByTag(tagName) {
   return {type: REM_FILTER_EXPENSES_BY_TAG, payload: {'tagName': tagName}};
-}
-
-export function incTagUses(tagKey) {
-  return {type: INC_TAG, payload: {key: tagKey}};
-}
-
-export function decTagUses(tagKey) {
-  return {type: DEC_TAG, payload: {key: tagKey}};
 }
 
 export function setTags(tags) {
