@@ -6,6 +6,7 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import createHistory from 'history/createBrowserHistory';
 import { routerMiddleware } from 'react-router-redux';
+import { ConnectedRouter } from 'react-router-redux';
 import reducers, { INITIAL_STATE } from './reducers';
 
 const history = createHistory();
@@ -22,14 +23,23 @@ function mockData(state) {
 
 const store = createStore(reducers, mockData(INITIAL_STATE), applyMiddleware(middleware));
 
-ReactDOM.render(
-  <Provider store={store}>
-    <MainApp history={history}/>
-  </Provider>,
-  document.getElementById('root')
-);
+class Root extends React.Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <MainApp/>
+        </ConnectedRouter>
+      </Provider>
+    );
+  }
+}
+
+const render = () => ReactDOM.render(<Root/>, document.getElementById('root'));
+
+render();
 
 if (module.hot) {
-  module.hot.dispose(() => ({}));
+  // module.hot.dispose(() => ({}));
   module.hot.accept(() => ({}));
 }
