@@ -1,13 +1,6 @@
 import { db } from '../firebase';
 
-const tagsCollection = db.collection("tags");
-// Sign out
-export const fetchTags = () => tagsCollection.get().then(q => {
-  return q.docs.map(tag => ({
-    key: tag.id,
-    ...tag.data()
-  }));
-});
+export const tagsCollection = db.collection("tags");
 
 export const addTag = (tagName) => tagsCollection
 .add({name: tagName, uses: 0})

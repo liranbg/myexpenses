@@ -1,4 +1,4 @@
-import { INC_TAG, ADD_TAG, REMOVE_TAG, DEC_TAG, SET_TAGS } from '../../actions';
+import { INC_TAG, REMOVE_TAG, DEC_TAG, SET_TAGS } from '../../actions';
 
 const tagsReducer = (state = [], action) => {
   switch (action.type) {
@@ -10,8 +10,6 @@ const tagsReducer = (state = [], action) => {
       return [...state];
     case SET_TAGS:
       return [...action.payload];
-    case ADD_TAG:
-      return [...state, {...action.payload}];
     case REMOVE_TAG:
       return [...state.filter(f => f.key !== action.payload.key)];
     default:

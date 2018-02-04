@@ -8,9 +8,9 @@ import {
   Label,
   Input
 } from 'semantic-ui-react';
-import { fetchTags, addTag as addTagFirebase, deleteTag as deleteTagFirebase } from '../../firebase/tags';
+import { addTag as addTagFirebase, deleteTag as deleteTagFirebase } from '../../firebase/tags';
 import { connect } from 'react-redux';
-import { addTag, deleteTag, filterExpensesByTag, setTags } from '../../actions';
+import { deleteTag, filterExpensesByTag } from '../../actions';
 import { Tag } from "../../proptypes";
 import PropTypes from "prop-types";
 import { push } from "react-router-redux";
@@ -33,9 +33,6 @@ class TagsPage extends Component {
   setActionDeleteTagLoading = (bool) => this.setState({actionDeleteTagLoading: bool});
 
   componentWillMount() {
-    fetchTags().then(tags => {
-      this.props.dispatch(setTags(tags));
-    });
   }
 
   deleteTag(tag) {
@@ -49,10 +46,7 @@ class TagsPage extends Component {
     if (!this.state.newTagName.trim()) return;
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
-    addTagFirebase(tagName).then(newTag => {
-      this.setActionAddTagLoading(false);
-      this.props.dispatch(addTag(newTag));
-    });
+    addTagFirebase(tagName).then(() => this.setActionAddTagLoading(false));
   }
 
   jsUcfirst(s) {

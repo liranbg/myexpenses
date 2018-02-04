@@ -11,6 +11,7 @@ import {
   Checkbox,
   Segment
 } from 'semantic-ui-react';
+import { incTagUses as incTagUsesFirestore, decTagUses as decTagUsesFirestore } from '../../firebase/tags';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { filterExpensesByTag, incTagUses, setExpenseTag, decTagUses } from '../../actions';
@@ -32,12 +33,18 @@ class ExpenseCard extends Component {
       applyForAll: false
     });
 
+  replaceTag(prevTag, nextTag, applyForAll = false) {
+    this.props.dispatch(setExpenseTag(this.props.expense.key, nextTag.name, applyForAll));
+    this.props.dispatch(incTagUses(nextTag.key));
+    this.props.dispatch(decTagUses(prevTag.key));
+    incTagUsesFirestore(nextTag.key);
+    decTagUsesFirestore(prevTag.key);
+  }
+
   handleResultSelect = (e, {result}) => {
     this.setState({value: result.title});
-    let prevTagKey = this.props.tags.find(tag => tag.name === this.props.expense.tag).key;
-    this.props.dispatch(decTagUses(prevTagKey));
-    this.props.dispatch(setExpenseTag(this.props.expense.key, result.title, this.state.applyForAll));
-    this.props.dispatch(incTagUses(result.key));
+    const prevTag = this.props.tags.find(tag => tag.name === this.props.expense.tag);
+    this.replaceTag(prevTag, result, this.state.applyForAll);
   };
 
   handleSearchChange = (e, {value}) => {
@@ -46,7 +53,7 @@ class ExpenseCard extends Component {
       if (this.state.value.length < 1) return this.resetSearchComponent();
       const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
       const isMatch = result => re.test(result.name);
-      let results = _.filter(this.props.tags, isMatch);
+      let results = _.filter(this.props.tags.filter(tag => tag.name !== this.props.expense.tag), isMatch);
       this.setState({
         isLoading: false,
         results: results.map((tag) => ({...tag, title: tag.name}))
@@ -55,11 +62,9 @@ class ExpenseCard extends Component {
   };
 
   deleteExpenseTag = () => {
-    let untaggedTag = this.props.tags.find(tag=>tag.name === "Untagged");
-    let prevTagKey = this.props.tags.find(tag => tag.name === this.props.expense.tag).key;
-    this.props.dispatch(setExpenseTag(this.props.expense.key, untaggedTag.name));
-    this.props.dispatch(incTagUses(untaggedTag.key));
-    this.props.dispatch(decTagUses(prevTagKey));
+    let untaggedTag = this.props.tags.find(tag => tag.name === "Untagged");
+    let prevTag = this.props.tags.find(tag => tag.name === this.props.expense.tag);
+    this.replaceTag(prevTag, untaggedTag, this.state.applyForAll);
     this.resetSearchComponent();
   };
 
@@ -110,38 +115,38 @@ class ExpenseCard extends Component {
           <Card.Description>{expense.notes}</Card.Description>
         </Card.Content>
         {!this.isExpenseUntagged() ? null :
-        <Card.Content extra>
-          <Segment vertical>
-            <Container>
-              Apply for all expenses with the same name
-              <Checkbox
-                toggle
-                style={{float: 'right'}}
-                checked={this.state.applyForAll}
-                onChange={() =>
-                  this.setState({applyForAll: !this.state.applyForAll})
+          <Card.Content extra>
+            <Segment vertical>
+              <Container>
+                Apply for all expenses with the same name
+                <Checkbox
+                  toggle
+                  style={{float: 'right'}}
+                  checked={this.state.applyForAll}
+                  onChange={() =>
+                    this.setState({applyForAll: !this.state.applyForAll})
+                  }
+                />
+              </Container>
+              <Search
+                style={{marginTop: 20}}
+                loading={isLoading}
+                onResultSelect={this.handleResultSelect}
+                onSearchChange={this.handleSearchChange}
+                results={results}
+                value={value}
+                input={
+                  <Input
+                    fluid
+                    icon="tags"
+                    iconPosition="left"
+                    placeholder="Enter a Tag's name..."
+                  />
                 }
               />
-            </Container>
-            <Search
-              style={{marginTop: 20}}
-              loading={isLoading}
-              onResultSelect={this.handleResultSelect}
-              onSearchChange={this.handleSearchChange}
-              results={results}
-              value={value}
-              input={
-                <Input
-                  fluid
-                  icon="tags"
-                  iconPosition="left"
-                  placeholder="Enter a Tag's name..."
-                />
-              }
-            />
 
-          </Segment>
-        </Card.Content>
+            </Segment>
+          </Card.Content>
         }
       </Card>
     );

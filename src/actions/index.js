@@ -1,7 +1,6 @@
 export const INC_TAG = 'INC_TAG';
 export const DEC_TAG = 'DEC_TAG';
 export const SET_TAGS = 'SET_TAGS';
-export const ADD_TAG = 'ADD_TAG';
 export const REMOVE_TAG = 'REMOVE_TAG';
 
 export const SET_TAG = 'SET_TAG';
@@ -14,10 +13,6 @@ export const SET_USER = 'SET_USER';
 
 export function setUser(authUser) {
   return {type: SET_USER, payload: authUser};
-}
-
-export function addTag(tag) {
-  return {type: ADD_TAG, payload: tag};
 }
 
 export function deleteTag(tagKey) {
@@ -53,8 +48,4 @@ export function setExpenseTag(expenseKey, tagName, applyForAll = false) {
     type: SET_TAG,
     payload: {key: expenseKey, tag: tagName, applyForAll: applyForAll}
   };
-}
-
-export function unsetExpenseTag(expenseKey) {
-  return {type: UNSET_TAG, payload: {key: expenseKey}};
 }
