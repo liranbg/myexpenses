@@ -1,10 +1,18 @@
 import React, { Component } from "react";
 import { push, replace } from "react-router-redux";
 import { connect } from "react-redux";
-import { auth, firebase } from '../../firebase';
+import { auth } from '../../firebase';
 import {
-  Image, Segment, Icon, Menu, Container, MenuItem,
-  Dropdown, DropdownMenu, DropdownItem
+  Item,
+  Image,
+  Segment,
+  Icon,
+  Menu,
+  Container,
+  MenuItem,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem
 } from 'semantic-ui-react';
 import { setUser } from "../../actions";
 
@@ -40,10 +48,10 @@ class Header extends Component {
     const {user} = this.props.session;
     let activeItem = this.props.history.location ? this.props.history.location.pathname : "";
     return (
-      <Segment inverted>
-        <Menu inverted pointing secondary>
+      <Segment style={{padding: 0, backgroundColor: "#42A5F5"}}>
+        <Menu pointing secondary>
           <Container>
-            <MenuItem header>
+            <MenuItem style={{alignSelf: "normal"}} header>
               <Icon name="won"/>
               My Expenses
             </MenuItem>
@@ -51,6 +59,7 @@ class Header extends Component {
               user ?
                 SIGNED_IN_ROUTES.map(item => (
                   <MenuItem
+                    style={{alignSelf: "normal"}}
                     key={item.route}
                     as={"a"}
                     active={activeItem === item.route}
@@ -64,28 +73,32 @@ class Header extends Component {
                   as={"a"}
                   active={true}
                   to={'/signin'}
+                  style={{alignSelf: "normal"}}
                   onClick={this.handleItemClick} content="Sign In"
                 />
             }
-
             {
               user &&
-              <Segment className={"item right"} style={{width: 64}}>
-                <Image
-                  avatar
-                  style={{width: "100%"}}
-                  src={user.photoURL}
-                  title={user.email}
-                />
-                <Dropdown pointing>
-                  <DropdownMenu>
+              <Item className={"right"}>
+                <Dropdown icon={
+                  <Image
+                    centered
+                    avatar
+                    src={user.photoURL}
+                    title={user.email}
+                  />
+                }>
+                  <DropdownMenu style={{marginTop: 12}}>
+                    <Dropdown.Header>
+                      Hey {user.displayName},
+                    </Dropdown.Header>
                     <DropdownItem
                       content="SignOut"
                       onClick={this.handleSignOut}
                     />
                   </DropdownMenu>
                 </Dropdown>
-              </Segment>
+              </Item>
             }
           </Container>
         </Menu>
@@ -94,13 +107,6 @@ class Header extends Component {
   }
 }
 
-/*
-<Dropdown pointing>
-                  <DropdownMenu>
-                    <DropdownItem>SignOut</DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
- */
 Header = connect((state) => ({history: state.router, session: state.session}))(Header);
 
 export default Header;
