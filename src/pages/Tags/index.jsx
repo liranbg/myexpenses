@@ -8,12 +8,14 @@ import {
   Label,
   Input
 } from 'semantic-ui-react';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { deleteTag, filterExpensesByTag } from '../../actions';
 import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
+import { firestoreConnect } from 'react-redux-firebase';
 import { push } from 'react-router-redux';
-import { expensesToTagsUses } from '../../helpers';
+import { expensesToTagsUses, firebaseTagsToArray } from '../../helpers';
 
 const INITIAL_STATE = {
   newTagName: '',
@@ -67,10 +69,11 @@ class TagsPage extends Component {
   }
 
   render() {
+    const { tags } = this.props;
     return (
       <Container>
         <Header size="huge" content="Tags" />
-        {this.props.tags.map((tag, index) => (
+        {tags.map((tag, index) => (
           <Segment key={index}>
             <Button
               compact
@@ -125,8 +128,14 @@ class TagsPage extends Component {
 TagsPage.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 };
-TagsPage = connect(state => ({
-  tags: state.tags,
+
+const mapStateToProps = state => ({
+  tags: firebaseTagsToArray(state.firestore.data.tags),
   tagsUses: expensesToTagsUses(state.expenses)
-}))(TagsPage);
+});
+
+TagsPage = compose(firestoreConnect(['tags']), connect(mapStateToProps))(
+  TagsPage
+);
+
 export default TagsPage;

@@ -11,9 +11,12 @@ import {
   Divider
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
+import { compose } from 'redux';
+import { firestoreConnect } from 'react-redux-firebase';
 import { Expense, ExpensesView, Tag } from '../../proptypes';
 import ExpenseCard from '../../components/Expense';
 import { connect } from 'react-redux';
+import { firebaseTagsToArray } from '../../helpers';
 import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
 
 class ExpensesPage extends Component {
@@ -123,13 +126,17 @@ ExpensesPage.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
   expensesView: PropTypes.shape(ExpensesView)
 };
+
 const mapStateToProps = state => ({
   expenses: getExpensesFilterByTags(
     state.expenses,
     state.expensesView.filterTags
   ),
   expensesView: state.expensesView,
-  tags: state.tags
+  tags: firebaseTagsToArray(state.firestore.data.tags)
 });
-ExpensesPage = connect(mapStateToProps)(ExpensesPage);
+
+ExpensesPage = compose(firestoreConnect(['tags']), connect(mapStateToProps))(
+  ExpensesPage
+);
 export default ExpensesPage;
