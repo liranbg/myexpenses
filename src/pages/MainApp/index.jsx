@@ -4,7 +4,7 @@ import ExpensesPage from '../Expenses';
 import ChartsPage from '../Charts';
 import TagsPage from '../Tags';
 import Header from '../../components/Header';
-import SignIn from '../SignIn';
+import SignIn from '../../components/SignIn';
 import { firestoreConnect } from "react-redux-firebase";
 import { connect } from "react-redux";
 import { compose } from "redux";
