@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import { compose } from 'redux';
-import { replace } from "react-router-redux";
+import { replace } from 'react-router-redux';
 import { connect } from 'react-redux';
-import { Loader, Dimmer, Header, Grid, Container, Segment } from 'semantic-ui-react';
+import {
+  Loader,
+  Dimmer,
+  Header,
+  Grid,
+  Container,
+  Segment
+} from 'semantic-ui-react';
 import GoogleButton from '../GoogleLoginButton';
 import PropTypes from 'prop-types';
-import { firestoreConnect } from "react-redux-firebase";
-
+import { firestoreConnect } from 'react-redux-firebase';
 
 class SignInForm extends Component {
   constructor(props) {
@@ -18,28 +24,34 @@ class SignInForm extends Component {
       provider: 'google',
       type: 'redirect'
     });
-    this.props.dispatch(replace("/expenses"));
+    this.props.dispatch(replace('/expenses'));
   };
 
   render() {
-    const {profile} = this.props;
+    const { profile } = this.props;
     if (!profile.isLoaded)
       return (
         <Dimmer active={!profile.isLoaded}>
-          <Loader active={!profile.isLoaded} size='huge'>Loading</Loader>
+          <Loader active={!profile.isLoaded} size="huge">
+            Loading
+          </Loader>
         </Dimmer>
       );
     return (
       <Container>
         <Grid
-          textAlign='center'
-          style={{height: '100%'}}
-          verticalAlign='middle'
+          textAlign="center"
+          style={{ height: '100%' }}
+          verticalAlign="middle"
         >
-          <Grid.Column style={{maxWidth: 450}}>
+          <Grid.Column style={{ maxWidth: 450 }}>
             <Segment padded>
-              <Header textAlign='center' content="Sign In"/>
-              <GoogleButton style={{width: -1}} onClick={this.handleGoogleLogin} type={"dark"}/>
+              <Header textAlign="center" content="Sign In" />
+              <GoogleButton
+                style={{ width: -1 }}
+                onClick={this.handleGoogleLogin}
+                type={'dark'}
+              />
             </Segment>
           </Grid.Column>
         </Grid>
@@ -52,9 +64,9 @@ SignInForm.propTypes = {
   firebase: PropTypes.shape({
     login: PropTypes.func.isRequired
   }),
-  profile: PropTypes.object,
+  profile: PropTypes.object
 };
 export default compose(
   firestoreConnect(),
-  connect(({firebase: {profile}}) => ({profile}))
+  connect(({ firebase: { profile } }) => ({ profile }))
 )(SignInForm);

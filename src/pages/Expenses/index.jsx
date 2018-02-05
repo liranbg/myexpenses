@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import { Expense, ExpensesView, Tag } from '../../proptypes';
 import ExpenseCard from '../../components/Expense';
 import { connect } from 'react-redux';
-import { filterExpensesByTag, remFilterExpensesByTag } from "../../actions";
+import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
 
 class ExpensesPage extends Component {
   constructor() {
@@ -22,7 +22,7 @@ class ExpensesPage extends Component {
     this.state = {
       isLoading: false,
       results: [],
-      value: '',
+      value: ''
     };
   }
 
@@ -38,14 +38,14 @@ class ExpensesPage extends Component {
     });
   };
 
-  handleResultSelect = (e, {result}) => {
+  handleResultSelect = (e, { result }) => {
     this.setState({
       value: result.title
     });
   };
 
-  handleSearchChange = (e, {value}) => {
-    this.setState({isLoading: true, value});
+  handleSearchChange = (e, { value }) => {
+    this.setState({ isLoading: true, value });
     setTimeout(() => {
       if (this.state.value.length < 1) return this.resetSearchComponent();
       const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
@@ -53,26 +53,26 @@ class ExpensesPage extends Component {
       let results = _.filter(this.props.expenses, isMatch);
       this.setState({
         isLoading: false,
-        results: results.map((expense) => ({...expense, title: expense.name}))
+        results: results.map(expense => ({ ...expense, title: expense.name }))
       });
     }, 100);
   };
 
-  handleFilterByTag = (e, {label, checked}) => {
-    if (checked)
-      this.props.dispatch(filterExpensesByTag(label));
-    else
-      this.props.dispatch(remFilterExpensesByTag(label));
+  handleFilterByTag = (e, { label, checked }) => {
+    if (checked) this.props.dispatch(filterExpensesByTag(label));
+    else this.props.dispatch(remFilterExpensesByTag(label));
   };
 
   render() {
-    const {isLoading, value, results} = this.state;
-    const {expenses, tags, expensesView} = this.props;
-    const expensesToDisplay = this.state.value ? this.props.expenses.filter(r => r.name === this.state.value) : expenses;
+    const { isLoading, value, results } = this.state;
+    const { expenses, tags, expensesView } = this.props;
+    const expensesToDisplay = this.state.value
+      ? this.props.expenses.filter(r => r.name === this.state.value)
+      : expenses;
     return (
       <Container>
-        <Header size="huge" content="My Expenses"/>
-        <Divider/>
+        <Header size="huge" content="My Expenses" />
+        <Divider />
         <Search
           loading={isLoading}
           onResultSelect={this.handleResultSelect}
@@ -89,27 +89,24 @@ class ExpensesPage extends Component {
           }
         />
         <Segment.Group horizontal>
-          {
-            !tags.length && <Segment secondary textAlign={"center"} content={"No Tags"}/>
-          }
-          {
-            tags.map(tag => (
-              <Segment key={tag.key}>
-                <Checkbox checked={expensesView.filterTags.indexOf(tag.name) !== -1}
-                          label={tag.name}
-                          onClick={this.handleFilterByTag}
-                />
-              </Segment>
-            ))
-          }
+          {!tags.length && (
+            <Segment secondary textAlign={'center'} content={'No Tags'} />
+          )}
+          {tags.map(tag => (
+            <Segment key={tag.key}>
+              <Checkbox
+                checked={expensesView.filterTags.indexOf(tag.name) !== -1}
+                label={tag.name}
+                onClick={this.handleFilterByTag}
+              />
+            </Segment>
+          ))}
         </Segment.Group>
-        <Divider/>
+        <Divider />
         <Card.Group itemsPerRow={3}>
-          {
-            expensesToDisplay.map((expense, i) => (
-              <ExpenseCard key={i} expense={{...expense}}/>
-            ))
-          }
+          {expensesToDisplay.map((expense, i) => (
+            <ExpenseCard key={i} expense={{ ...expense }} />
+          ))}
         </Card.Group>
       </Container>
     );
@@ -118,7 +115,7 @@ class ExpensesPage extends Component {
 
 const getExpensesFilterByTags = (expenses, tags) => {
   if (!tags.length) return expenses;
-  else return _.filter(expenses, (expense) => _.includes(tags, expense.tag));
+  else return _.filter(expenses, expense => _.includes(tags, expense.tag));
 };
 
 ExpensesPage.propTypes = {
@@ -127,7 +124,10 @@ ExpensesPage.propTypes = {
   expensesView: PropTypes.shape(ExpensesView)
 };
 const mapStateToProps = state => ({
-  expenses: getExpensesFilterByTags(state.expenses, state.expensesView.filterTags),
+  expenses: getExpensesFilterByTags(
+    state.expenses,
+    state.expensesView.filterTags
+  ),
   expensesView: state.expensesView,
   tags: state.tags
 });

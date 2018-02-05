@@ -1,19 +1,17 @@
 import { createStore, applyMiddleware } from 'redux';
-import reducers, { INITIAL_STATE } from "../reducers";
-import createHistory from "history/createBrowserHistory";
-import { routerMiddleware } from "react-router-redux";
-import firebase  from "../firebase";
-import { reactReduxFirebase } from "react-redux-firebase";
-import { reduxFirestore } from "redux-firestore";
-import { compose } from "redux";
-
+import reducers, { INITIAL_STATE } from '../reducers';
+import createHistory from 'history/createBrowserHistory';
+import { routerMiddleware } from 'react-router-redux';
+import firebase from '../firebase';
+import { reactReduxFirebase } from 'react-redux-firebase';
+import { reduxFirestore } from 'redux-firestore';
+import { compose } from 'redux';
 
 const history = createHistory();
 const middleware = routerMiddleware(history);
 
-
 const useMock = true;
-const initialState = (state) => {
+const initialState = state => {
   state.expenses = useMock ? require('../mocks/expenses') : [];
   state.tags = useMock ? require('../mocks/tags') : [];
   return state;
@@ -22,7 +20,7 @@ const initialState = (state) => {
 const rrfConfig = {
   userProfile: 'users',
   presence: 'presence',
-  sessions: 'sessions' ,
+  sessions: 'sessions',
   useFirestoreForProfile: true
 };
 
@@ -31,9 +29,11 @@ const createStoreWithFirebase = compose(
   reduxFirestore(firebase)
 )(createStore);
 
-
-const store = createStoreWithFirebase(reducers, initialState(INITIAL_STATE), applyMiddleware(middleware));
-
+const store = createStoreWithFirebase(
+  reducers,
+  initialState(INITIAL_STATE),
+  applyMiddleware(middleware)
+);
 
 export default store;
 export { history, useMock };

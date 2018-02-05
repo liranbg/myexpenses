@@ -3,8 +3,10 @@ import { routerReducer } from 'react-router-redux';
 import expensesReducer from './expense/expense';
 import tagsReducer from './tags/tags';
 import { firebaseReducer } from 'react-redux-firebase';
-import expensesViewReducer, { INITIAL_STATE as expensesView } from './expense/expense-view';
-import { firestoreReducer } from "redux-firestore";
+import expensesViewReducer, {
+  INITIAL_STATE as expensesView
+} from './expense/expense-view';
+import { firestoreReducer } from 'redux-firestore';
 
 const expensesApp = combineReducers({
   expensesView: expensesViewReducer,
@@ -18,7 +20,7 @@ const expensesApp = combineReducers({
 export const INITIAL_STATE = {
   expenses: [],
   tags: [],
-  expensesView,
+  expensesView
 };
 
 export default expensesApp;

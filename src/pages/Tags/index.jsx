@@ -10,13 +10,16 @@ import {
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { deleteTag, filterExpensesByTag } from '../../actions';
-import { Tag } from "../../proptypes";
-import PropTypes from "prop-types";
-import { push } from "react-router-redux";
+import { Tag } from '../../proptypes';
+import PropTypes from 'prop-types';
+import { push } from 'react-router-redux';
 import { expensesToTagsUses } from '../../helpers';
 
-
-const INITIAL_STATE = {newTagName: '', actionAddTagLoading: false, actionDeleteTagLoading: false};
+const INITIAL_STATE = {
+  newTagName: '',
+  actionAddTagLoading: false,
+  actionDeleteTagLoading: false
+};
 
 class TagsPage extends Component {
   constructor(props) {
@@ -28,12 +31,12 @@ class TagsPage extends Component {
     this.newTagNameKeyPressed = this.newTagNameKeyPressed.bind(this);
   }
 
-  setActionAddTagLoading = (bool) => this.setState({actionAddTagLoading: bool});
+  setActionAddTagLoading = bool => this.setState({ actionAddTagLoading: bool });
 
-  setActionDeleteTagLoading = (bool) => this.setState({actionDeleteTagLoading: bool});
+  setActionDeleteTagLoading = bool =>
+    this.setState({ actionDeleteTagLoading: bool });
 
-  componentWillMount() {
-  }
+  componentWillMount() {}
 
   deleteTag(tag) {
     this.setActionDeleteTagLoading(true);
@@ -47,7 +50,7 @@ class TagsPage extends Component {
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
     this.setActionAddTagLoading(false);
-    this.props.dispatch((tag.key));
+    this.props.dispatch(tag.key);
     //TODO: Add the tag
   }
 
@@ -56,7 +59,7 @@ class TagsPage extends Component {
   }
 
   newTagNameInputHandler(e) {
-    this.setState({newTagName: this.jsUcfirst(e.target.value)});
+    this.setState({ newTagName: this.jsUcfirst(e.target.value) });
   }
 
   newTagNameKeyPressed(e) {
@@ -66,7 +69,7 @@ class TagsPage extends Component {
   render() {
     return (
       <Container>
-        <Header size="huge" content="Tags"/>
+        <Header size="huge" content="Tags" />
         {this.props.tags.map((tag, index) => (
           <Segment key={index}>
             <Button
@@ -80,13 +83,17 @@ class TagsPage extends Component {
               size="small"
               onClick={() => this.deleteTag(tag)}
             />
-            <Icon name="tag"/> {tag.name}{' '}
-            <Label circular as={"a"} onClick={() => {
-              this.props.dispatch(filterExpensesByTag(tag.name, true));
-              this.props.dispatch(push("/expenses"));
-            }
-
-            }>{this.props.tagsUses[tag.name] || 0} uses</Label>
+            <Icon name="tag" /> {tag.name}{' '}
+            <Label
+              circular
+              as={'a'}
+              onClick={() => {
+                this.props.dispatch(filterExpensesByTag(tag.name, true));
+                this.props.dispatch(push('/expenses'));
+              }}
+            >
+              {this.props.tagsUses[tag.name] || 0} uses
+            </Label>
           </Segment>
         ))}
         <Segment>
@@ -116,7 +123,10 @@ class TagsPage extends Component {
 }
 
 TagsPage.propTypes = {
-  tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+  tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 };
-TagsPage = connect(state => ({tags: state.tags, tagsUses: expensesToTagsUses(state.expenses)}))(TagsPage);
+TagsPage = connect(state => ({
+  tags: state.tags,
+  tagsUses: expensesToTagsUses(state.expenses)
+}))(TagsPage);
 export default TagsPage;

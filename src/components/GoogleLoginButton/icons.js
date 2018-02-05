@@ -20,7 +20,7 @@ const darkSvg = (
         filterUnits="objectBoundingBox"
         id="filter-1"
       >
-        <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"/>
+        <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1" />
         <feGaussianBlur
           stdDeviation="0.5"
           in="shadowOffsetOuter1"
@@ -32,7 +32,7 @@ const darkSvg = (
           type="matrix"
           result="shadowMatrixOuter1"
         />
-        <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"/>
+        <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2" />
         <feGaussianBlur
           stdDeviation="0.5"
           in="shadowOffsetOuter2"
@@ -45,13 +45,13 @@ const darkSvg = (
           result="shadowMatrixOuter2"
         />
         <feMerge>
-          <feMergeNode in="shadowMatrixOuter1"/>
-          <feMergeNode in="shadowMatrixOuter2"/>
-          <feMergeNode in="SourceGraphic"/>
+          <feMergeNode in="shadowMatrixOuter1" />
+          <feMergeNode in="shadowMatrixOuter2" />
+          <feMergeNode in="SourceGraphic" />
         </feMerge>
       </filter>
-      <rect id="path-2" x="0" y="0" width="40" height="40" rx="2"/>
-      <rect id="path-3" x="5" y="5" width="38" height="38" rx="1"/>
+      <rect id="path-2" x="0" y="0" width="40" height="40" rx="2" />
+      <rect id="path-3" x="5" y="5" width="38" height="38" rx="1" />
     </defs>
     <g
       id="Google-Button"
@@ -60,7 +60,7 @@ const darkSvg = (
       fill="none"
       fillRule="evenodd"
     >
-      <g id="9-PATCH" transform="translate(-608.000000, -219.000000)"/>
+      <g id="9-PATCH" transform="translate(-608.000000, -219.000000)" />
       <g
         id="btn_google_dark_normal"
         transform="translate(-1.000000, -1.000000)"
@@ -71,17 +71,17 @@ const darkSvg = (
           filter="url(#filter-1)"
         >
           <g id="button-bg">
-            <use fill="#4285F4" fillRule="evenodd"/>
-            <use fill="none"/>
-            <use fill="none"/>
-            <use fill="none"/>
+            <use fill="#4285F4" fillRule="evenodd" />
+            <use fill="none" />
+            <use fill="none" />
+            <use fill="none" />
           </g>
         </g>
         <g id="button-bg-copy">
-          <use fill="#FFFFFF" fillRule="evenodd"/>
-          <use fill="none"/>
-          <use fill="none"/>
-          <use fill="none"/>
+          <use fill="#FFFFFF" fillRule="evenodd" />
+          <use fill="none" />
+          <use fill="none" />
+          <use fill="none" />
         </g>
         <g id="logo_googleg_48dp" transform="translate(15.000000, 15.000000)">
           <path
@@ -104,9 +104,9 @@ const darkSvg = (
             id="Shape"
             fill="#EA4335"
           />
-          <path d="M0,0 L18,0 L18,18 L0,18 L0,0 Z" id="Shape"/>
+          <path d="M0,0 L18,0 L18,18 L0,18 L0,0 Z" id="Shape" />
         </g>
-        <g id="handles_square"/>
+        <g id="handles_square" />
       </g>
     </g>
   </svg>
@@ -130,7 +130,7 @@ const lightSvg = (
         filterUnits="objectBoundingBox"
         id="filter-1"
       >
-        <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"/>
+        <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1" />
         <feGaussianBlur
           stdDeviation="0.5"
           in="shadowOffsetOuter1"
@@ -142,7 +142,7 @@ const lightSvg = (
           type="matrix"
           result="shadowMatrixOuter1"
         />
-        <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"/>
+        <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2" />
         <feGaussianBlur
           stdDeviation="0.5"
           in="shadowOffsetOuter2"
@@ -155,12 +155,12 @@ const lightSvg = (
           result="shadowMatrixOuter2"
         />
         <feMerge>
-          <feMergeNode in="shadowMatrixOuter1"/>
-          <feMergeNode in="shadowMatrixOuter2"/>
-          <feMergeNode in="SourceGraphic"/>
+          <feMergeNode in="shadowMatrixOuter1" />
+          <feMergeNode in="shadowMatrixOuter2" />
+          <feMergeNode in="SourceGraphic" />
         </feMerge>
       </filter>
-      <rect id="path-2" x="0" y="0" width="40" height="40" rx="2"/>
+      <rect id="path-2" x="0" y="0" width="40" height="40" rx="2" />
     </defs>
     <g
       id="Google-Button"
@@ -169,7 +169,7 @@ const lightSvg = (
       fill="none"
       fillRule="evenodd"
     >
-      <g id="9-PATCH" transform="translate(-608.000000, -160.000000)"/>
+      <g id="9-PATCH" transform="translate(-608.000000, -160.000000)" />
       <g
         id="btn_google_light_normal"
         transform="translate(-1.000000, -1.000000)"
@@ -180,10 +180,10 @@ const lightSvg = (
           filter="url(#filter-1)"
         >
           <g id="button-bg">
-            <use fill="#FFFFFF" fillRule="evenodd"/>
-            <use fill="none"/>
-            <use fill="none"/>
-            <use fill="none"/>
+            <use fill="#FFFFFF" fillRule="evenodd" />
+            <use fill="none" />
+            <use fill="none" />
+            <use fill="none" />
           </g>
         </g>
         <g id="logo_googleg_48dp" transform="translate(15.000000, 15.000000)">
@@ -207,9 +207,9 @@ const lightSvg = (
             id="Shape"
             fill="#EA4335"
           />
-          <path d="M0,0 L18,0 L18,18 L0,18 L0,0 Z" id="Shape"/>
+          <path d="M0,0 L18,0 L18,18 L0,18 L0,0 Z" id="Shape" />
         </g>
-        <g id="handles_square"/>
+        <g id="handles_square" />
       </g>
     </g>
   </svg>
@@ -225,7 +225,7 @@ const disabledSvg = (
     style={svgStyle}
   >
     <defs>
-      <rect id="path-1" x="0" y="0" width="40" height="40" rx="2"/>
+      <rect id="path-1" x="0" y="0" width="40" height="40" rx="2" />
     </defs>
     <g
       id="Google-Button"
@@ -234,17 +234,17 @@ const disabledSvg = (
       fill="none"
       fillRule="evenodd"
     >
-      <g id="9-PATCH" transform="translate(-788.000000, -219.000000)"/>
+      <g id="9-PATCH" transform="translate(-788.000000, -219.000000)" />
       <g
         id="btn_google_dark_disabled"
         transform="translate(-1.000000, -1.000000)"
       >
         <g id="button" transform="translate(4.000000, 4.000000)">
           <g id="button-bg">
-            <use fillOpacity="0.08" fill="#000000" fillRule="evenodd"/>
-            <use fill="none"/>
-            <use fill="none"/>
-            <use fill="none"/>
+            <use fillOpacity="0.08" fill="#000000" fillRule="evenodd" />
+            <use fill="none" />
+            <use fill="none" />
+            <use fill="none" />
           </g>
         </g>
         <path
@@ -253,14 +253,14 @@ const disabledSvg = (
           fillOpacity="0.4"
           fill="#000000"
         />
-        <g id="handles_square"/>
+        <g id="handles_square" />
       </g>
     </g>
   </svg>
 );
 
-export const GoogleIcon = ({disabled, type}) => (
-  <div style={!disabled ? iconStyle : {...iconStyle, ...disabledIconStyle}}>
+export const GoogleIcon = ({ disabled, type }) => (
+  <div style={!disabled ? iconStyle : { ...iconStyle, ...disabledIconStyle }}>
     {!disabled ? (type === 'dark' ? darkSvg : lightSvg) : disabledSvg}
   </div>
 );

@@ -8,15 +8,18 @@ export const FILTER_EXPENSES_BY_TAG = 'FILTER_EXPENSES_BY_TAG';
 export const REM_FILTER_EXPENSES_BY_TAG = 'REM_FILTER_EXPENSES_BY_TAG';
 
 export function deleteTag(tagKey) {
-  return {type: REMOVE_TAG, payload: {key: tagKey}};
+  return { type: REMOVE_TAG, payload: { key: tagKey } };
 }
 
 export function filterExpensesByTag(tagName, replaceAll = false) {
-  return {type: FILTER_EXPENSES_BY_TAG, payload: {'tagName': tagName, 'replaceAll': replaceAll}};
+  return {
+    type: FILTER_EXPENSES_BY_TAG,
+    payload: { tagName: tagName, replaceAll: replaceAll }
+  };
 }
 
 export function remFilterExpensesByTag(tagName) {
-  return {type: REM_FILTER_EXPENSES_BY_TAG, payload: {'tagName': tagName}};
+  return { type: REM_FILTER_EXPENSES_BY_TAG, payload: { tagName: tagName } };
 }
 
 export function setTags(tags) {
@@ -24,12 +27,11 @@ export function setTags(tags) {
     type: SET_TAGS,
     payload: tags
   };
-
 }
 
 export function setExpenseTag(expenseKey, tagName, applyForAll = false) {
   return {
     type: SET_TAG,
-    payload: {key: expenseKey, tag: tagName, applyForAll: applyForAll}
+    payload: { key: expenseKey, tag: tagName, applyForAll: applyForAll }
   };
 }

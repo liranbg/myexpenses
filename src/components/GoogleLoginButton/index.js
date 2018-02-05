@@ -15,8 +15,7 @@ export default class GoogleButton extends PureComponent {
     label: 'Sign in with Google',
     disabled: false,
     type: 'dark',
-    onClick: () => {
-    }
+    onClick: () => {}
   };
 
   state = {
@@ -26,23 +25,23 @@ export default class GoogleButton extends PureComponent {
   getStyle = propStyles => {
     const baseStyle = this.props.type === 'dark' ? darkStyle : lightStyle;
     if (this.state.hovered) {
-      return {...baseStyle, ...hoverStyle, ...propStyles};
+      return { ...baseStyle, ...hoverStyle, ...propStyles };
     }
     if (this.props.disabled) {
-      return {...baseStyle, ...disabledStyle, ...propStyles};
+      return { ...baseStyle, ...disabledStyle, ...propStyles };
     }
-    return {...baseStyle, ...propStyles};
+    return { ...baseStyle, ...propStyles };
   };
 
   mouseOver = () => {
     if (!this.props.disabled) {
-      this.setState({hovered: true});
+      this.setState({ hovered: true });
     }
   };
 
   mouseOut = () => {
     if (!this.props.disabled) {
-      this.setState({hovered: false});
+      this.setState({ hovered: false });
     }
   };
 
@@ -53,7 +52,7 @@ export default class GoogleButton extends PureComponent {
   };
 
   render() {
-    const {label, style, ...otherProps} = this.props;
+    const { label, style, ...otherProps } = this.props;
 
     return (
       <div

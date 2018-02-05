@@ -6,20 +6,19 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import store, { history } from './store';
 
-
 class Root extends React.Component {
   render() {
     return (
       <Provider store={store}>
         <ConnectedRouter history={history}>
-          <MainApp/>
+          <MainApp />
         </ConnectedRouter>
       </Provider>
     );
   }
 }
 
-ReactDOM.render(<Root/>, document.getElementById('root'));
+ReactDOM.render(<Root />, document.getElementById('root'));
 
 if (module.hot) {
   // module.hot.dispose(() => ({}));

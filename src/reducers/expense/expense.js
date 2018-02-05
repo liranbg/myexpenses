@@ -1,9 +1,9 @@
 import { SET_TAG, UNSET_TAG } from '../../actions';
 
-
 function setTag(state, payload) {
   let expense = state.find(e => e.key === payload.key);
-  if (payload.applyForAll) state.filter(e => e.name === expense.name).map(e => (e.tag = payload.tag));
+  if (payload.applyForAll)
+    state.filter(e => e.name === expense.name).map(e => (e.tag = payload.tag));
   else expense.tag = payload.tag;
   return state;
 }

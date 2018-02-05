@@ -1,10 +1,12 @@
 import _ from 'lodash';
-import { FILTER_EXPENSES_BY_TAG, REM_FILTER_EXPENSES_BY_TAG } from '../../actions';
+import {
+  FILTER_EXPENSES_BY_TAG,
+  REM_FILTER_EXPENSES_BY_TAG
+} from '../../actions';
 
 export const INITIAL_STATE = {
-  filterTags: [],
+  filterTags: []
 };
-
 
 function setExpensesViewByTag(state, payload) {
   if (payload.replaceAll) state.filterTags = [payload.tagName];
@@ -17,13 +19,16 @@ function remExpensesViewTags(state, payload) {
   return state;
 }
 
-
 const expensesViewReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case FILTER_EXPENSES_BY_TAG:
-      return {...Object.assign({}, setExpensesViewByTag(state, action.payload))};
+      return {
+        ...Object.assign({}, setExpensesViewByTag(state, action.payload))
+      };
     case REM_FILTER_EXPENSES_BY_TAG:
-      return {...Object.assign({}, remExpensesViewTags(state, action.payload))};
+      return {
+        ...Object.assign({}, remExpensesViewTags(state, action.payload))
+      };
     default:
       return state;
   }
