@@ -4,13 +4,14 @@ import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Expense, Tag } from "../../proptypes";
+import { expensesToTagsUses } from "../../helpers";
 
 export class ChartsPage extends Component {
   componentWillMount() {
   }
 
   render() {
-    const {tags, expenses} = this.props;
+    const {tags, expenses, tagsUses} = this.props;
     return (
       <Container>
         <Header size="huge" content="Charts"/>
@@ -34,7 +35,7 @@ export class ChartsPage extends Component {
                     "borderColor": "rgb(25, 160, 20)",
                     "lineTension": 0.2
                   }
-                  ]
+                ]
               }}
               options={{
                 scales: {
@@ -57,9 +58,9 @@ export class ChartsPage extends Component {
           <Card>
             <Doughnut
               data={{
-                labels: tags.filter(tag => tag.uses).map(tag => tag.name),
+                labels: tags.filter(tag => tagsUses[tag.name]).map(tag => tag.name),
                 datasets: [{
-                  data: tags.filter(tag => tag.uses).map(tag => tag.uses),
+                  data: tags.filter(tag => tagsUses[tag.name]).map(tag => tagsUses[tag.name] || 0),
                   backgroundColor: [
                     "#F7464A",
                     "#46BFBD",
@@ -124,10 +125,12 @@ export class ChartsPage extends Component {
 ChartsPage.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+  tagsUses: PropTypes.object,
 };
 const mapStateToProps = state => ({
   expenses: state.expenses,
-  tags: state.tags
+  tags: state.tags,
+  tagsUses: expensesToTagsUses(state.expenses)
 });
 ChartsPage = connect(mapStateToProps)(ChartsPage);
 export default ChartsPage;

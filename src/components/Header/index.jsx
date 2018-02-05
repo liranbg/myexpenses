@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { push, replace } from "react-router-redux";
+import { replace } from "react-router-redux";
+import { compose } from 'redux';
 import { connect } from "react-redux";
 import {
   Item,
@@ -13,7 +14,8 @@ import {
   DropdownMenu,
   DropdownItem
 } from 'semantic-ui-react';
-import { setUser } from "../../actions";
+import { firestoreConnect } from "react-redux-firebase";
+import PropTypes from "prop-types";
 
 
 const SIGNED_IN_ROUTES = [
@@ -24,26 +26,15 @@ const SIGNED_IN_ROUTES = [
 
 class Header extends Component {
 
-  componentWillMount() {
-    // auth.onAuthStateChanged(user => {
-    //   if (user) {
-    //     this.props.dispatch(setUser(user));
-    //   }
-    // });
-  }
-
   handleSignOut = () => {
-    // auth.doSignOut().then(() => {
-    //   this.props.dispatch(setUser(null));
-    //   this.props.dispatch(replace("/signin"));
-    // });
-
+    this.props.firebase.logout();
   };
 
   handleItemClick = (e, {to}) => this.props.dispatch(replace(to));
 
   render() {
-    let activeItem = this.props.history.location ? this.props.history.location.pathname : "";
+    const {router, profile} = this.props;
+    let activeItem = router.location ? router.location.pathname : null;
     return (
       <Segment style={{padding: 0, backgroundColor: "#42A5F5"}}>
         <Menu pointing secondary>
@@ -52,50 +43,40 @@ class Header extends Component {
               <Icon name="won"/>
               My Expenses
             </MenuItem>
-            {
-              this.props.profile.isLoaded ?
-                SIGNED_IN_ROUTES.map(item => (
-                  <MenuItem
-                    style={{alignSelf: "normal"}}
-                    key={item.route}
-                    as={"a"}
-                    active={activeItem === item.route}
-                    to={item.route}
-                    onClick={this.handleItemClick}
-                    content={item.title}
-                  />
-                ))
-                :
-                <MenuItem
-                  as={"a"}
-                  active={true}
-                  to={'/signin'}
-                  style={{alignSelf: "normal"}}
-                  onClick={this.handleItemClick} content="Sign In"
-                />
+            {profile.isLoaded && !profile.isEmpty &&
+            SIGNED_IN_ROUTES.map(item => (
+              <MenuItem
+                style={{alignSelf: "normal"}}
+                key={item.route}
+                as={"a"}
+                active={activeItem === item.route}
+                to={item.route}
+                onClick={this.handleItemClick}
+                content={item.title}
+              />
+            ))
             }
-            {
-              this.props.profile.isLoaded &&
-              <Item className={"right"}>
-                <Dropdown icon={
-                  <Image
-                    centered
-                    avatar
-                    src={this.props.profile.photoURL}
-                    title={this.props.profile.email}
+            {profile.isLoaded && !profile.isEmpty &&
+            <Item className={"right"}>
+              <Dropdown icon={
+                <Image
+                  centered
+                  avatar
+                  src={profile.photoURL}
+                  title={profile.email}
+                />
+              }>
+                <DropdownMenu style={{marginTop: 12}}>
+                  <Dropdown.Header>
+                    Hey {profile.displayName},
+                  </Dropdown.Header>
+                  <DropdownItem
+                    content="SignOut"
+                    onClick={this.handleSignOut}
                   />
-                }>
-                  <DropdownMenu style={{marginTop: 12}}>
-                    <Dropdown.Header>
-                      Hey {this.props.profile.displayName},
-                    </Dropdown.Header>
-                    <DropdownItem
-                      content="SignOut"
-                      onClick={this.handleSignOut}
-                    />
-                  </DropdownMenu>
-                </Dropdown>
-              </Item>
+                </DropdownMenu>
+              </Dropdown>
+            </Item>
             }
           </Container>
         </Menu>
@@ -104,6 +85,17 @@ class Header extends Component {
   }
 }
 
-Header = connect((state) => ({history: state.router, session: state.session}))(Header);
+Header.propTypes = {
+  firebase: PropTypes.shape({
+    logout: PropTypes.func.isRequired
+  }),
+  profile: PropTypes.object,
+  router: PropTypes.object,
+};
 
-export default connect(({ firebase: { profile } }) => ({ profile }))(Header);
+export default compose(
+  firestoreConnect(),
+  connect(({firebase: {profile}, router}) => ({
+    profile,
+    router
+  })))(Header);

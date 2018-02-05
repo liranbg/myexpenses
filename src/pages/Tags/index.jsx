@@ -8,13 +8,12 @@ import {
   Label,
   Input
 } from 'semantic-ui-react';
-import { addTag as addTagFirebase, deleteTag as deleteTagFirebase } from '../../firebase/tags';
 import { connect } from 'react-redux';
 import { deleteTag, filterExpensesByTag } from '../../actions';
 import { Tag } from "../../proptypes";
 import PropTypes from "prop-types";
 import { push } from "react-router-redux";
-import { addTag as addTagAPI } from "../../store/tags";
+import { expensesToTagsUses } from '../../helpers';
 
 
 const INITIAL_STATE = {newTagName: '', actionAddTagLoading: false, actionDeleteTagLoading: false};
@@ -40,16 +39,16 @@ class TagsPage extends Component {
     this.setActionDeleteTagLoading(true);
     this.props.dispatch(deleteTag(tag.key));
     //Deletion is under the hood
-    deleteTagFirebase(tag.key);
-    this.setActionDeleteTagLoading(false)
+    this.setActionDeleteTagLoading(false);
   }
 
   addTag() {
     if (!this.state.newTagName.trim()) return;
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
-    addTagAPI(tagName);
     this.setActionAddTagLoading(false);
+    this.props.dispatch((tag.key));
+    //TODO: Add the tag
   }
 
   jsUcfirst(s) {
@@ -116,15 +115,8 @@ class TagsPage extends Component {
   }
 }
 
-function tagUses(expenses) {
-  let counts = {};
-  const sorted = expenses.map(expense => expense.tag).sort();
-  sorted.forEach(x => counts[x] = (counts[x] || 0) + 1);
-  return counts;
-}
-
 TagsPage.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
 };
-TagsPage = connect(state => ({tags: state.tags, tagsUses: tagUses(state.expenses)}))(TagsPage);
+TagsPage = connect(state => ({tags: state.tags, tagsUses: expensesToTagsUses(state.expenses)}))(TagsPage);
 export default TagsPage;
