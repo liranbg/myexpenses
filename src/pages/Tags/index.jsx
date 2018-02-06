@@ -10,7 +10,7 @@ import {
 } from 'semantic-ui-react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { deleteTag, filterExpensesByTag } from '../../actions';
+import { filterExpensesByTag } from '../../actions';
 import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
@@ -29,6 +29,7 @@ class TagsPage extends Component {
     this.state = INITIAL_STATE;
 
     this.addTag = this.addTag.bind(this);
+    this.deleteTag = this.deleteTag.bind(this);
     this.newTagNameInputHandler = this.newTagNameInputHandler.bind(this);
     this.newTagNameKeyPressed = this.newTagNameKeyPressed.bind(this);
   }
@@ -40,20 +41,21 @@ class TagsPage extends Component {
 
   componentWillMount() {}
 
-  deleteTag(tag) {
+  deleteTag(e, { tagid }) {
+    console.debug('Deleting Tag', tagid);
     this.setActionDeleteTagLoading(true);
-    this.props.dispatch(deleteTag(tag.key));
-    //Deletion is under the hood
-    this.setActionDeleteTagLoading(false);
+    this.props.firestore.delete(`tags/${tagid}`).then(() => {
+      this.setActionDeleteTagLoading(false);
+    });
   }
 
   addTag() {
     if (!this.state.newTagName.trim()) return;
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
-    this.setActionAddTagLoading(false);
-    this.props.dispatch(tag.key);
-    //TODO: Add the tag
+    this.props.firestore
+      .add('tags', { name: tagName })
+      .then(() => this.setActionAddTagLoading(false));
   }
 
   jsUcfirst(s) {
@@ -73,18 +75,19 @@ class TagsPage extends Component {
     return (
       <Container>
         <Header size="huge" content="Tags" />
-        {tags.map((tag, index) => (
-          <Segment key={index}>
+        {tags.map(tag => (
+          <Segment key={tag.key}>
             <Button
+              tagid={tag.id}
               compact
               negative
               loading={this.state.actionDeleteTagLoading}
-              disabled={this.state.actionDeleteTagLoading}
-              content="Delete"
-              floated="right"
+              disabled={this.state.actionDeleteTagLoading || !!this.props.tagsUses[tag.name]}
+              content={'Delete'}
+              floated={'right'}
               icon={'trash'}
-              size="small"
-              onClick={() => this.deleteTag(tag)}
+              size={'small'}
+              onClick={this.deleteTag}
             />
             <Icon name="tag" /> {tag.name}{' '}
             <Label
@@ -130,7 +133,7 @@ TagsPage.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  tags: firebaseTagsToArray(state.firestore.data.tags),
+  tags: firebaseTagsToArray(state.firestore.ordered.tags),
   tagsUses: expensesToTagsUses(state.expenses)
 });
 
