@@ -82,7 +82,10 @@ class TagsPage extends Component {
               compact
               negative
               loading={this.state.actionDeleteTagLoading}
-              disabled={this.state.actionDeleteTagLoading || !!this.props.tagsUses[tag.name]}
+              disabled={
+                this.state.actionDeleteTagLoading ||
+                !!this.props.tagsUses[tag.name]
+              }
               content={'Delete'}
               floated={'right'}
               icon={'trash'}

@@ -6,8 +6,6 @@ import {
   Header,
   Card,
   Container,
-  Search,
-  Input,
   Divider
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
@@ -18,48 +16,20 @@ import ExpenseCard from '../../components/Expense';
 import { connect } from 'react-redux';
 import { firebaseTagsToArray } from '../../helpers';
 import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
+import ExpensesSearch from '../../components/ExpenseSearch';
 
 class ExpensesPage extends Component {
   constructor() {
     super();
     this.state = {
-      isLoading: false,
-      results: [],
       value: ''
     };
+    this.selectedItem = this.selectedItem.bind(this);
   }
 
-  componentWillMount() {
-    this.resetSearchComponent();
+  selectedItem(value) {
+    this.setState({ value: value });
   }
-
-  resetSearchComponent = () => {
-    this.setState({
-      isLoading: false,
-      results: [],
-      value: ''
-    });
-  };
-
-  handleResultSelect = (e, { result }) => {
-    this.setState({
-      value: result.title
-    });
-  };
-
-  handleSearchChange = (e, { value }) => {
-    this.setState({ isLoading: true, value });
-    setTimeout(() => {
-      if (this.state.value.length < 1) return this.resetSearchComponent();
-      const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
-      const isMatch = result => re.test(result.name);
-      let results = _.uniqBy(_.filter(this.props.expenses, isMatch), 'name');
-      this.setState({
-        isLoading: false,
-        results: results.map(expense => ({ ...expense, title: expense.name }))
-      });
-    }, 100);
-  };
 
   handleFilterByTag = (e, { label, checked }) => {
     if (checked) this.props.dispatch(filterExpensesByTag(label));
@@ -67,7 +37,6 @@ class ExpensesPage extends Component {
   };
 
   render() {
-    const { isLoading, value, results } = this.state;
     const { expenses, tags, expensesView } = this.props;
     const expensesToDisplay = this.state.value
       ? this.props.expenses.filter(r => r.name === this.state.value)
@@ -76,21 +45,7 @@ class ExpensesPage extends Component {
       <Container>
         <Header size="huge" content="My Expenses" />
         <Divider />
-        <Search
-          loading={isLoading}
-          onResultSelect={this.handleResultSelect}
-          onSearchChange={this.handleSearchChange}
-          results={results}
-          value={value}
-          input={
-            <Input
-              fluid
-              icon="tags"
-              iconPosition="left"
-              placeholder="Enter an Expense name..."
-            />
-          }
-        />
+        <ExpensesSearch onSelected={this.selectedItem} expenses={expenses} />
         <Segment.Group horizontal>
           {!tags.length && (
             <Segment secondary textAlign={'center'} content={'No Tags'} />
