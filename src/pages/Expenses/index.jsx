@@ -53,7 +53,7 @@ class ExpensesPage extends Component {
       if (this.state.value.length < 1) return this.resetSearchComponent();
       const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
       const isMatch = result => re.test(result.name);
-      let results = _.filter(this.props.expenses, isMatch);
+      let results = _.uniqBy(_.filter(this.props.expenses, isMatch), 'name');
       this.setState({
         isLoading: false,
         results: results.map(expense => ({ ...expense, title: expense.name }))
@@ -133,7 +133,7 @@ const mapStateToProps = state => ({
     state.expensesView.filterTags
   ),
   expensesView: state.expensesView,
-  tags: firebaseTagsToArray(state.firestore.data.tags)
+  tags: firebaseTagsToArray(state.firestore.ordered.tags)
 });
 
 ExpensesPage = compose(firestoreConnect(['tags']), connect(mapStateToProps))(
