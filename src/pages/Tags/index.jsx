@@ -132,12 +132,20 @@ class TagsPage extends Component {
 }
 
 TagsPage.propTypes = {
-  tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+  tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+  tagsUses: PropTypes.object.isRequired
+};
+
+TagsPage.defaultProps = {
+  tags: [],
+  tagsUses: {}
 };
 
 const mapStateToProps = state => ({
   tags: state.firestore.ordered.tags,
-  tagsUses: expensesToTagsUses(state.firestore.ordered.expenses)
+  tagsUses: state.firestore.ordered.expenses
+    ? expensesToTagsUses(state.firestore.ordered.expenses)
+    : {}
 });
 
 TagsPage = compose(

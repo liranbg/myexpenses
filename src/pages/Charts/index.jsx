@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Card, Container } from 'semantic-ui-react';
+import { Header, Card, CardGroup, Container } from 'semantic-ui-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
@@ -13,11 +13,11 @@ export class ChartsPage extends Component {
 
   render() {
     const { tags, expenses } = this.props;
-    const tagsUses = expenses ? expensesToTagsUses(expenses) : {};
+    const tagsUses = expenses && expenses.length ? expensesToTagsUses(expenses) : {};
     return (
       <Container>
         <Header size="huge" content="Charts" />
-        <Card.Group itemsPerRow={2}>
+        <CardGroup stackable itemsPerRow={2}>
           <Card>
             <Line
               data={{
@@ -141,7 +141,7 @@ export class ChartsPage extends Component {
               }}
             />
           </Card>
-        </Card.Group>
+        </CardGroup>
       </Container>
     );
   }

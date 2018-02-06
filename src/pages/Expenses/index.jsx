@@ -60,7 +60,7 @@ class ExpensesPage extends Component {
           ))}
         </Segment.Group>
         <Divider />
-        <CardGroup itemsPerRow={3}>
+        <CardGroup stackable itemsPerRow={3}>
           {expensesToDisplay.map((expense, i) => (
             <ExpenseCard key={i} expense={{ ...expense }} tags={tags} />
           ))}
