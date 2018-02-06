@@ -12,7 +12,10 @@ const devConfig = {
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
+const getBatch = () => firebase.firestore().batch();
+
 if (!firebase.apps.length) {
   firebase.initializeApp(config);
 }
 export default firebase;
+export { getBatch };
