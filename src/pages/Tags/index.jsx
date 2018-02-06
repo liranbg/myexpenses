@@ -15,7 +15,7 @@ import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 import { push } from 'react-router-redux';
-import { expensesToTagsUses, firebaseTagsToArray } from '../../helpers';
+import { expensesToTagsUses } from '../../helpers';
 
 const INITIAL_STATE = {
   newTagName: '',
@@ -76,7 +76,7 @@ class TagsPage extends Component {
       <Container>
         <Header size="huge" content="Tags" />
         {tags.map(tag => (
-          <Segment key={tag.key}>
+          <Segment key={tag.id}>
             <Button
               tagid={tag.id}
               compact
@@ -136,7 +136,7 @@ TagsPage.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  tags: firebaseTagsToArray(state.firestore.ordered.tags),
+  tags: state.firestore.ordered.tags,
   tagsUses: expensesToTagsUses(state.expenses)
 });
 

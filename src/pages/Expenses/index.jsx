@@ -13,7 +13,6 @@ import { firestoreConnect } from 'react-redux-firebase';
 import { Expense, ExpensesView, Tag } from '../../proptypes';
 import ExpenseCard from '../../components/Expense';
 import { connect } from 'react-redux';
-import { firebaseTagsToArray } from '../../helpers';
 import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
 import ExpensesSearch from '../../components/ExpenseSearch';
 import { getExpensesFilterByTags } from '../../helpers';
@@ -51,7 +50,7 @@ class ExpensesPage extends Component {
             <Segment secondary textAlign={'center'} content={'No Tags'} />
           )}
           {tags.map(tag => (
-            <Segment key={tag.key}>
+            <Segment key={tag.id}>
               <Checkbox
                 checked={expensesView.filterTags.indexOf(tag.name) !== -1}
                 label={tag.name}
@@ -77,16 +76,23 @@ ExpensesPage.propTypes = {
   expensesView: PropTypes.shape(ExpensesView)
 };
 
+ExpensesPage.defaultProps = {
+  expenses: [],
+  tags: [],
+  expensesView: { filterTags: [] }
+};
+
 const mapStateToProps = state => ({
   expenses: getExpensesFilterByTags(
-    state.expenses,
+    state.firestore.ordered.expenses,
     state.expensesView.filterTags
   ),
   expensesView: state.expensesView,
-  tags: firebaseTagsToArray(state.firestore.ordered.tags)
+  tags: state.firestore.ordered.tags
 });
 
-ExpensesPage = compose(firestoreConnect(['tags']), connect(mapStateToProps))(
-  ExpensesPage
-);
+ExpensesPage = compose(
+  firestoreConnect(['tags', 'expenses']),
+  connect(mapStateToProps)
+)(ExpensesPage);
 export default ExpensesPage;

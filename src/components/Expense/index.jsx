@@ -35,11 +35,7 @@ class ExpenseCard extends Component {
   handleResultSelect = (e, { result }) => {
     this.setState({ value: result.title });
     this.props.dispatch(
-      setExpenseTag(
-        this.props.expense.key,
-        result.title,
-        this.state.applyForAll
-      )
+      setExpenseTag(this.props.expense.id, result.title, this.state.applyForAll)
     );
   };
 
@@ -61,7 +57,7 @@ class ExpenseCard extends Component {
   };
 
   deleteExpenseTag = () => {
-    this.props.dispatch(setExpenseTag(this.props.expense.key, 'Untagged'));
+    this.props.dispatch(setExpenseTag(this.props.expense.id, 'Untagged'));
     this.resetSearchComponent();
   };
 
