@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Header, Card, Container } from 'semantic-ui-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { Expense, Tag } from '../../proptypes';
 import { expensesToTagsUses } from '../../helpers';
+import { firestoreConnect } from "react-redux-firebase";
+import { compose } from "redux";
 
 export class ChartsPage extends Component {
   componentWillMount() {}
 
   render() {
-    const { tags, expenses, tagsUses } = this.props;
+    const { tags, expenses } = this.props;
+    const tagsUses = expenses?expensesToTagsUses(expenses):{};
     return (
       <Container>
         <Header size="huge" content="Charts" />
@@ -147,12 +150,20 @@ export class ChartsPage extends Component {
 ChartsPage.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-  tagsUses: PropTypes.object
 };
+
+ChartsPage.defaultProps = {
+  expenses: [],
+  tags: []
+};
+
 const mapStateToProps = state => ({
-  expenses: state.expenses,
-  tags: state.tags,
-  tagsUses: expensesToTagsUses(state.expenses)
+  expenses: state.firestore.ordered.expenses,
+  tags: state.firestore.ordered.tags,
 });
-ChartsPage = connect(mapStateToProps)(ChartsPage);
+
+
+ChartsPage = compose(firestoreConnect(['tags', 'expenses']), connect(mapStateToProps))(
+  ChartsPage
+);
 export default ChartsPage;
