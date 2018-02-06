@@ -137,11 +137,12 @@ TagsPage.propTypes = {
 
 const mapStateToProps = state => ({
   tags: state.firestore.ordered.tags,
-  tagsUses: expensesToTagsUses(state.expenses)
+  tagsUses: expensesToTagsUses(state.firestore.ordered.expenses)
 });
 
-TagsPage = compose(firestoreConnect(['tags']), connect(mapStateToProps))(
-  TagsPage
-);
+TagsPage = compose(
+  firestoreConnect(['tags', 'expenses']),
+  connect(mapStateToProps)
+)(TagsPage);
 
 export default TagsPage;

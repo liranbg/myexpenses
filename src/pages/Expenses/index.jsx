@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {
+  CardGroup,
   Segment,
   Checkbox,
   Header,
-  Card,
   Container,
   Divider
 } from 'semantic-ui-react';
@@ -60,11 +60,11 @@ class ExpensesPage extends Component {
           ))}
         </Segment.Group>
         <Divider />
-        <Card.Group itemsPerRow={3}>
+        <CardGroup itemsPerRow={3}>
           {expensesToDisplay.map((expense, i) => (
-            <ExpenseCard key={i} expense={{ ...expense }} />
+            <ExpenseCard key={i} expense={{ ...expense }} tags={tags} />
           ))}
-        </Card.Group>
+        </CardGroup>
       </Container>
     );
   }
