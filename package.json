@@ -16,7 +16,7 @@
     "dateformat": "^3.0.2",
     "firebase": "^4.9.1",
     "history": "^4.7.2",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-chartjs-2": "^2.7.0",
@@ -27,9 +27,9 @@
     "react-router-redux": "^5.0.0-alpha.9",
     "react-timeago": "^3.4.3",
     "redux": "^3.7.2",
-    "redux-firestore": "^0.2.6",
+    "redux-firestore": "^0.2.7",
     "semantic-ui-css": "^2.2.14",
-    "semantic-ui-react": "^0.77.2"
+    "semantic-ui-react": "^0.78.1"
   },
   "devDependencies": {
     "babel-preset-react-app": "^3.1.1",
