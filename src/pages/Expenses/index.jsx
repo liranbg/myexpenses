@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
 import {
   Segment,
@@ -17,6 +16,7 @@ import { connect } from 'react-redux';
 import { firebaseTagsToArray } from '../../helpers';
 import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
 import ExpensesSearch from '../../components/ExpenseSearch';
+import { getExpensesFilterByTags } from '../../helpers';
 
 class ExpensesPage extends Component {
   constructor() {
@@ -70,11 +70,6 @@ class ExpensesPage extends Component {
     );
   }
 }
-
-const getExpensesFilterByTags = (expenses, tags) => {
-  if (!tags.length) return expenses;
-  else return _.filter(expenses, expense => _.includes(tags, expense.tag));
-};
 
 ExpensesPage.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),

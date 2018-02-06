@@ -11,3 +11,8 @@ export function firebaseTagsToArray(tags) {
   Object.keys(tags).forEach((key, index) => (arrTagsValues[index].key = key));
   return arrTagsValues;
 }
+
+export function getExpensesFilterByTags(expenses, tags) {
+  if (!tags.length) return expenses;
+  else return _.filter(expenses, expense => _.includes(tags, expense.tag));
+}
