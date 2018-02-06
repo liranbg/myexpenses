@@ -36,4 +36,4 @@ const store = createStoreWithFirebase(
 );
 
 export default store;
-export { history, useMock };
+export { history };
