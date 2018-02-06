@@ -11,11 +11,15 @@ import {
   Checkbox,
   Segment
 } from 'semantic-ui-react';
+import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { filterExpensesByTag, setExpenseTag } from '../../actions';
+import { filterExpensesByTag } from '../../actions';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
+import { firestoreConnect } from 'react-redux-firebase';
+import { compose } from 'redux';
+import { getBatch } from '../../firebase';
 
 class ExpenseCard extends Component {
   componentWillMount() {
@@ -29,14 +33,31 @@ class ExpenseCard extends Component {
       isLoading: false,
       results: [],
       value: '',
-      applyForAll: false
+      applyForAll: true,
+      applyForUntaggedOnly: true
     });
 
   handleResultSelect = (e, { result }) => {
     this.setState({ value: result.title });
-    this.props.dispatch(
-      setExpenseTag(this.props.expense.id, result.title, this.state.applyForAll)
-    );
+    if (this.state.applyForAll) {
+      let getOptions = {
+        collection: 'expenses',
+        where: [['name', '==', this.props.expense.name]]
+      };
+      if (this.state.applyForUntaggedOnly)
+        getOptions.where.push(['tag', '==', 'Untagged']);
+      this.props.firestore.get(getOptions).then(queryDocumentSnapshot => {
+        const batch = getBatch();
+        queryDocumentSnapshot.forEach(doc => {
+          batch.update(doc.ref, { tag: result.title });
+        });
+        batch.commit();
+      });
+    } else {
+      this.props.firestore.update(`expenses/${this.props.expense.id}`, {
+        tag: result.title
+      });
+    }
   };
 
   handleSearchChange = (e, { value }) => {
@@ -57,7 +78,9 @@ class ExpenseCard extends Component {
   };
 
   deleteExpenseTag = () => {
-    this.props.dispatch(setExpenseTag(this.props.expense.id, 'Untagged'));
+    this.props.firestore.update(`expenses/${this.props.expense.id}`, {
+      tag: 'Untagged'
+    });
     this.resetSearchComponent();
   };
 
@@ -70,8 +93,14 @@ class ExpenseCard extends Component {
     const { isLoading, value, results } = this.state;
     return (
       <Card>
-        <Segment clearing basic secondary style={{ marginBottom: 0 }}>
+        <Segment
+          clearing
+          basic
+          secondary
+          style={{ marginBottom: 0, backgroundColor: '#42A5F5' }}
+        >
           <Label
+            basic
             as={expense.tag ? 'a' : ''}
             onClick={this.handleFilterByTag}
             icon={<Icon name="tag" />}
@@ -97,23 +126,23 @@ class ExpenseCard extends Component {
         />
         <Card.Content>
           <Card.Meta>
-            <p>
+            <Container>
               <Icon name="calendar" />
-              <span>
+              <Label>
                 {DateFormat(new Date(expense.date), 'dddd, mmmm dS, yyyy')} (<TimeAgo
                   date={expense.date}
                 />)
-              </span>
-            </p>
-            <p>
+              </Label>
+            </Container>
+            <Container style={{ marginTop: 6 }}>
               <Icon name="money" />
-              <span>
+              <Label>
                 {new Intl.NumberFormat('en-IN', {
                   style: 'currency',
                   currency: expense.currency
                 }).format(expense.amount)}
-              </span>
-            </p>
+              </Label>
+            </Container>
           </Card.Meta>
           <Card.Description>{expense.notes}</Card.Description>
         </Card.Content>
@@ -121,13 +150,25 @@ class ExpenseCard extends Component {
           <Card.Content extra>
             <Segment vertical>
               <Container>
-                Apply for all expenses with the same name
                 <Checkbox
-                  toggle
-                  style={{ float: 'right' }}
+                  label={
+                    <label>Apply for all expenses with the same name</label>
+                  }
                   checked={this.state.applyForAll}
                   onChange={() =>
                     this.setState({ applyForAll: !this.state.applyForAll })
+                  }
+                />
+              </Container>
+              <Container>
+                <Checkbox
+                  disabled={!this.state.applyForAll}
+                  label={<label>Apply for 'Untagged' expenses only</label>}
+                  checked={this.state.applyForUntaggedOnly}
+                  onChange={() =>
+                    this.setState({
+                      applyForUntaggedOnly: !this.state.applyForUntaggedOnly
+                    })
                   }
                 />
               </Container>
@@ -156,9 +197,10 @@ class ExpenseCard extends Component {
 }
 
 ExpenseCard.propTypes = {
-  expense: PropTypes.object.isRequired
+  expense: PropTypes.object.isRequired,
+  tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 };
-const mapStateToProps = state => ({ tags: state.tags });
-ExpenseCard = connect(mapStateToProps)(ExpenseCard);
+
+ExpenseCard = compose(firestoreConnect(), connect())(ExpenseCard);
 
 export default ExpenseCard;
