@@ -1,7 +1,7 @@
 import * as firebase from 'firebase';
 import 'firebase/firestore';
 
-const devConfig = {
+const config = {
   apiKey: 'AIzaSyAubH1g7zOTXU3v8bYLJjxL_WRfWMuGLQc',
   authDomain: 'myexpenses-d80db.firebaseapp.com',
   databaseURL: 'https://myexpenses-d80db.firebaseio.com',
@@ -10,7 +10,7 @@ const devConfig = {
   messagingSenderId: '629530944828'
 };
 
-const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+// const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 const getBatch = () => firebase.firestore().batch();
 
