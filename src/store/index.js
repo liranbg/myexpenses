@@ -12,8 +12,6 @@ const middleware = routerMiddleware(history);
 
 const rrfConfig = {
   userProfile: 'users',
-  presence: 'presence',
-  sessions: 'sessions',
   useFirestoreForProfile: true
 };
 
