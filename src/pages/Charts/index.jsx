@@ -7,6 +7,7 @@ import { Expense, Tag } from '../../proptypes';
 import { expensesToTagsUses } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
+import ChartDateSelection from '../../components/ChartDateSelection';
 
 export class ChartsPage extends Component {
   render() {
@@ -16,6 +17,7 @@ export class ChartsPage extends Component {
     return (
       <Container>
         <Header size="huge" content="Charts" />
+        <ChartDateSelection minYear={2016} maxYear={2018} />
         <CardGroup stackable itemsPerRow={2}>
           <Card>
             <Line
