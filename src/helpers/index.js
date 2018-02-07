@@ -1,12 +1,13 @@
 import _ from 'lodash';
 
 export function expensesToTagsUses(expenses) {
-  let counts = {};
-  expenses
-    .map(expense => expense.tag)
-    .sort()
-    .forEach(x => (counts[x] = (counts[x] || 0) + 1));
-  return counts;
+  return Object.assign(
+    {},
+    ..._(expenses)
+      .groupBy('tag')
+      .values()
+      .map(group => ({ [group[0].tag]: group.length }))
+  );
 }
 
 export function getExpensesFilterByTags(expenses, tags) {
