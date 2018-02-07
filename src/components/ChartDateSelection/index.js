@@ -17,6 +17,13 @@ class ChartDateSelection extends Component {
     toMonthValue: 1
   };
 
+  componentWillMount() {
+    this.setState({
+      fromYearValue: this.props.minYear,
+      toYearValue: this.props.maxYear
+    });
+  }
+
   monthsOptions = [
     { key: 0, text: 'January', value: 1 },
     { key: 1, text: 'February', value: 2 },
@@ -32,14 +39,27 @@ class ChartDateSelection extends Component {
     { key: 11, text: 'December', value: 12 }
   ];
 
-  setFromYearValue = (e, { value }) => this.setState({ fromYearValue: value });
+  setFromYearValue = (e, { value }) => {
+    this.setState({ fromYearValue: value });
+    this.onSelected({ ...this.state, fromYearValue: value });
+  };
 
-  setFromMonthValue = (e, { value }) =>
+  setFromMonthValue = (e, { value }) => {
     this.setState({ fromMonthValue: value });
+    this.onSelected({ ...this.state, fromMonthValue: value });
+  };
 
-  setToYearValue = (e, { value }) => this.setState({ toYearValue: value });
+  setToYearValue = (e, { value }) => {
+    this.setState({ toYearValue: value });
+    this.onSelected({ ...this.state, toYearValue: value });
+  };
 
-  setToMonthValue = (e, { value }) => this.setState({ toMonthValue: value });
+  setToMonthValue = (e, { value }) => {
+    this.setState({ toMonthValue: value });
+    this.onSelected({ ...this.state, toMonthValue: value });
+  };
+
+  onSelected = value => this.props.onSelected && this.props.onSelected(value);
 
   render() {
     const { maxYear, minYear } = this.props;
@@ -62,8 +82,7 @@ class ChartDateSelection extends Component {
       value: num
     }));
     toYearValue =
-      (toYearValue >= fromYearValue ? toYearValue : false) ||
-      toOptions[0].value;
+      toYearValue >= fromYearValue ? toYearValue : toOptions[0].value;
 
     let fromMonthsOptions = this.monthsOptions;
     let toMonthsOptions = [...fromMonthsOptions];
@@ -121,7 +140,8 @@ class ChartDateSelection extends Component {
 
 ChartDateSelection.propTypes = {
   minYear: PropTypes.number.isRequired,
-  maxYear: PropTypes.number.isRequired
+  maxYear: PropTypes.number.isRequired,
+  onSelected: PropTypes.func
 };
 
 export default ChartDateSelection;

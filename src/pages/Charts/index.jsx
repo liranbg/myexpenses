@@ -8,16 +8,69 @@ import { expensesToTagsUses } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
+import { setDatesRange } from '../../actions';
+
+const INITIAL_DATE_RANGE = {
+  fromYearValue: 2014,
+  fromMonthValue: 1,
+  toYearValue: 2018,
+  toMonthValue: 12
+};
 
 export class ChartsPage extends Component {
+  onSelected = value => {
+    this.props.dispatch(
+      setDatesRange(
+        value.fromYearValue,
+        value.toYearValue,
+        value.fromMonthValue,
+        value.toMonthValue
+      )
+    );
+  };
+
+  componentWillUnmount() {
+    this.props.dispatch(
+      setDatesRange(
+        INITIAL_DATE_RANGE.fromYearValue,
+        INITIAL_DATE_RANGE.toYearValue,
+        INITIAL_DATE_RANGE.fromMonthValue,
+        INITIAL_DATE_RANGE.toMonthValue
+      )
+    );
+  }
+
+  filterExpensesByDates(expenses) {
+    const {
+      fromYearValue,
+      fromMonthValue,
+      toYearValue,
+      toMonthValue
+    } = this.props.chartsView;
+    const fromDate = new Date(fromYearValue, fromMonthValue - 1, 1);
+    const toDate = new Date(toYearValue, toMonthValue - 1, 31);
+    return expenses.filter(
+      expense =>
+        expense.date.getTime() <= toDate.getTime() &&
+        expense.date.getTime() >= fromDate.getTime()
+    );
+  }
+
   render() {
     const { tags, expenses } = this.props;
+    const filteredExpenses = this.filterExpensesByDates(expenses);
     const tagsUses =
-      expenses && expenses.length ? expensesToTagsUses(expenses) : {};
+      filteredExpenses && filteredExpenses.length
+        ? expensesToTagsUses(filteredExpenses)
+        : {};
     return (
       <Container>
         <Header size="huge" content="Charts" />
-        <ChartDateSelection minYear={2016} maxYear={2018} />
+        <ChartDateSelection
+          onSelected={this.onSelected}
+          minYear={2014}
+          maxYear={2018}
+        />
         <CardGroup stackable itemsPerRow={2}>
           <Card>
             <Line
@@ -29,21 +82,19 @@ export class ChartsPage extends Component {
                   'April',
                   'May',
                   'June',
-                  'July'
+                  'July',
+                  'August',
+                  'September',
+                  'October',
+                  'November',
+                  'December'
                 ],
                 datasets: [
                   {
                     label: 'Tag B',
-                    data: [65, 59, 80, 81, 56, 55, 40],
+                    data: [1, 2, 3, 4, 1, 6, 7, 3, 15, 3, 5, 4],
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',
-                    lineTension: 0.2
-                  },
-                  {
-                    label: 'Tag A',
-                    data: [100, 2, 10, 81, 33, 78, 40],
-                    fill: false,
-                    borderColor: 'rgb(25, 160, 20)',
                     lineTension: 0.2
                   }
                 ]
@@ -52,6 +103,9 @@ export class ChartsPage extends Component {
                 scales: {
                   yAxes: [
                     {
+                      ticks: {
+                        beginAtZero: true
+                      },
                       scaleLabel: {
                         display: true,
                         labelString: 'Total Spent'
@@ -60,6 +114,13 @@ export class ChartsPage extends Component {
                   ],
                   xAxes: [
                     {
+                      time: {
+                        unit: 'month',
+                        displayFormats: {
+                          quarter: 'MMM YYYY'
+                        },
+                        distribution: 'series'
+                      },
                       scaleLabel: {
                         display: true,
                         labelString: 'Monthly'
@@ -70,51 +131,53 @@ export class ChartsPage extends Component {
               }}
             />
           </Card>
-          <Card>
-            <Doughnut
-              data={{
-                labels: tags
-                  .filter(tag => tagsUses[tag.name])
-                  .map(tag => tag.name),
-                datasets: [
-                  {
-                    data: tags
-                      .filter(tag => tagsUses[tag.name])
-                      .map(tag => tagsUses[tag.name] || 0),
-                    backgroundColor: [
-                      '#F7464A',
-                      '#46BFBD',
-                      '#FDB45C',
-                      '#949FB1',
-                      '#4D5360'
-                    ]
-                  }
-                ]
-              }}
-              options={{
-                title: {
-                  display: true,
-                  text: 'Tags uses Doughnut Chart'
-                },
-                tooltips: {
-                  callbacks: {
-                    label: function(tooltipItem, data) {
-                      const dataset = data.datasets[tooltipItem.datasetIndex];
-                      const total = dataset.data.reduce(
-                        (previousValue, currentValue) =>
-                          previousValue + currentValue
-                      );
-                      const currentValue = dataset.data[tooltipItem.index];
-                      const percentage = Math.floor(
-                        currentValue / total * 100 + 0.5
-                      );
-                      return percentage + '%';
+          {!!Object.keys(tagsUses).length && (
+            <Card>
+              <Doughnut
+                data={{
+                  labels: tags
+                    .filter(tag => tagsUses[tag.name])
+                    .map(tag => tag.name),
+                  datasets: [
+                    {
+                      data: tags
+                        .filter(tag => tagsUses[tag.name])
+                        .map(tag => tagsUses[tag.name] || 0),
+                      backgroundColor: [
+                        '#F7464A',
+                        '#46BFBD',
+                        '#FDB45C',
+                        '#949FB1',
+                        '#4D5360'
+                      ]
+                    }
+                  ]
+                }}
+                options={{
+                  title: {
+                    display: true,
+                    text: 'Tags uses Doughnut Chart'
+                  },
+                  tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                        const dataset = data.datasets[tooltipItem.datasetIndex];
+                        const total = dataset.data.reduce(
+                          (previousValue, currentValue) =>
+                            previousValue + currentValue
+                        );
+                        const currentValue = dataset.data[tooltipItem.index];
+                        const percentage = Math.floor(
+                          currentValue / total * 100 + 0.5
+                        );
+                        return percentage + '%';
+                      }
                     }
                   }
-                }
-              }}
-            />
-          </Card>
+                }}
+              />
+            </Card>
+          )}
           <Card>
             <Bar
               data={{
@@ -155,12 +218,14 @@ ChartsPage.propTypes = {
 
 ChartsPage.defaultProps = {
   expenses: [],
-  tags: []
+  tags: [],
+  chartsView: INITIAL_DATE_RANGE
 };
 
 const mapStateToProps = state => ({
   expenses: state.firestore.ordered.expenses,
-  tags: state.firestore.ordered.tags
+  tags: state.firestore.ordered.tags,
+  chartsView: state.chartsView
 });
 
 ChartsPage = compose(
