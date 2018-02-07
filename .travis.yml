@@ -1,9 +1,20 @@
 language: node_js
-node_js:
- — “7”
-script:
- — echo “Deploy!!”
+node_js: lts/*
+sudo: false
+
+before_install:
+- curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.3.2
+- export PATH=$HOME/.yarn/bin:$PATH
+
+cache:
+  directories: node_modules
+  yarn: true
+
 install:
- — npm install -g firebase-tools
-after_success:
- — firebase deploy — project myexpenses-d80db — token $FIREBASE_TOKEN.
+- yarn install
+- yarn build
+
+deploy:
+  skip_cleanup: true
+  provider: firebase
+  token: $FIREBASE_TOKEN
