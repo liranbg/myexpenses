@@ -9,11 +9,10 @@ import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 
 export class ChartsPage extends Component {
-  componentWillMount() {}
-
   render() {
     const { tags, expenses } = this.props;
-    const tagsUses = expenses && expenses.length ? expensesToTagsUses(expenses) : {};
+    const tagsUses =
+      expenses && expenses.length ? expensesToTagsUses(expenses) : {};
     return (
       <Container>
         <Header size="huge" content="Charts" />

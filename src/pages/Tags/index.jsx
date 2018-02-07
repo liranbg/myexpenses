@@ -24,15 +24,7 @@ const INITIAL_STATE = {
 };
 
 class TagsPage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = INITIAL_STATE;
-
-    this.addTag = this.addTag.bind(this);
-    this.deleteTag = this.deleteTag.bind(this);
-    this.newTagNameInputHandler = this.newTagNameInputHandler.bind(this);
-    this.newTagNameKeyPressed = this.newTagNameKeyPressed.bind(this);
-  }
+  state = { ...INITIAL_STATE };
 
   setActionAddTagLoading = bool => this.setState({ actionAddTagLoading: bool });
 
@@ -41,34 +33,34 @@ class TagsPage extends Component {
 
   componentWillMount() {}
 
-  deleteTag(e, { tagid }) {
+  deleteTag = (e, { tagid }) => {
     console.debug('Deleting Tag', tagid);
     this.setActionDeleteTagLoading(true);
     this.props.firestore.delete(`tags/${tagid}`).then(() => {
       this.setActionDeleteTagLoading(false);
     });
-  }
+  };
 
-  addTag() {
+  addTag = () => {
     if (!this.state.newTagName.trim()) return;
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
     this.props.firestore
       .add('tags', { name: tagName })
       .then(() => this.setActionAddTagLoading(false));
-  }
+  };
 
   jsUcfirst(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  newTagNameInputHandler(e) {
+  newTagNameInputHandler = e => {
     this.setState({ newTagName: this.jsUcfirst(e.target.value) });
-  }
+  };
 
-  newTagNameKeyPressed(e) {
+  newTagNameKeyPressed = e => {
     if (e.key === 'Enter') this.addTag();
-  }
+  };
 
   render() {
     const { tags } = this.props;

@@ -15,10 +15,6 @@ import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 
 class SignInForm extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   handleGoogleLogin = () => {
     this.props.firebase.login({
       provider: 'google',

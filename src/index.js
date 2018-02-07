@@ -21,6 +21,6 @@ class Root extends React.Component {
 ReactDOM.render(<Root />, document.getElementById('root'));
 
 if (module.hot) {
-  // module.hot.dispose(() => ({}));
+  module.hot.dispose(() => ({}));
   module.hot.accept(() => ({}));
 }

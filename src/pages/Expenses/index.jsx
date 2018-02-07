@@ -18,17 +18,13 @@ import ExpensesSearch from '../../components/ExpenseSearch';
 import { getExpensesFilterByTags } from '../../helpers';
 
 class ExpensesPage extends Component {
-  constructor() {
-    super();
-    this.state = {
-      value: ''
-    };
-    this.selectedItem = this.selectedItem.bind(this);
-  }
+  state = {
+    value: ''
+  };
 
-  selectedItem(value) {
+  selectedItem = value => {
     this.setState({ value: value });
-  }
+  };
 
   handleFilterByTag = (e, { label, checked }) => {
     if (checked) this.props.dispatch(filterExpensesByTag(label));

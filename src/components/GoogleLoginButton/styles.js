@@ -51,10 +51,6 @@ export const hoverStyle = {
   transition: 'background-color .218s, border-color .218s, box-shadow .218s'
 };
 
-// export const pressedStyle = {
-//   backgroundColor: '#3367D6'
-// }
-
 export const disabledStyle = {
   backgroundColor: 'rgba(37, 5, 5, .08)',
   color: 'rgba(0, 0, 0, .40)',
