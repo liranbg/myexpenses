@@ -1,10 +1,12 @@
+import _ from 'lodash';
+import moment from 'moment';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Header, Card, CardGroup, Container } from 'semantic-ui-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
-import { expensesToTagsUses } from '../../helpers';
+import { expensesToTagsUses, getFilteredExpensesByDates } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
@@ -40,29 +42,10 @@ export class ChartsPage extends Component {
     );
   }
 
-  filterExpensesByDates(expenses) {
-    const {
-      fromYearValue,
-      fromMonthValue,
-      toYearValue,
-      toMonthValue
-    } = this.props.chartsView;
-    const fromDate = new Date(fromYearValue, fromMonthValue - 1, 1);
-    const toDate = new Date(toYearValue, toMonthValue - 1, 31);
-    return expenses.filter(
-      expense =>
-        expense.date.getTime() <= toDate.getTime() &&
-        expense.date.getTime() >= fromDate.getTime()
-    );
-  }
-
   render() {
-    const { tags, expenses } = this.props;
-    const filteredExpenses = this.filterExpensesByDates(expenses);
-    const tagsUses =
-      filteredExpenses && filteredExpenses.length
-        ? expensesToTagsUses(filteredExpenses)
-        : {};
+    const { fromDate, toDate, tags, expenses } = this.props;
+    const groupedExpenses = _.groupBy(expenses, 'tag');
+    const tagsUses = expensesToTagsUses(expenses);
     return (
       <Container>
         <Header size="huge" content="Charts" />
@@ -71,68 +54,58 @@ export class ChartsPage extends Component {
           minYear={2014}
           maxYear={2018}
         />
-        <CardGroup stackable itemsPerRow={2}>
-          <Card>
-            <Line
-              data={{
-                labels: [
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                  'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December'
-                ],
-                datasets: [
-                  {
-                    label: 'Tag B',
-                    data: [1, 2, 3, 4, 1, 6, 7, 3, 15, 3, 5, 4],
+        {!!Object.keys(groupedExpenses).length && (
+          <CardGroup>
+            <Card fluid>
+              <Line
+                data={{
+                  datasets: Object.entries(groupedExpenses).map(a => ({
+                    label: a[0],
+                    data: a[1].map(expense => ({
+                      x: expense.date,
+                      y: expense.amount
+                    })),
                     fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: tags.find(tag => tag.name === a[0]).color,
                     lineTension: 0.2
-                  }
-                ]
-              }}
-              options={{
-                scales: {
-                  yAxes: [
-                    {
-                      ticks: {
-                        beginAtZero: true
-                      },
-                      scaleLabel: {
-                        display: true,
-                        labelString: 'Total Spent'
-                      }
-                    }
-                  ],
-                  xAxes: [
-                    {
-                      time: {
-                        unit: 'month',
-                        displayFormats: {
-                          quarter: 'MMM YYYY'
+                  }))
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  scaleBeginAtZero: true,
+                  scales: {
+                    yAxes: [
+                      {
+                        type: 'linear',
+                        scaleLabel: {
+                          display: true,
+                          labelString: 'Total Spent'
                         },
-                        distribution: 'series'
-                      },
-                      scaleLabel: {
-                        display: true,
-                        labelString: 'Monthly'
+                        ticks: {
+                          suggestedMin: 0
+                        }
                       }
-                    }
-                  ]
-                }
-              }}
-            />
-          </Card>
-          {!!Object.keys(tagsUses).length && (
-            <Card>
+                    ],
+                    xAxes: [
+                      {
+                        type: 'time',
+                        scaleLabel: {
+                          display: true,
+                          labelString: 'Timeline'
+                        },
+                        time: {
+                          min: fromDate,
+                          max: toDate,
+                          unit: 'month'
+                        }
+                      }
+                    ]
+                  }
+                }}
+              />
+            </Card>
+            <Card fluid>
               <Doughnut
                 data={{
                   labels: tags
@@ -143,13 +116,9 @@ export class ChartsPage extends Component {
                       data: tags
                         .filter(tag => tagsUses[tag.name])
                         .map(tag => tagsUses[tag.name] || 0),
-                      backgroundColor: [
-                        '#F7464A',
-                        '#46BFBD',
-                        '#FDB45C',
-                        '#949FB1',
-                        '#4D5360'
-                      ]
+                      backgroundColor: tags
+                        .filter(tag => tagsUses[tag.name])
+                        .map(tag => tag.color)
                     }
                   ]
                 }}
@@ -177,35 +146,44 @@ export class ChartsPage extends Component {
                 }}
               />
             </Card>
-          )}
-          <Card>
-            <Bar
-              data={{
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [
-                  {
-                    label: '# of Votes',
-                    data: Array.from({ length: 6 }, () =>
-                      Math.floor(Math.random() * 20)
-                    ),
-                    borderWidth: 1
-                  }
-                ]
-              }}
-              options={{
-                scales: {
-                  yAxes: [
+            <Card fluid>
+              <Bar
+                //TODO: This chart should sum all expenses within each month
+                //TODO This chart should support month view and year view
+                data={{
+                  labels: [
+                    'Red',
+                    'Blue',
+                    'Yellow',
+                    'Green',
+                    'Purple',
+                    'Orange'
+                  ],
+                  datasets: [
                     {
-                      ticks: {
-                        beginAtZero: true
-                      }
+                      label: 'Summary',
+                      data: Array.from({ length: 6 }, () =>
+                        Math.floor(Math.random() * 20)
+                      ),
+                      borderWidth: 1
                     }
                   ]
-                }
-              }}
-            />
-          </Card>
-        </CardGroup>
+                }}
+                options={{
+                  scales: {
+                    yAxes: [
+                      {
+                        ticks: {
+                          beginAtZero: true
+                        }
+                      }
+                    ]
+                  }
+                }}
+              />
+            </Card>
+          </CardGroup>
+        )}
       </Container>
     );
   }
@@ -222,11 +200,36 @@ ChartsPage.defaultProps = {
   chartsView: INITIAL_DATE_RANGE
 };
 
-const mapStateToProps = state => ({
-  expenses: state.firestore.ordered.expenses,
-  tags: state.firestore.ordered.tags,
-  chartsView: state.chartsView
-});
+const mapStateToProps = state => {
+  let fromYear = state.chartsView.fromYearValue
+    ? state.chartsView.fromYearValue
+    : INITIAL_DATE_RANGE.fromYearValue;
+  let fromMonth = state.chartsView.fromMonthValue
+    ? state.chartsView.fromMonthValue
+    : INITIAL_DATE_RANGE.fromMonthValue;
+
+  let toYear = state.chartsView.toYearValue
+    ? state.chartsView.toYearValue
+    : INITIAL_DATE_RANGE.toYearValue;
+  let toMonth = state.chartsView.toMonthValue
+    ? state.chartsView.toMonthValue
+    : INITIAL_DATE_RANGE.toMonthValue;
+
+  const fromDate = moment.utc([fromYear, fromMonth - 1, 1]);
+  const toDate = moment.utc([toYear, toMonth - 1, 1]);
+
+  return {
+    expenses: getFilteredExpensesByDates(
+      state.firestore.ordered.expenses || [],
+      fromDate,
+      toDate
+    ),
+    tags: state.firestore.ordered.tags,
+    chartsView: state.chartsView,
+    fromDate: fromDate,
+    toDate: toDate
+  };
+};
 
 ChartsPage = compose(
   firestoreConnect(['tags', 'expenses']),
