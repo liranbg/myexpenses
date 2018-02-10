@@ -3,7 +3,7 @@ node_js: lts/*
 sudo: false
 
 before_install:
-- curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.3.2
+- curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.4.0
 - export PATH=$HOME/.yarn/bin:$PATH
 
 cache:
@@ -13,6 +13,10 @@ cache:
 install:
 - yarn install
 - yarn build
+
+branches:
+  only:
+    - "master"
 
 deploy:
   skip_cleanup: true
