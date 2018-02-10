@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React, { Component } from 'react';
 import {
   CardGroup,
@@ -79,10 +80,10 @@ ExpensesPage.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  expenses: getExpensesFilterByTags(
+  expenses: _.sortBy(getExpensesFilterByTags(
     state.firestore.ordered.expenses,
     state.expensesView.filterTags
-  ),
+  ), 'date'),
   expensesView: state.expensesView,
   tags: state.firestore.ordered.tags
 });

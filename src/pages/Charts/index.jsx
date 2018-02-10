@@ -139,6 +139,7 @@ export class ChartsPage extends Component {
               />
             </Card>
             <Card fluid>
+
               <Bar
                 //TODO: This chart should sum all expenses within each month
                 //TODO This chart should support month view and year view
