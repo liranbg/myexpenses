@@ -2,7 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Card, CardGroup, Container } from 'semantic-ui-react';
+import { Segment, Header, Card, CardGroup, Container, Button, SegmentGroup } from 'semantic-ui-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
@@ -12,48 +12,36 @@ import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
 import { setDatesRange } from '../../actions';
 
-const INITIAL_DATE_RANGE = {
-  fromYearValue: 2014,
-  fromMonthValue: 1,
-  toYearValue: 2018,
-  toMonthValue: 12
-};
-
 export class ChartsPage extends Component {
-  onSelected = value => {
-    this.props.dispatch(
-      setDatesRange(
-        value.fromYearValue,
-        value.toYearValue,
-        value.fromMonthValue,
-        value.toMonthValue
-      )
-    );
+  narrowDatesByExpenses = () => {
+    const {fromDate, toDate, expenses} = this.props;
+    if (expenses.length > 1) {
+      const minDate = moment(expenses[0].date);
+      const maxDate = moment(expenses[expenses.length - 1].date);
+      this.props.dispatch(
+        setDatesRange(
+          fromDate,
+          toDate,
+          minDate,
+          maxDate
+        )
+      );
+    }
   };
 
-  componentWillUnmount() {
-    this.props.dispatch(
-      setDatesRange(
-        INITIAL_DATE_RANGE.fromYearValue,
-        INITIAL_DATE_RANGE.toYearValue,
-        INITIAL_DATE_RANGE.fromMonthValue,
-        INITIAL_DATE_RANGE.toMonthValue
-      )
-    );
-  }
-
   render() {
-    const { fromDate, toDate, tags, expenses } = this.props;
+    const {selectedFromDate, selectedToDate, tags, expenses} = this.props;
     const groupedExpenses = _.groupBy(expenses, 'tag');
     const tagsUses = expensesToTagsUses(expenses);
     return (
       <Container>
-        <Header size="huge" content="Charts" />
-        <ChartDateSelection
-          onSelected={this.onSelected}
-          minYear={2014}
-          maxYear={2018}
-        />
+        <Header size="huge" content="Charts"/>
+        <SegmentGroup>
+          <ChartDateSelection/>
+          <Segment textAlign={"center"}>
+            <Button onClick={this.narrowDatesByExpenses} content={"Narrow Dates"}/>
+          </Segment>
+        </SegmentGroup>
         {!!Object.keys(groupedExpenses).length && (
           <CardGroup>
             <Card fluid>
@@ -95,8 +83,8 @@ export class ChartsPage extends Component {
                           labelString: 'Timeline'
                         },
                         time: {
-                          min: fromDate,
-                          max: toDate,
+                          min: moment(selectedFromDate),
+                          max: moment(selectedToDate),
                           unit: 'month'
                         }
                       }
@@ -109,16 +97,16 @@ export class ChartsPage extends Component {
               <Doughnut
                 data={{
                   labels: tags
-                    .filter(tag => tagsUses[tag.name])
-                    .map(tag => tag.name),
+                  .filter(tag => tagsUses[tag.name])
+                  .map(tag => tag.name),
                   datasets: [
                     {
                       data: tags
-                        .filter(tag => tagsUses[tag.name])
-                        .map(tag => tagsUses[tag.name] || 0),
+                      .filter(tag => tagsUses[tag.name])
+                      .map(tag => tagsUses[tag.name] || 0),
                       backgroundColor: tags
-                        .filter(tag => tagsUses[tag.name])
-                        .map(tag => tag.color)
+                      .filter(tag => tagsUses[tag.name])
+                      .map(tag => tag.color)
                     }
                   ]
                 }}
@@ -129,7 +117,7 @@ export class ChartsPage extends Component {
                   },
                   tooltips: {
                     callbacks: {
-                      label: function(tooltipItem, data) {
+                      label: function (tooltipItem, data) {
                         const dataset = data.datasets[tooltipItem.datasetIndex];
                         const total = dataset.data.reduce(
                           (previousValue, currentValue) =>
@@ -162,7 +150,7 @@ export class ChartsPage extends Component {
                   datasets: [
                     {
                       label: 'Summary',
-                      data: Array.from({ length: 6 }, () =>
+                      data: Array.from({length: 6}, () =>
                         Math.floor(Math.random() * 20)
                       ),
                       borderWidth: 1
@@ -191,43 +179,23 @@ export class ChartsPage extends Component {
 
 ChartsPage.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
-  tags: PropTypes.arrayOf(PropTypes.shape(Tag))
-};
-
-ChartsPage.defaultProps = {
-  expenses: [],
-  tags: [],
-  chartsView: INITIAL_DATE_RANGE
+  tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+  fromDate: PropTypes.object,
+  toDate: PropTypes.object,
 };
 
 const mapStateToProps = state => {
-  let fromYear = state.chartsView.fromYearValue
-    ? state.chartsView.fromYearValue
-    : INITIAL_DATE_RANGE.fromYearValue;
-  let fromMonth = state.chartsView.fromMonthValue
-    ? state.chartsView.fromMonthValue
-    : INITIAL_DATE_RANGE.fromMonthValue;
-
-  let toYear = state.chartsView.toYearValue
-    ? state.chartsView.toYearValue
-    : INITIAL_DATE_RANGE.toYearValue;
-  let toMonth = state.chartsView.toMonthValue
-    ? state.chartsView.toMonthValue
-    : INITIAL_DATE_RANGE.toMonthValue;
-
-  const fromDate = moment.utc([fromYear, fromMonth - 1, 1]);
-  const toDate = moment.utc([toYear, toMonth - 1, 1]);
-
   return {
     expenses: getFilteredExpensesByDates(
       state.firestore.ordered.expenses || [],
-      fromDate,
-      toDate
+      state.chartsView.selectedFromDate,
+      state.chartsView.selectedToDate
     ),
     tags: state.firestore.ordered.tags,
-    chartsView: state.chartsView,
-    fromDate: fromDate,
-    toDate: toDate
+    selectedFromDate: state.chartsView.selectedFromDate,
+    selectedToDate: state.chartsView.selectedToDate,
+    fromDate: state.chartsView.fromDate,
+    toDate: state.chartsView.toDate
   };
 };
 
