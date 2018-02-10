@@ -7,105 +7,124 @@ import {
   Header,
   Dropdown
 } from 'semantic-ui-react';
-import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { setDatesRange } from '../../actions';
 
 class ChartDateSelection extends Component {
-  state = {
-    fromYearValue: 0,
-    fromMonthValue: 1,
-    toYearValue: 0,
-    toMonthValue: 1
-  };
-
-  componentWillMount() {
-    this.setState({
-      fromYearValue: this.props.minYear,
-      toYearValue: this.props.maxYear
-    });
-  }
-
   monthsOptions = [
-    { key: 0, text: 'January', value: 1 },
-    { key: 1, text: 'February', value: 2 },
-    { key: 2, text: 'March', value: 3 },
-    { key: 3, text: 'April', value: 4 },
-    { key: 4, text: 'May', value: 5 },
-    { key: 5, text: 'June', value: 6 },
-    { key: 6, text: 'July', value: 7 },
-    { key: 7, text: 'August', value: 8 },
-    { key: 8, text: 'September', value: 9 },
-    { key: 9, text: 'October', value: 10 },
-    { key: 10, text: 'November', value: 11 },
-    { key: 11, text: 'December', value: 12 }
+    {key: 0, text: 'January', value: 0},
+    {key: 1, text: 'February', value: 1},
+    {key: 2, text: 'March', value: 2},
+    {key: 3, text: 'April', value: 3},
+    {key: 4, text: 'May', value: 4},
+    {key: 5, text: 'June', value: 5},
+    {key: 6, text: 'July', value: 6},
+    {key: 7, text: 'August', value: 7},
+    {key: 8, text: 'September', value: 8},
+    {key: 9, text: 'October', value: 9},
+    {key: 10, text: 'November', value: 10},
+    {key: 11, text: 'December', value: 11}
   ];
 
-  setFromYearValue = (e, { value }) => {
-    this.setState({ fromYearValue: value });
-    this.onSelected({ ...this.state, fromYearValue: value });
+  setFromYearValue = (e, {value}) => {
+    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+    this.props.dispatch(
+      setDatesRange(
+        fromDate,
+        toDate,
+        selectedFromDate.year(value),
+        selectedToDate
+      )
+    );
   };
 
-  setFromMonthValue = (e, { value }) => {
-    this.setState({ fromMonthValue: value });
-    this.onSelected({ ...this.state, fromMonthValue: value });
+  setFromMonthValue = (e, {value}) => {
+    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+
+    const shouldUpdateToDate =
+      selectedFromDate.year() === selectedToDate.year() &&
+      selectedToDate.month() <= selectedFromDate.month(value).month();
+
+    this.props.dispatch(
+      setDatesRange(
+        fromDate,
+        toDate,
+        selectedFromDate.month(value),
+        shouldUpdateToDate ? selectedToDate.month(value) : selectedToDate
+      )
+    );
   };
 
-  setToYearValue = (e, { value }) => {
-    this.setState({ toYearValue: value });
-    this.onSelected({ ...this.state, toYearValue: value });
+  setToYearValue = (e, {value}) => {
+    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+    const shouldUpdateToDateMonth = selectedFromDate.year() === value && selectedFromDate.month() < selectedToDate.month();
+    this.props.dispatch(
+      setDatesRange(
+        fromDate,
+        toDate,
+        selectedFromDate,
+        shouldUpdateToDateMonth ? selectedToDate.year(value).month(selectedFromDate.month()) : selectedToDate.year(value)
+      )
+    );
   };
 
-  setToMonthValue = (e, { value }) => {
-    this.setState({ toMonthValue: value });
-    this.onSelected({ ...this.state, toMonthValue: value });
+  setToMonthValue = (e, {value}) => {
+    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+    this.props.dispatch(
+      setDatesRange(
+        fromDate,
+        toDate,
+        selectedFromDate,
+        selectedToDate.month(value)
+      )
+    );
   };
 
-  onSelected = value => this.props.onSelected && this.props.onSelected(value);
+  getFromYearsOptions() {
+    const {fromDate, toDate} = this.props;
+    return _.range(fromDate.year(), toDate.year() + 1).map(num => ({
+      key: num,
+      text: num.toString(),
+      value: num
+    }));
+  }
+
+  getToYearsOptions() {
+    const {selectedFromDate, toDate} = this.props;
+    return _.range(selectedFromDate.year(), toDate.year() + 1).map(num => ({
+      key: num,
+      text: num.toString(),
+      value: num
+    }));
+  }
 
   render() {
-    const { maxYear, minYear } = this.props;
-    let {
-      fromYearValue,
-      toYearValue,
-      fromMonthValue,
-      toMonthValue
-    } = this.state;
-    const fromOptions = _.range(minYear, maxYear + 1).map(num => ({
-      key: num,
-      text: num.toString(),
-      value: num
-    }));
-    fromYearValue = fromYearValue || fromOptions[0].value;
-
-    const toOptions = _.range(fromYearValue, maxYear + 1).map(num => ({
-      key: num,
-      text: num.toString(),
-      value: num
-    }));
-    toYearValue =
-      toYearValue >= fromYearValue ? toYearValue : toOptions[0].value;
-
+    const {selectedFromDate, selectedToDate} = this.props;
+    const fromOptions = this.getFromYearsOptions();
+    const toOptions = this.getToYearsOptions();
     let fromMonthsOptions = this.monthsOptions;
-    let toMonthsOptions = [...fromMonthsOptions];
-    if (fromYearValue === toYearValue && fromMonthValue !== toMonthValue) {
-      toMonthsOptions = toMonthsOptions.slice(fromMonthValue - 1);
-      if (toMonthValue <= fromMonthValue) toMonthValue = fromMonthValue;
-    }
+    const shouldLimitMonthsSelection =
+      selectedFromDate.year() === selectedToDate.year();
+
+    const toMonthsOptions = shouldLimitMonthsSelection
+      ? fromMonthsOptions.slice(selectedFromDate.month())
+      : fromMonthsOptions;
 
     return (
       <SegmentGroup horizontal>
         <Segment>
-          <Header textAlign={'center'} content={'From Year'} />
+          <Header textAlign={'center'} content={'From Year'}/>
           <Dropdown
-            value={fromYearValue}
+            value={selectedFromDate.year()}
             onChange={this.setFromYearValue}
             placeholder="Year"
             fluid
             selection
             options={fromOptions}
           />
-          <Divider hidden />
+          <Divider hidden/>
           <Dropdown
-            value={fromMonthValue}
+            value={selectedFromDate.month()}
             onChange={this.setFromMonthValue}
             placeholder="Year"
             fluid
@@ -114,18 +133,18 @@ class ChartDateSelection extends Component {
           />
         </Segment>
         <Segment>
-          <Header textAlign={'center'} content={'To Year'} />
+          <Header textAlign={'center'} content={'To Year'}/>
           <Dropdown
-            value={toYearValue}
+            value={selectedToDate.year()}
             onChange={this.setToYearValue}
             placeholder="Year"
             fluid
             selection
             options={toOptions}
           />
-          <Divider hidden />
+          <Divider hidden/>
           <Dropdown
-            value={toMonthValue}
+            value={selectedToDate.month()}
             onChange={this.setToMonthValue}
             placeholder="Year"
             fluid
@@ -138,10 +157,10 @@ class ChartDateSelection extends Component {
   }
 }
 
-ChartDateSelection.propTypes = {
-  minYear: PropTypes.number.isRequired,
-  maxYear: PropTypes.number.isRequired,
-  onSelected: PropTypes.func
-};
-
+ChartDateSelection = connect(state => ({
+  fromDate: state.chartsView.fromDate,
+  toDate: state.chartsView.toDate,
+  selectedFromDate: state.chartsView.selectedFromDate,
+  selectedToDate: state.chartsView.selectedToDate
+}))(ChartDateSelection);
 export default ChartDateSelection;
