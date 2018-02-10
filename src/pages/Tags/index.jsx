@@ -37,7 +37,7 @@ class TagsPage extends Component {
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
     this.props.firestore
-      .add('tags', { name: tagName, color:"#000000" })
+      .add('tags', { name: tagName, color: '#000000' })
       .then(() => this.setActionAddTagLoading(false));
   };
 
