@@ -12,22 +12,22 @@ import { setDatesRange } from '../../actions';
 
 class ChartDateSelection extends Component {
   monthsOptions = [
-    {key: 0, text: 'January', value: 0},
-    {key: 1, text: 'February', value: 1},
-    {key: 2, text: 'March', value: 2},
-    {key: 3, text: 'April', value: 3},
-    {key: 4, text: 'May', value: 4},
-    {key: 5, text: 'June', value: 5},
-    {key: 6, text: 'July', value: 6},
-    {key: 7, text: 'August', value: 7},
-    {key: 8, text: 'September', value: 8},
-    {key: 9, text: 'October', value: 9},
-    {key: 10, text: 'November', value: 10},
-    {key: 11, text: 'December', value: 11}
+    { key: 0, text: 'January', value: 0 },
+    { key: 1, text: 'February', value: 1 },
+    { key: 2, text: 'March', value: 2 },
+    { key: 3, text: 'April', value: 3 },
+    { key: 4, text: 'May', value: 4 },
+    { key: 5, text: 'June', value: 5 },
+    { key: 6, text: 'July', value: 6 },
+    { key: 7, text: 'August', value: 7 },
+    { key: 8, text: 'September', value: 8 },
+    { key: 9, text: 'October', value: 9 },
+    { key: 10, text: 'November', value: 10 },
+    { key: 11, text: 'December', value: 11 }
   ];
 
-  setFromYearValue = (e, {value}) => {
-    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+  setFromYearValue = (e, { value }) => {
+    const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
     this.props.dispatch(
       setDatesRange(
         fromDate,
@@ -38,8 +38,8 @@ class ChartDateSelection extends Component {
     );
   };
 
-  setFromMonthValue = (e, {value}) => {
-    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+  setFromMonthValue = (e, { value }) => {
+    const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
 
     const shouldUpdateToDate =
       selectedFromDate.year() === selectedToDate.year() &&
@@ -55,21 +55,25 @@ class ChartDateSelection extends Component {
     );
   };
 
-  setToYearValue = (e, {value}) => {
-    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
-    const shouldUpdateToDateMonth = selectedFromDate.year() === value && selectedFromDate.month() < selectedToDate.month();
+  setToYearValue = (e, { value }) => {
+    const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
+    const shouldUpdateToDateMonth =
+      selectedFromDate.year() === value &&
+      selectedFromDate.month() < selectedToDate.month();
     this.props.dispatch(
       setDatesRange(
         fromDate,
         toDate,
         selectedFromDate,
-        shouldUpdateToDateMonth ? selectedToDate.year(value).month(selectedFromDate.month()) : selectedToDate.year(value)
+        shouldUpdateToDateMonth
+          ? selectedToDate.year(value).month(selectedFromDate.month())
+          : selectedToDate.year(value)
       )
     );
   };
 
-  setToMonthValue = (e, {value}) => {
-    const {fromDate, toDate, selectedFromDate, selectedToDate} = this.props;
+  setToMonthValue = (e, { value }) => {
+    const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
     this.props.dispatch(
       setDatesRange(
         fromDate,
@@ -81,7 +85,7 @@ class ChartDateSelection extends Component {
   };
 
   getFromYearsOptions() {
-    const {fromDate, toDate} = this.props;
+    const { fromDate, toDate } = this.props;
     return _.range(fromDate.year(), toDate.year() + 1).map(num => ({
       key: num,
       text: num.toString(),
@@ -90,7 +94,7 @@ class ChartDateSelection extends Component {
   }
 
   getToYearsOptions() {
-    const {selectedFromDate, toDate} = this.props;
+    const { selectedFromDate, toDate } = this.props;
     return _.range(selectedFromDate.year(), toDate.year() + 1).map(num => ({
       key: num,
       text: num.toString(),
@@ -99,7 +103,7 @@ class ChartDateSelection extends Component {
   }
 
   render() {
-    const {selectedFromDate, selectedToDate} = this.props;
+    const { selectedFromDate, selectedToDate } = this.props;
     const fromOptions = this.getFromYearsOptions();
     const toOptions = this.getToYearsOptions();
     let fromMonthsOptions = this.monthsOptions;
@@ -113,7 +117,7 @@ class ChartDateSelection extends Component {
     return (
       <SegmentGroup horizontal>
         <Segment>
-          <Header textAlign={'center'} content={'From Year'}/>
+          <Header textAlign={'center'} content={'From Year'} />
           <Dropdown
             value={selectedFromDate.year()}
             onChange={this.setFromYearValue}
@@ -122,7 +126,7 @@ class ChartDateSelection extends Component {
             selection
             options={fromOptions}
           />
-          <Divider hidden/>
+          <Divider hidden />
           <Dropdown
             value={selectedFromDate.month()}
             onChange={this.setFromMonthValue}
@@ -133,7 +137,7 @@ class ChartDateSelection extends Component {
           />
         </Segment>
         <Segment>
-          <Header textAlign={'center'} content={'To Year'}/>
+          <Header textAlign={'center'} content={'To Year'} />
           <Dropdown
             value={selectedToDate.year()}
             onChange={this.setToYearValue}
@@ -142,7 +146,7 @@ class ChartDateSelection extends Component {
             selection
             options={toOptions}
           />
-          <Divider hidden/>
+          <Divider hidden />
           <Dropdown
             value={selectedToDate.month()}
             onChange={this.setToMonthValue}
