@@ -223,8 +223,8 @@ ExpenseCard.propTypes = {
 
 ExpenseCard = compose(
   firestoreConnect(),
-  connect(({ firebase: { profile } }) => ({
-    profile
+  connect(({ firebase: { profile }}) => ({
+    profile,
   }))
 )(ExpenseCard);
 
