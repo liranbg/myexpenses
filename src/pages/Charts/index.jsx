@@ -2,7 +2,15 @@ import _ from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Header, Card, CardGroup, Container, Button, SegmentGroup } from 'semantic-ui-react';
+import {
+  Segment,
+  Header,
+  Card,
+  CardGroup,
+  Container,
+  Button,
+  SegmentGroup
+} from 'semantic-ui-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
@@ -14,32 +22,28 @@ import { setDatesRange } from '../../actions';
 
 export class ChartsPage extends Component {
   narrowDatesByExpenses = () => {
-    const {fromDate, toDate, expenses} = this.props;
+    const { fromDate, toDate, expenses } = this.props;
     if (expenses.length > 1) {
       const minDate = moment(expenses[0].date);
       const maxDate = moment(expenses[expenses.length - 1].date);
-      this.props.dispatch(
-        setDatesRange(
-          fromDate,
-          toDate,
-          minDate,
-          maxDate
-        )
-      );
+      this.props.dispatch(setDatesRange(fromDate, toDate, minDate, maxDate));
     }
   };
 
   render() {
-    const {selectedFromDate, selectedToDate, tags, expenses} = this.props;
+    const { selectedFromDate, selectedToDate, tags, expenses } = this.props;
     const groupedExpenses = _.groupBy(expenses, 'tag');
     const tagsUses = expensesToTagsUses(expenses);
     return (
       <Container>
-        <Header size="huge" content="Charts"/>
+        <Header size="huge" content="Charts" />
         <SegmentGroup>
-          <ChartDateSelection/>
-          <Segment textAlign={"center"}>
-            <Button onClick={this.narrowDatesByExpenses} content={"Narrow Dates"}/>
+          <ChartDateSelection />
+          <Segment textAlign={'center'}>
+            <Button
+              onClick={this.narrowDatesByExpenses}
+              content={'Narrow Dates'}
+            />
           </Segment>
         </SegmentGroup>
         {!!Object.keys(groupedExpenses).length && (
@@ -97,16 +101,16 @@ export class ChartsPage extends Component {
               <Doughnut
                 data={{
                   labels: tags
-                  .filter(tag => tagsUses[tag.name])
-                  .map(tag => tag.name),
+                    .filter(tag => tagsUses[tag.name])
+                    .map(tag => tag.name),
                   datasets: [
                     {
                       data: tags
-                      .filter(tag => tagsUses[tag.name])
-                      .map(tag => tagsUses[tag.name] || 0),
+                        .filter(tag => tagsUses[tag.name])
+                        .map(tag => tagsUses[tag.name] || 0),
                       backgroundColor: tags
-                      .filter(tag => tagsUses[tag.name])
-                      .map(tag => tag.color)
+                        .filter(tag => tagsUses[tag.name])
+                        .map(tag => tag.color)
                     }
                   ]
                 }}
@@ -117,7 +121,7 @@ export class ChartsPage extends Component {
                   },
                   tooltips: {
                     callbacks: {
-                      label: function (tooltipItem, data) {
+                      label: function(tooltipItem, data) {
                         const dataset = data.datasets[tooltipItem.datasetIndex];
                         const total = dataset.data.reduce(
                           (previousValue, currentValue) =>
@@ -135,6 +139,7 @@ export class ChartsPage extends Component {
               />
             </Card>
             <Card fluid>
+
               <Bar
                 //TODO: This chart should sum all expenses within each month
                 //TODO This chart should support month view and year view
@@ -150,7 +155,7 @@ export class ChartsPage extends Component {
                   datasets: [
                     {
                       label: 'Summary',
-                      data: Array.from({length: 6}, () =>
+                      data: Array.from({ length: 6 }, () =>
                         Math.floor(Math.random() * 20)
                       ),
                       borderWidth: 1
@@ -181,7 +186,7 @@ ChartsPage.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
   fromDate: PropTypes.object,
-  toDate: PropTypes.object,
+  toDate: PropTypes.object
 };
 
 const mapStateToProps = state => {

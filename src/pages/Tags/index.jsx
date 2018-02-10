@@ -1,13 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Header,
-  Container,
-  Segment,
-  Button,
-  Icon,
-  Label,
-  Input
-} from 'semantic-ui-react';
+import { Header, Container, Segment, Button, Input } from 'semantic-ui-react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { filterExpensesByTag } from '../../actions';
@@ -16,11 +8,11 @@ import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 import { push } from 'react-router-redux';
 import { expensesToTagsUses } from '../../helpers';
+import TagSegment from '../../components/TagSegment';
 
 const INITIAL_STATE = {
   newTagName: '',
-  actionAddTagLoading: false,
-  actionDeleteTagLoading: false
+  actionAddTagLoading: false
 };
 
 class TagsPage extends Component {
@@ -28,17 +20,16 @@ class TagsPage extends Component {
 
   setActionAddTagLoading = bool => this.setState({ actionAddTagLoading: bool });
 
-  setActionDeleteTagLoading = bool =>
-    this.setState({ actionDeleteTagLoading: bool });
-
-  componentWillMount() {}
+  setTagColor = (color, tagId) => {
+    console.debug('Setting Tags color', tagId);
+    this.props.firestore.update(`tags/${tagId}`, {
+      color: color
+    });
+  };
 
   deleteTag = (e, { tagid }) => {
     console.debug('Deleting Tag', tagid);
-    this.setActionDeleteTagLoading(true);
-    this.props.firestore.delete(`tags/${tagid}`).then(() => {
-      this.setActionDeleteTagLoading(false);
-    });
+    this.props.firestore.delete(`tags/${tagid}`);
   };
 
   addTag = () => {
@@ -46,16 +37,16 @@ class TagsPage extends Component {
     this.setActionAddTagLoading(true);
     let tagName = this.state.newTagName.trim();
     this.props.firestore
-      .add('tags', { name: tagName })
+      .add('tags', { name: tagName, color: '#000000' })
       .then(() => this.setActionAddTagLoading(false));
   };
 
-  jsUcfirst(s) {
+  static jsUcfirst(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   newTagNameInputHandler = e => {
-    this.setState({ newTagName: this.jsUcfirst(e.target.value) });
+    this.setState({ newTagName: TagsPage.jsUcfirst(e.target.value) });
   };
 
   newTagNameKeyPressed = e => {
@@ -63,39 +54,24 @@ class TagsPage extends Component {
   };
 
   render() {
-    const { tags } = this.props;
+    const { tags, tagsUses } = this.props;
     return (
       <Container>
         <Header size="huge" content="Tags" />
         {tags.map(tag => (
-          <Segment key={tag.id}>
-            <Button
-              tagid={tag.id}
-              compact
-              negative
-              loading={this.state.actionDeleteTagLoading}
-              disabled={
-                this.state.actionDeleteTagLoading ||
-                !!this.props.tagsUses[tag.name]
-              }
-              content={'Delete'}
-              floated={'right'}
-              icon={'trash'}
-              size={'small'}
-              onClick={this.deleteTag}
-            />
-            <Icon name="tag" /> {tag.name}{' '}
-            <Label
-              circular
-              as={'a'}
-              onClick={() => {
-                this.props.dispatch(filterExpensesByTag(tag.name, true));
-                this.props.dispatch(push('/expenses'));
-              }}
-            >
-              {this.props.tagsUses[tag.name] || 0} uses
-            </Label>
-          </Segment>
+          <TagSegment
+            key={tag.id}
+            tagUses={tagsUses[tag.name] || 0}
+            tagColor={tag.color}
+            tagId={tag.id}
+            tagName={tag.name}
+            onDeleteTag={this.deleteTag}
+            onSelectUses={() => {
+              this.props.dispatch(filterExpensesByTag(tag.name, true));
+              this.props.dispatch(push('/expenses'));
+            }}
+            onSelectTagColor={this.setTagColor}
+          />
         ))}
         <Segment>
           <Button

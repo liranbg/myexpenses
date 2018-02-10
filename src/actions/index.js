@@ -13,7 +13,12 @@ export function remFilterExpensesByTag(tagName) {
   return { type: REM_FILTER_EXPENSES_BY_TAG, payload: { tagName: tagName } };
 }
 
-export function setDatesRange(fromDate, toDate, selectedFromDate, selectedToDate) {
+export function setDatesRange(
+  fromDate,
+  toDate,
+  selectedFromDate,
+  selectedToDate
+) {
   return {
     type: SET_DATES_RANGE,
     payload: {

@@ -20,7 +20,7 @@ function setDate(payload) {
 const chartsViewReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case SET_DATES_RANGE:
-      return {...state, ...setDate(action.payload)};
+      return { ...state, ...setDate(action.payload) };
     default:
       return state;
   }

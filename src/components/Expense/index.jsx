@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import {
   Container,
   Search,
+  CardContent,
   Input,
   Button,
   Label,
@@ -38,36 +39,41 @@ class ExpenseCard extends Component {
     });
 
   handleResultSelect = (e, { result }) => {
+    const { profile, expense, firestore } = this.props;
+    const { applyForUntaggedOnly, applyForAll } = this.state;
     this.setState({ value: result.title });
-    if (this.state.applyForAll) {
+    const updatedDoc = {
+      tag: result.title,
+      modifiedBy: profile.email
+    };
+    if (applyForAll) {
       let getOptions = {
         collection: 'expenses',
-        where: [['name', '==', this.props.expense.name]]
+        where: [['name', '==', expense.name]]
       };
-      if (this.state.applyForUntaggedOnly)
+      if (applyForUntaggedOnly)
         getOptions.where.push(['tag', '==', 'Untagged']);
-      this.props.firestore.get(getOptions).then(queryDocumentSnapshot => {
+      firestore.get(getOptions).then(queryDocumentSnapshot => {
         const batch = getBatch();
         queryDocumentSnapshot.forEach(doc => {
-          batch.update(doc.ref, { tag: result.title });
+          batch.update(doc.ref, updatedDoc);
         });
         batch.commit();
       });
     } else {
-      this.props.firestore.update(`expenses/${this.props.expense.id}`, {
-        tag: result.title
-      });
+      firestore.update(`expenses/${expense.id}`, updatedDoc);
     }
   };
 
   handleSearchChange = (e, { value }) => {
+    const { expense, tags } = this.props;
     this.setState({ isLoading: true, value });
     setTimeout(() => {
       if (this.state.value.length < 1) return this.resetSearchComponent();
       const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
       const isMatch = result => re.test(result.name);
       let results = _.filter(
-        this.props.tags.filter(tag => tag.name !== this.props.expense.tag),
+        tags.filter(tag => tag.name !== expense.tag),
         isMatch
       );
       this.setState({
@@ -78,8 +84,10 @@ class ExpenseCard extends Component {
   };
 
   deleteExpenseTag = () => {
+    const { profile } = this.props;
     this.props.firestore.update(`expenses/${this.props.expense.id}`, {
-      tag: 'Untagged'
+      tag: 'Untagged',
+      modifiedBy: profile.email
     });
     this.resetSearchComponent();
   };
@@ -89,7 +97,7 @@ class ExpenseCard extends Component {
   };
 
   render() {
-    let expense = this.props.expense;
+    const { expense } = this.props;
     const { isLoading, value, results } = this.state;
     return (
       <Card>
@@ -122,33 +130,45 @@ class ExpenseCard extends Component {
           as="h1"
           content={expense.name}
           textAlign="center"
-          style={{ margin: 12 }}
+          style={{ margin: 2 }}
         />
         <Card.Content>
           <Card.Meta>
             <Container>
               <Icon name="calendar" />
-              <Label>
-                {DateFormat(new Date(expense.date), 'dddd, mmmm dS, yyyy')} (<TimeAgo
-                  date={expense.date}
-                />)
-              </Label>
+              <Label
+                children={
+                  <span>
+                    {DateFormat(new Date(expense.date), 'mmmm dS, yyyy')} (<TimeAgo
+                      date={expense.date}
+                    />)
+                  </span>
+                }
+              />
             </Container>
             <Container style={{ marginTop: 6 }}>
               <Icon name="money" />
-              <Label>
-                {new Intl.NumberFormat('en-IN', {
-                  style: 'currency',
-                  currency: expense.currency
-                }).format(expense.amount)}
-              </Label>
+              <Label
+                children={
+                  <span>
+                    {new Intl.NumberFormat('en-IN', {
+                      style: 'currency',
+                      currency: expense.currency
+                    }).format(expense.amount)}
+                  </span>
+                }
+              />
+            </Container>
+            <Container style={{ marginTop: 6 }}>
+              <Icon name={'user'} />
+              <Label content={`Last updated by: ${expense.modifiedBy}`} />
             </Container>
           </Card.Meta>
           <Card.Description>{expense.notes}</Card.Description>
         </Card.Content>
-        {!this.isExpenseUntagged() ? null : (
-          <Card.Content extra>
-            <Segment vertical>
+        {this.isExpenseUntagged() && (
+          <CardContent extra>
+            <Segment vertical style={{ padding: 0 }}>
               <Container>
                 <Checkbox
                   label={
@@ -173,7 +193,7 @@ class ExpenseCard extends Component {
                 />
               </Container>
               <Search
-                style={{ marginTop: 20 }}
+                style={{ marginTop: 15 }}
                 loading={isLoading}
                 onResultSelect={this.handleResultSelect}
                 onSearchChange={this.handleSearchChange}
@@ -189,7 +209,7 @@ class ExpenseCard extends Component {
                 }
               />
             </Segment>
-          </Card.Content>
+          </CardContent>
         )}
       </Card>
     );
@@ -201,6 +221,11 @@ ExpenseCard.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 };
 
-ExpenseCard = compose(firestoreConnect(), connect())(ExpenseCard);
+ExpenseCard = compose(
+  firestoreConnect(),
+  connect(({ firebase: { profile }}) => ({
+    profile,
+  }))
+)(ExpenseCard);
 
 export default ExpenseCard;
