@@ -26,7 +26,6 @@ const TagSegment = ({
         compact
         negative
         disabled={!!tagUses}
-        content={'Delete'}
         floated={'right'}
         icon={'trash'}
         size={'small'}

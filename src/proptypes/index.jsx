@@ -11,7 +11,9 @@ export const Expense = {
   date: PropTypes.instanceOf(Date),
   amount: PropTypes.number.isRequired,
   tag: PropTypes.string.isRequired,
-  currency: PropTypes.string.isRequired
+  currency: PropTypes.string.isRequired,
+  createdBy: PropTypes.string,
+  modifiedBy: PropTypes.string
 };
 
 export const ExpensesView = {
