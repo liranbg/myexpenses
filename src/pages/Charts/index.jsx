@@ -11,13 +11,14 @@ import {
   Button,
   SegmentGroup
 } from 'semantic-ui-react';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
 import { expensesToTagsUses, getFilteredExpensesByDates } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
+import BarChartCard from '../../components/BarChartCard';
 import { setDatesRange } from '../../actions';
 
 export class ChartsPage extends Component {
@@ -32,13 +33,31 @@ export class ChartsPage extends Component {
 
   render() {
     const { selectedFromDate, selectedToDate, tags, expenses } = this.props;
-    const groupedExpenses = _.groupBy(expenses, 'tag');
+    let groupedExpenses = _.groupBy(expenses, 'tag');
+    groupedExpenses = Object.assign(
+      {},
+      ...Object.entries(groupedExpenses).map(entry => {
+        let reducer = {};
+        const tag = entry[0];
+        let expenses = entry[1];
+        expenses.reduce((a, b) => {
+          reducer[b.date.toISOString()] =
+            (reducer[b.date.toISOString()] || 0) + b.amount;
+        });
+        expenses = Object.entries(reducer).map(a => ({
+          date: moment(a[0]),
+          amount: a[1]
+        }));
+        entry[1] = expenses;
+        return { [tag]: expenses };
+      })
+    );
     const tagsUses = expensesToTagsUses(expenses);
     return (
       <Container>
         <Header size="huge" content="Charts" />
         <SegmentGroup>
-          <ChartDateSelection />
+          <ChartDateSelection/>
           <Segment textAlign={'center'}>
             <Button
               onClick={this.narrowDatesByExpenses}
@@ -48,6 +67,10 @@ export class ChartsPage extends Component {
         </SegmentGroup>
         {!!Object.keys(groupedExpenses).length && (
           <CardGroup>
+            <BarChartCard
+                          expenses={groupedExpenses}
+                          tags={tags}
+            />
             <Card fluid>
               <Line
                 data={{
@@ -57,7 +80,7 @@ export class ChartsPage extends Component {
                       x: expense.date,
                       y: expense.amount
                     })),
-                    fill: false,
+                    fill: true,
                     backgroundColor: tags.find(tag => tag.name === a[0]).color,
                     lineTension: 0.2
                   }))
@@ -65,7 +88,7 @@ export class ChartsPage extends Component {
                 options={{
                   responsive: true,
                   maintainAspectRatio: true,
-                  scaleBeginAtZero: true,
+                  // scaleBeginAtZero: true,
                   scales: {
                     yAxes: [
                       {
@@ -134,43 +157,6 @@ export class ChartsPage extends Component {
                         return percentage + '%';
                       }
                     }
-                  }
-                }}
-              />
-            </Card>
-            <Card fluid>
-
-              <Bar
-                //TODO: This chart should sum all expenses within each month
-                //TODO This chart should support month view and year view
-                data={{
-                  labels: [
-                    'Red',
-                    'Blue',
-                    'Yellow',
-                    'Green',
-                    'Purple',
-                    'Orange'
-                  ],
-                  datasets: [
-                    {
-                      label: 'Summary',
-                      data: Array.from({ length: 6 }, () =>
-                        Math.floor(Math.random() * 20)
-                      ),
-                      borderWidth: 1
-                    }
-                  ]
-                }}
-                options={{
-                  scales: {
-                    yAxes: [
-                      {
-                        ticks: {
-                          beginAtZero: true
-                        }
-                      }
-                    ]
                   }
                 }}
               />
