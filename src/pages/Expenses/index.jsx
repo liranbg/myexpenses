@@ -1,9 +1,8 @@
-import _ from 'lodash'
+import _ from 'lodash';
 import React, { Component } from 'react';
 import {
   CardGroup,
-  Segment,
-  Checkbox,
+  Dropdown,
   Header,
   Container,
   Divider
@@ -27,9 +26,17 @@ class ExpensesPage extends Component {
     this.setState({ value: value });
   };
 
-  handleFilterByTag = (e, { label, checked }) => {
-    if (checked) this.props.dispatch(filterExpensesByTag(label));
-    else this.props.dispatch(remFilterExpensesByTag(label));
+  handleFilterByTag = (e, { value }) => {
+    const { expensesView: { filterTags } } = this.props;
+    let current = new Set(filterTags);
+    let next = new Set(value);
+    if (current.size <= next.size) {
+      const labelAdded = [...next].find(x => !current.has(x));
+      this.props.dispatch(filterExpensesByTag(labelAdded));
+    } else {
+      const labelRemoved = [...current].find(x => !next.has(x));
+      this.props.dispatch(remFilterExpensesByTag(labelRemoved));
+    }
   };
 
   render() {
@@ -42,24 +49,27 @@ class ExpensesPage extends Component {
         <Header size="huge" content="My Expenses" />
         <Divider />
         <ExpensesSearch onSelected={this.selectedItem} expenses={expenses} />
-        <Segment.Group horizontal>
-          {!tags.length && (
-            <Segment secondary textAlign={'center'} content={'No Tags'} />
-          )}
-          {tags.map(tag => (
-            <Segment key={tag.id}>
-              <Checkbox
-                checked={expensesView.filterTags.indexOf(tag.name) !== -1}
-                label={tag.name}
-                onClick={this.handleFilterByTag}
-              />
-            </Segment>
-          ))}
-        </Segment.Group>
+        <Divider />
+        {!!tags.length && (
+          <Dropdown
+            onChange={this.handleFilterByTag}
+            placeholder="Filter by Tags"
+            fluid
+            multiple
+            value={expensesView.filterTags}
+            search
+            selection
+            options={tags.map(tag => ({
+              key: tag.id,
+              value: tag.name,
+              text: tag.name
+            }))}
+          />
+        )}
         <Divider />
         <CardGroup stackable itemsPerRow={3}>
           {expensesToDisplay.map((expense, i) => (
-            <ExpenseCard key={i} expense={{ ...expense }} tags={tags} />
+            <ExpenseCard key={i} expense={expense} tags={tags} />
           ))}
         </CardGroup>
       </Container>
