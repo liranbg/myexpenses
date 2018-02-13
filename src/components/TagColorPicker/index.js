@@ -27,7 +27,6 @@ class TagColorPicker extends Component {
             compact={true}
             size={'small'}
             icon="paint brush"
-            content={'Color'}
           />
         }
         closeIcon
