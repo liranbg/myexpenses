@@ -98,7 +98,13 @@ class ExpenseCard extends Component {
 
   render() {
     const { expense } = this.props;
-    const { isLoading, value, results } = this.state;
+    const {
+      isLoading,
+      value,
+      results,
+      applyForAll,
+      applyForUntaggedOnly
+    } = this.state;
     return (
       <Card>
         <Segment
@@ -174,20 +180,18 @@ class ExpenseCard extends Component {
                   label={
                     <label>Apply for all expenses with the same name</label>
                   }
-                  checked={this.state.applyForAll}
-                  onChange={() =>
-                    this.setState({ applyForAll: !this.state.applyForAll })
-                  }
+                  checked={applyForAll}
+                  onChange={() => this.setState({ applyForAll: !applyForAll })}
                 />
               </Container>
               <Container>
                 <Checkbox
-                  disabled={!this.state.applyForAll}
+                  disabled={!applyForAll}
                   label={<label>Apply for 'Untagged' expenses only</label>}
-                  checked={this.state.applyForUntaggedOnly}
+                  checked={applyForUntaggedOnly}
                   onChange={() =>
                     this.setState({
-                      applyForUntaggedOnly: !this.state.applyForUntaggedOnly
+                      applyForUntaggedOnly: !applyForUntaggedOnly
                     })
                   }
                 />
@@ -223,8 +227,8 @@ ExpenseCard.propTypes = {
 
 ExpenseCard = compose(
   firestoreConnect(),
-  connect(({ firebase: { profile }}) => ({
-    profile,
+  connect(({ firebase: { profile } }) => ({
+    profile
   }))
 )(ExpenseCard);
 

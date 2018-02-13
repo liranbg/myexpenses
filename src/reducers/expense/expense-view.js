@@ -22,12 +22,13 @@ function remExpensesViewTags(state, payload) {
 const expensesViewReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case FILTER_EXPENSES_BY_TAG:
-      return {
-        ...Object.assign({}, setExpensesViewByTag(state, action.payload))
-      };
+      return { ...setExpensesViewByTag(state, action.payload) };
     case REM_FILTER_EXPENSES_BY_TAG:
       return {
-        ...Object.assign({}, remExpensesViewTags(state, action.payload))
+        state,
+        filterTags: [
+          ...state.filterTags.filter(tag => tag !== action.payload.tagName)
+        ]
       };
     default:
       return state;
