@@ -35,7 +35,7 @@ class ExpensesSearch extends Component {
       let results = _.uniqBy(_.filter(this.props.expenses, isMatch), 'name');
       this.setState({
         isLoading: false,
-        results: results.map(expense => ({ ...expense, title: expense.name }))
+        results: results.map(expense => ({ title: expense.name }))
       });
     }, 100);
   };

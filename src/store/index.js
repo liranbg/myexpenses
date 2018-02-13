@@ -7,8 +7,9 @@ import { reactReduxFirebase } from 'react-redux-firebase';
 import { reduxFirestore } from 'redux-firestore';
 import { compose } from 'redux';
 
+const middlewares = [];
 const history = createHistory();
-const middleware = routerMiddleware(history);
+middlewares.push(routerMiddleware(history));
 
 const rrfConfig = {
   userProfile: 'users',
@@ -20,7 +21,15 @@ const createStoreWithFirebase = compose(
   reduxFirestore(firebase)
 )(createStore);
 
-const store = createStoreWithFirebase(reducers, applyMiddleware(middleware));
+if (process.env.NODE_ENV === `development`) {
+  const { logger } = require(`redux-logger`);
+  // middlewares.push(logger);
+}
+
+const store = createStoreWithFirebase(
+  reducers,
+  applyMiddleware(...middlewares)
+);
 
 export default store;
 export { history };
