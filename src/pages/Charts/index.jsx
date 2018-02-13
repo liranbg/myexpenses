@@ -15,7 +15,6 @@ import { Doughnut, Line } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
 import { expensesToTagsUses, getFilteredExpensesByDates } from '../../helpers';
-import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
 import BarChartCard from '../../components/BarChartCard';
@@ -57,7 +56,7 @@ export class ChartsPage extends Component {
       <Container>
         <Header size="huge" content="Charts" />
         <SegmentGroup>
-          <ChartDateSelection/>
+          <ChartDateSelection />
           <Segment textAlign={'center'}>
             <Button
               onClick={this.narrowDatesByExpenses}
@@ -67,10 +66,7 @@ export class ChartsPage extends Component {
         </SegmentGroup>
         {!!Object.keys(groupedExpenses).length && (
           <CardGroup>
-            <BarChartCard
-                          expenses={groupedExpenses}
-                          tags={tags}
-            />
+            <BarChartCard expenses={groupedExpenses} tags={tags} />
             <Card fluid>
               <Line
                 data={{
@@ -80,7 +76,7 @@ export class ChartsPage extends Component {
                       x: expense.date,
                       y: expense.amount
                     })),
-                    fill: true,
+                    fill: false,
                     backgroundColor: tags.find(tag => tag.name === a[0]).color,
                     lineTension: 0.2
                   }))
@@ -190,8 +186,5 @@ const mapStateToProps = state => {
   };
 };
 
-ChartsPage = compose(
-  firestoreConnect(['tags', 'expenses']),
-  connect(mapStateToProps)
-)(ChartsPage);
+ChartsPage = compose(connect(mapStateToProps))(ChartsPage);
 export default ChartsPage;

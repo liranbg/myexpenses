@@ -90,16 +90,13 @@ ExpensesPage.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  expenses: _.sortBy(getExpensesFilterByTags(
+  expenses: getExpensesFilterByTags(
     state.firestore.ordered.expenses,
     state.expensesView.filterTags
-  ), 'date'),
+  ),
   expensesView: state.expensesView,
   tags: state.firestore.ordered.tags
 });
 
-ExpensesPage = compose(
-  firestoreConnect(['tags', 'expenses']),
-  connect(mapStateToProps)
-)(ExpensesPage);
+ExpensesPage = compose(connect(mapStateToProps))(ExpensesPage);
 export default ExpensesPage;
