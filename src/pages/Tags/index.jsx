@@ -116,9 +116,6 @@ const mapStateToProps = state => ({
     : {}
 });
 
-TagsPage = compose(
-  firestoreConnect(['tags', 'expenses']),
-  connect(mapStateToProps)
-)(TagsPage);
+TagsPage = compose(firestoreConnect(), connect(mapStateToProps))(TagsPage);
 
 export default TagsPage;
