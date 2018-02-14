@@ -34,30 +34,54 @@ describe('filterExpensesByTags', () => {
 });
 
 describe('dateRangeToLabels', () => {
-  const labelFormat = 'MMMM YYYY';
-  const monthStep = 1;
 
   it('should aggregate 3 dates labels between months january and march', function() {
+    let labelFormat = 'MMMM D, YYYY';
+    let step = 1;
+    let stepType = 'weeks';
+    const startDate = moment('2017-01-01');
+    const endDate = moment('2017-02-01');
+    expect(
+      dateRangeToLabels(startDate, endDate, step, labelFormat, stepType)
+    ).toEqual([
+      'January 1, 2017',
+      'January 8, 2017',
+      'January 15, 2017',
+      "January 22, 2017",
+      "January 29, 2017"
+    ]);
+  });
+
+  it('should aggregate 3 dates labels between months january and march', function() {
+    let labelFormat = 'MMMM YYYY';
+    let step = 1;
+    let stepType = 'month';
     const startDate = moment('2017-01-01');
     const endDate = moment('2017-03-01');
     expect(
-      dateRangeToLabels(startDate, endDate, monthStep, labelFormat)
+      dateRangeToLabels(startDate, endDate, step, labelFormat, stepType)
     ).toEqual(['January 2017', 'February 2017', 'March 2017']);
   });
 
   it('should aggregate 2 dates labels between dec 2016 to jan 2017', function() {
+    let labelFormat = 'MMMM YYYY';
+    let step = 1;
+    let stepType = 'month';
     const startDate = moment('2016-12-01');
     const endDate = moment('2017-01-01');
     expect(
-      dateRangeToLabels(startDate, endDate, monthStep, labelFormat)
+      dateRangeToLabels(startDate, endDate, step, labelFormat, stepType)
     ).toEqual(['December 2016', 'January 2017']);
   });
 
   it('ignores dates days', function() {
+    let labelFormat = 'MMMM YYYY';
+    let step = 1;
+    let stepType = 'month';
     const startDate = moment('2017-01-15');
     const endDate = moment('2017-02-15');
     expect(
-      dateRangeToLabels(startDate, endDate, monthStep, labelFormat)
+      dateRangeToLabels(startDate, endDate, step, labelFormat, stepType)
     ).toEqual(['January 2017', 'February 2017']);
   });
 });

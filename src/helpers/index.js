@@ -16,12 +16,12 @@ export function filterExpensesByTags(expenses, tags) {
   else return _.filter(expenses, expense => _.includes(tags, expense.tag));
 }
 
-export function dateRangeToLabels(startDate, endDate, monthsStep, labelFormat) {
+export function dateRangeToLabels(startDate, endDate, step, labelFormat, stepType='months') {
   let labels = [];
   let iterator = moment(startDate);
   while (iterator.isSameOrBefore(endDate)) {
     labels.push(iterator.format(labelFormat));
-    iterator = iterator.add(monthsStep, 'months');
+    iterator = iterator.add(step, stepType);
   }
   return labels;
 }
