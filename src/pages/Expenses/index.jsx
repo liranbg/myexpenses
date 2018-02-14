@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import React, { Component } from 'react';
 import {
   CardGroup,
@@ -10,18 +9,18 @@ import {
   Divider
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { Expense, ExpensesView, Tag } from '../../proptypes';
+import { Expense, Tag } from '../../proptypes';
 import ExpenseCard from '../../components/Expense';
 import { connect } from 'react-redux';
 import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
 import ExpensesSearch from '../../components/ExpenseSearch';
-import { getExpensesFilterByTags } from '../../helpers';
+import { filterExpensesByTags } from '../../helpers';
 
 class ExpensesPage extends Component {
   state = {
     value: '',
-    activePage: 1
+    activePage: 1,
+    ttlCardsPerPage: 15
   };
 
   selectedItem = value => {
@@ -33,7 +32,7 @@ class ExpensesPage extends Component {
   }
 
   handleFilterByTag = (e, { value }) => {
-    const { expensesView: { filterTags } } = this.props;
+    const { filterTags } = this.props;
     let current = new Set(filterTags);
     let next = new Set(value);
     if (current.size <= next.size) {
@@ -48,12 +47,14 @@ class ExpensesPage extends Component {
   handlePaginationChange = (e, { activePage }) => this.setState({ activePage });
 
   render() {
-    const ttlCardsPerPage = 15;
-    const { activePage } = this.state;
-    const { expenses, tags, expensesView } = this.props;
-    const expensesToDisplay = this.state.value
-      ? this.props.expenses.filter(r => r.name === this.state.value)
-      : expenses;
+    const { activePage, ttlCardsPerPage } = this.state;
+    const { expenses, tags, filterTags } = this.props;
+    const expensesToDisplay = filterExpensesByTags(
+      this.state.value
+        ? this.props.expenses.filter(r => r.name === this.state.value)
+        : expenses,
+      filterTags
+    );
     const ttlPages = Math.round(
       Math.ceil(expensesToDisplay.length / ttlCardsPerPage)
     );
@@ -69,7 +70,7 @@ class ExpensesPage extends Component {
             placeholder="Filter by Tags"
             fluid
             multiple
-            value={expensesView.filterTags}
+            value={filterTags}
             search
             selection
             options={tags.map(tag => ({
@@ -79,7 +80,6 @@ class ExpensesPage extends Component {
             }))}
           />
         )}
-        {/*<Divider hidden={expensesToDisplay.length >= ttlCardsPerPage} />*/}
         {expensesToDisplay.length >= ttlCardsPerPage && (
           <React.Fragment>
             <Segment basic textAlign={'center'}>
@@ -110,23 +110,18 @@ class ExpensesPage extends Component {
 ExpensesPage.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
   tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-  expensesView: PropTypes.shape(ExpensesView)
+  filterTags: PropTypes.array
 };
 
 ExpensesPage.defaultProps = {
   expenses: [],
   tags: [],
-  expensesView: { filterTags: [] }
+  filterTags: []
 };
 
-const mapStateToProps = state => ({
-  expenses: _.sortBy(getExpensesFilterByTags(
-    state.firestore.ordered.expenses,
-    state.expensesView.filterTags
-  ), 'date'),
-  expensesView: state.expensesView,
+ExpensesPage = connect(state => ({
+  expenses: state.firestore.ordered.expenses,
+  filterTags: state.expensesView.filterTags,
   tags: state.firestore.ordered.tags
-});
-
-ExpensesPage = compose(connect(mapStateToProps))(ExpensesPage);
+}))(ExpensesPage);
 export default ExpensesPage;

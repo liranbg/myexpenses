@@ -4,15 +4,65 @@ import { Card, Button, ButtonGroup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tag } from '../../proptypes';
+import { dateRangeToLabels } from "../../helpers";
+import moment from "moment";
 
 class BarChartCard extends Component {
+  viewTypeFormatMap = {
+    day: 'MMM Do, YYYY',
+    week: 'MMMM D, YYYY',
+    month: 'MMMM YYYY',
+    quarter: '[Q]Q YYYY',
+    year: "YYYY"
+  };
+
   state = {
     viewType: 'week'
   };
 
+  mapExpensesByLabels(expenses, labels) {
+    let datapoints = [];
+    const { viewType } = this.state;
+    const {tags} = this.props;
+    const labelsDates = labels .map(label=>moment(label, this.viewTypeFormatMap[viewType]));
+    // console.log(labelsDates);
+    // console.log(expenses);
+    Object.entries(expenses)
+    .forEach(entry=>{
+      let key = entry[0];
+      let datapoint = {
+        label: key,
+        data: Array(labels.length).fill(0),
+        backgroundColor: tags.find(tag => tag.name === key).color
+      };
+      let values = entry[1];
+      values.forEach(value=>{
+          // console.log("Mapping", value.date.format('YYYY MM DD'));
+        for (let i = 0; i < labelsDates.length; ++i) {
+          // console.log("to", labelsDates[i].format('YYYY MM DD'));
+          if (labelsDates[i].isSameOrAfter(value.date)) {
+            // console.log("OK!!")
+            datapoint.data[i-1] += value.amount;
+            break;
+          }
+          else if (i===labelsDates.length-1) {
+            // console.log("OK!!")
+            datapoint.data[i] += value.amount;
+          }
+        }
+      });
+      datapoints.push(datapoint);
+    });
+    return datapoints;
+  }
+
   render() {
     const { viewType } = this.state;
-    const { expenses, tags, fromDate, toDate } = this.props;
+    const { expenses, fromDate, toDate } = this.props;
+    // console.log(fromDate.format('YYYY MM DD'), toDate.format('YYYY MM DD'))
+    let labels = dateRangeToLabels(fromDate, toDate, 1, this.viewTypeFormatMap[viewType], viewType);
+    let mappedExpenses = this.mapExpensesByLabels(expenses, labels);
+
     return (
       <Card fluid>
         <ButtonGroup toggle>
@@ -64,15 +114,8 @@ class BarChartCard extends Component {
         </ButtonGroup>
         <Bar
           data={{
-            datasets: Object.entries(expenses).map(a => ({
-              label: a[0],
-
-              data: a[1].map(expense => ({
-                x: expense.date,
-                y: expense.amount
-              })),
-              backgroundColor: tags.find(tag => tag.name === a[0]).color
-            }))
+            labels: labels,
+            datasets: mappedExpenses
           }}
           options={{
             responsive: true,
@@ -87,34 +130,12 @@ class BarChartCard extends Component {
             scales: {
               xAxes: [
                 {
-                  barThickness: 6,
-                  type: 'time',
-                  display: true,
-                  scaleLabel: {
-                    display: true,
-                    labelString: 'Date'
-                  },
-                  time: {
-                    min: fromDate,
-                    max: toDate,
-                    unit: viewType,
-                    round: 'true'
-                  },
-                  ticks: {
-                    suggestedMin: fromDate
-                  }
+                 stacked: true
                 }
               ],
               yAxes: [
                 {
-                  display: true,
-                  scaleLabel: {
-                    display: true,
-                    labelString: 'Total Spent'
-                  },
-                  ticks: {
-                    suggestedMin: 0
-                  }
+                  stacked: true
                 }
               ]
             }
