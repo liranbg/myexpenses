@@ -97,7 +97,7 @@ class ExpenseCard extends Component {
   };
 
   render() {
-    const { expense } = this.props;
+    const { expense, tags } = this.props;
     const {
       isLoading,
       value,
@@ -106,7 +106,13 @@ class ExpenseCard extends Component {
       applyForUntaggedOnly
     } = this.state;
     return (
-      <Card>
+      <Card
+        style={{
+          borderBottom: `2px solid ${
+            tags.find(tag => tag.name === expense.tag).color
+          }`
+        }}
+      >
         <Segment
           clearing
           basic

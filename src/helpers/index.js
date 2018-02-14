@@ -11,7 +11,7 @@ export function expensesToTagsUses(expenses) {
   );
 }
 
-export function getExpensesFilterByTags(expenses, tags) {
+export function filterExpensesByTags(expenses, tags) {
   if (!tags.length) return expenses;
   else return _.filter(expenses, expense => _.includes(tags, expense.tag));
 }
