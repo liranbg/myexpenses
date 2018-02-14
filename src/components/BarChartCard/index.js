@@ -4,8 +4,8 @@ import { Card, Button, ButtonGroup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tag } from '../../proptypes';
-import { dateRangeToLabels } from "../../helpers";
-import moment from "moment";
+import { dateRangeToLabels } from '../../helpers';
+import moment from 'moment';
 
 class BarChartCard extends Component {
   viewTypeFormatMap = {
@@ -13,7 +13,7 @@ class BarChartCard extends Component {
     week: 'MMMM D, YYYY',
     month: 'MMMM YYYY',
     quarter: '[Q]Q YYYY',
-    year: "YYYY"
+    year: 'YYYY'
   };
 
   state = {
@@ -23,12 +23,13 @@ class BarChartCard extends Component {
   mapExpensesByLabels(expenses, labels) {
     let datapoints = [];
     const { viewType } = this.state;
-    const {tags} = this.props;
-    const labelsDates = labels .map(label=>moment(label, this.viewTypeFormatMap[viewType]));
+    const { tags } = this.props;
+    const labelsDates = labels.map(label =>
+      moment(label, this.viewTypeFormatMap[viewType])
+    );
     // console.log(labelsDates);
     // console.log(expenses);
-    Object.entries(expenses)
-    .forEach(entry=>{
+    Object.entries(expenses).forEach(entry => {
       let key = entry[0];
       let datapoint = {
         label: key,
@@ -36,16 +37,15 @@ class BarChartCard extends Component {
         backgroundColor: tags.find(tag => tag.name === key).color
       };
       let values = entry[1];
-      values.forEach(value=>{
-          // console.log("Mapping", value.date.format('YYYY MM DD'));
+      values.forEach(value => {
+        // console.log("Mapping", value.date.format('YYYY MM DD'));
         for (let i = 0; i < labelsDates.length; ++i) {
           // console.log("to", labelsDates[i].format('YYYY MM DD'));
           if (labelsDates[i].isSameOrAfter(value.date)) {
             // console.log("OK!!")
-            datapoint.data[i-1] += value.amount;
+            datapoint.data[i - 1] += value.amount;
             break;
-          }
-          else if (i===labelsDates.length-1) {
+          } else if (i === labelsDates.length - 1) {
             // console.log("OK!!")
             datapoint.data[i] += value.amount;
           }
@@ -60,7 +60,13 @@ class BarChartCard extends Component {
     const { viewType } = this.state;
     const { expenses, fromDate, toDate } = this.props;
     // console.log(fromDate.format('YYYY MM DD'), toDate.format('YYYY MM DD'))
-    let labels = dateRangeToLabels(fromDate, toDate, 1, this.viewTypeFormatMap[viewType], viewType);
+    let labels = dateRangeToLabels(
+      fromDate,
+      toDate,
+      1,
+      this.viewTypeFormatMap[viewType],
+      viewType
+    );
     let mappedExpenses = this.mapExpensesByLabels(expenses, labels);
 
     return (
@@ -130,7 +136,7 @@ class BarChartCard extends Component {
             scales: {
               xAxes: [
                 {
-                 stacked: true
+                  stacked: true
                 }
               ],
               yAxes: [
