@@ -34,7 +34,6 @@ describe('filterExpensesByTags', () => {
 });
 
 describe('dateRangeToLabels', () => {
-
   it('should aggregate 3 dates labels between months january and march', function() {
     let labelFormat = 'MMMM D, YYYY';
     let step = 1;
@@ -47,8 +46,8 @@ describe('dateRangeToLabels', () => {
       'January 1, 2017',
       'January 8, 2017',
       'January 15, 2017',
-      "January 22, 2017",
-      "January 29, 2017"
+      'January 22, 2017',
+      'January 29, 2017'
     ]);
   });
 

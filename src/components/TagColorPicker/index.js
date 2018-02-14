@@ -11,6 +11,25 @@ import {
   Modal
 } from 'semantic-ui-react';
 
+const colorsPalette = [
+  '#D98880',
+  '#EC7063',
+  '#C39BD3',
+  '#8E44AD',
+  '#5499C7',
+  '#85C1E9',
+  '#48C9B0',
+  '#A2D9CE',
+  '#F9E79F',
+  '#F8C471',
+  '#FAE5D3',
+  '#B03A2E',
+  '#884EA0',
+  '#2471A3',
+  '#1A5276',
+  '#0E6655'
+];
+
 class TagColorPicker extends Component {
   close = () => this.modal.setState({ open: false });
 
@@ -39,6 +58,7 @@ class TagColorPicker extends Component {
         <ModalContent>
           <Container style={{ display: 'flex', justifyContent: 'center' }}>
             <CirclePicker
+              colors={colorsPalette}
               color={selectedColor}
               onChangeComplete={color => onSelectTagColor(color.hex)}
             />
