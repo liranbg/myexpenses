@@ -27,27 +27,26 @@ class BarChartCard extends Component {
     const labelsDates = labels.map(label =>
       moment(label, this.viewTypeFormatMap[viewType])
     );
-    // console.log(labelsDates);
-    // console.log(expenses);
     Object.entries(expenses).forEach(entry => {
       let key = entry[0];
+      let values = entry[1];
       let datapoint = {
         label: key,
         data: Array(labels.length).fill(0),
         backgroundColor: tags.find(tag => tag.name === key).color
       };
-      let values = entry[1];
+
+      let labelTip = 0;
       values.forEach(value => {
-        // console.log("Mapping", value.date.format('YYYY MM DD'));
-        for (let i = 0; i < labelsDates.length; ++i) {
-          // console.log("to", labelsDates[i].format('YYYY MM DD'));
+        for (let i = labelTip; i < labelsDates.length; ++i) {
           if (labelsDates[i].isSameOrAfter(value.date)) {
-            // console.log("OK!!")
             datapoint.data[i - 1] += value.amount;
+            labelTip = i;
             break;
           } else if (i === labelsDates.length - 1) {
-            // console.log("OK!!")
+            // if expense's date is after every label -> assign it to last label
             datapoint.data[i] += value.amount;
+            labelTip = i;
           }
         }
       });
@@ -59,7 +58,6 @@ class BarChartCard extends Component {
   render() {
     const { viewType } = this.state;
     const { expenses, fromDate, toDate } = this.props;
-    // console.log(fromDate.format('YYYY MM DD'), toDate.format('YYYY MM DD'))
     let labels = dateRangeToLabels(
       fromDate,
       toDate,
