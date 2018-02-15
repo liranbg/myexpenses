@@ -11,7 +11,7 @@ import {
   Button,
   SegmentGroup
 } from 'semantic-ui-react';
-import { Doughnut, Line } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
 import { expensesToTagsUses, getFilteredExpensesByDates } from '../../helpers';
@@ -31,27 +31,13 @@ export class ChartsPage extends Component {
   };
 
   render() {
-    const { selectedFromDate, selectedToDate, tags, expenses } = this.props;
-    let groupedExpenses = _.groupBy(expenses, 'tag');
-    groupedExpenses = Object.assign(
-      {},
-      ...Object.entries(groupedExpenses).map(entry => {
-        let reducer = {};
-        const tag = entry[0];
-        let expenses = entry[1];
-        expenses.reduce((a, b) => {
-          reducer[b.date.toISOString()] =
-            (reducer[b.date.toISOString()] || 0) + b.amount;
-        });
-        expenses = Object.entries(reducer).map(a => ({
-          date: moment(a[0]),
-          amount: a[1]
-        }));
-        entry[1] = expenses;
-        return { [tag]: expenses };
-      })
-    );
+    const { tags, expenses } = this.props;
+    const groupedExpenses = _.groupBy(expenses, 'tag');
     const tagsUses = expensesToTagsUses(expenses);
+    const flattend = [].concat.apply([], [...Object.values(groupedExpenses)]);
+    const ttlExpenses = Math.ceil(
+      flattend.map(expense => expense.amount).reduce((a, b) => a + b)
+    );
     return (
       <Container>
         <Header size="huge" content="Charts" />
@@ -67,55 +53,6 @@ export class ChartsPage extends Component {
         {!!Object.keys(groupedExpenses).length && (
           <CardGroup>
             <BarChartCard expenses={groupedExpenses} tags={tags} />
-            <Card fluid>
-              <Line
-                data={{
-                  datasets: Object.entries(groupedExpenses).map(a => ({
-                    label: a[0],
-                    data: a[1].map(expense => ({
-                      x: expense.date,
-                      y: expense.amount
-                    })),
-                    fill: false,
-                    backgroundColor: tags.find(tag => tag.name === a[0]).color,
-                    lineTension: 0.2
-                  }))
-                }}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: true,
-                  // scaleBeginAtZero: true,
-                  scales: {
-                    yAxes: [
-                      {
-                        type: 'linear',
-                        scaleLabel: {
-                          display: true,
-                          labelString: 'Total Spent'
-                        },
-                        ticks: {
-                          suggestedMin: 0
-                        }
-                      }
-                    ],
-                    xAxes: [
-                      {
-                        type: 'time',
-                        scaleLabel: {
-                          display: true,
-                          labelString: 'Timeline'
-                        },
-                        time: {
-                          min: moment(selectedFromDate),
-                          max: moment(selectedToDate),
-                          unit: 'month'
-                        }
-                      }
-                    ]
-                  }
-                }}
-              />
-            </Card>
             <Card fluid>
               <Doughnut
                 data={{
@@ -171,10 +108,13 @@ ChartsPage.propTypes = {
   toDate: PropTypes.object
 };
 
+function momtify(expenses) {
+  return expenses.map(expense => ({ ...expense, date: moment(expense.date) }));
+}
 const mapStateToProps = state => {
   return {
     expenses: getFilteredExpensesByDates(
-      state.firestore.ordered.expenses || [],
+      momtify(state.firestore.ordered.expenses) || [],
       state.chartsView.selectedFromDate,
       state.chartsView.selectedToDate
     ),

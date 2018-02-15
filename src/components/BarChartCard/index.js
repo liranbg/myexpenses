@@ -5,12 +5,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tag } from '../../proptypes';
 import { dateRangeToLabels } from '../../helpers';
-import moment from 'moment';
 
 class BarChartCard extends Component {
   viewTypeFormatMap = {
-    day: 'MMM Do, YYYY',
-    week: 'MMMM D, YYYY',
+    day: 'MMM Do',
+    week: 'MMMM D',
     month: 'MMMM YYYY',
     quarter: '[Q]Q YYYY',
     year: 'YYYY'
@@ -22,11 +21,7 @@ class BarChartCard extends Component {
 
   mapExpensesByLabels(expenses, labels) {
     let datapoints = [];
-    const { viewType } = this.state;
     const { tags } = this.props;
-    const labelsDates = labels.map(label =>
-      moment(label, this.viewTypeFormatMap[viewType])
-    );
     Object.entries(expenses).forEach(entry => {
       let key = entry[0];
       let values = entry[1];
@@ -38,17 +33,12 @@ class BarChartCard extends Component {
 
       let labelTip = 0;
       values.forEach(value => {
-        for (let i = labelTip; i < labelsDates.length; ++i) {
-          if (labelsDates[i].isSameOrAfter(value.date)) {
-            datapoint.data[i - 1] += value.amount;
-            labelTip = i;
-            break;
-          } else if (i === labelsDates.length - 1) {
-            // if expense's date is after every label -> assign it to last label
-            datapoint.data[i] += value.amount;
-            labelTip = i;
-          }
-        }
+        while (
+          labelTip < labels.length &&
+          labels[labelTip].isSameOrBefore(value.date)
+        )
+          labelTip++;
+        datapoint.data[labelTip - 1] += value.amount;
       });
       datapoints.push(datapoint);
     });
@@ -58,15 +48,11 @@ class BarChartCard extends Component {
   render() {
     const { viewType } = this.state;
     const { expenses, fromDate, toDate } = this.props;
-    let labels = dateRangeToLabels(
-      fromDate,
-      toDate,
-      1,
-      this.viewTypeFormatMap[viewType],
-      viewType
+    const datesRange = dateRangeToLabels(fromDate, toDate, viewType);
+    let mappedExpenses = this.mapExpensesByLabels(expenses, datesRange);
+    const labels = datesRange.map(d =>
+      d.format(this.viewTypeFormatMap[viewType])
     );
-    let mappedExpenses = this.mapExpensesByLabels(expenses, labels);
-
     return (
       <Card fluid>
         <ButtonGroup toggle>
@@ -129,7 +115,44 @@ class BarChartCard extends Component {
             },
             tooltips: {
               mode: 'index',
-              intersect: false
+              // intersect: false,
+              callbacks: {
+                label: function(tooltipItem, data) {
+                  const corporation =
+                    data.datasets[tooltipItem.datasetIndex].label;
+                  const valor =
+                    data.datasets[tooltipItem.datasetIndex].data[
+                      tooltipItem.index
+                    ];
+
+                  // Loop through all datasets to get the actual total of the index
+                  let total = 0;
+                  for (let i = 0; i < data.datasets.length; i++)
+                    total += data.datasets[i].data[tooltipItem.index];
+
+                  const datasetTooltip =
+                    corporation +
+                    ' : ' +
+                    Math.ceil(valor)
+                      .toFixed(2)
+                      .replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+
+                  // If it is not the last dataset, you display it as you usually do
+                  if (tooltipItem.datasetIndex !== data.datasets.length - 1) {
+                    return datasetTooltip;
+                  } else {
+                    // .. else, you display the dataset and the total, using an array
+                    return [
+                      corporation +
+                        ' : ' +
+                        Math.ceil(valor)
+                          .toFixed(2)
+                          .replace(/(\d)(?=(\d{3})+\.)/g, '$1,'),
+                      'Total : ' + Math.ceil(total).toFixed(2)
+                    ];
+                  }
+                }
+              }
             },
             scales: {
               xAxes: [

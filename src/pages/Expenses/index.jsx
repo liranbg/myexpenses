@@ -58,6 +58,9 @@ class ExpensesPage extends Component {
     const ttlPages = Math.round(
       Math.ceil(expensesToDisplay.length / ttlCardsPerPage)
     );
+    const ttlAmount = Math.ceil(
+      expensesToDisplay.map(expense => expense.amount).reduce((a, b) => a + b)
+    );
     return (
       <Container>
         <Header size="huge" content="My Expenses" />
