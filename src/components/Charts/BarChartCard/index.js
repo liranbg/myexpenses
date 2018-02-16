@@ -74,7 +74,7 @@ class BarChartCard extends Component {
           >
             Weekly
           </Button>
-          {toDate.diff(fromDate, 'weeks') >= 4 && (
+          {toDate.diff(fromDate, 'weeks') > 4 && (
             <Button
               active={viewType === 'month'}
               onClick={() => {
