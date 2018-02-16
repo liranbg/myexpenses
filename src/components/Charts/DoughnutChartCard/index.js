@@ -7,22 +7,24 @@ import { Tag } from '../../../proptypes';
 
 class DoughnutChartCard extends Component {
   render() {
-    const {expenses, tags} = this.props;
+    const { expenses, tags } = this.props;
     const expensesTags = Object.keys(expenses);
-    const data = expensesTags.map(expenseTag => expenses[expenseTag].reduce((total, expense) => (total + expense.amount), 0));
-    const colors = expensesTags.map(tagToFind => tags.find(tag => tag.name === tagToFind).color);
+    const data = expensesTags.map(expenseTag =>
+      expenses[expenseTag].reduce((total, expense) => total + expense.amount, 0)
+    );
+    const colors = expensesTags.map(
+      tagToFind => tags.find(tag => tag.name === tagToFind).color
+    );
     const dataset = {
       data: data,
       backgroundColor: colors
     };
     return (
-      <Card>
+      <Card fluid>
         <Doughnut
           data={{
             labels: expensesTags,
-            datasets: [
-              dataset
-            ]
+            datasets: [dataset]
           }}
           options={{
             title: {
@@ -31,7 +33,7 @@ class DoughnutChartCard extends Component {
             },
             tooltips: {
               callbacks: {
-                label: function (tooltipItem, data) {
+                label: function(tooltipItem, data) {
                   const dataset = data.datasets[tooltipItem.datasetIndex];
                   const total = dataset.data.reduce(
                     (previousValue, currentValue) =>
@@ -41,7 +43,9 @@ class DoughnutChartCard extends Component {
                   const percentage = Math.floor(
                     currentValue / total * 100 + 0.5
                   );
-                  return percentage + '%';
+                  return `${data.labels[tooltipItem.index]}: ${Math.ceil(
+                    currentValue
+                  )} (${percentage}%)`;
                 }
               }
             }

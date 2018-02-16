@@ -11,6 +11,13 @@ export function expensesToTagsUses(expenses) {
   );
 }
 
+export function expensesDatesMomentify(expenses) {
+  return expenses.map(expense => ({
+    ...expense,
+    date: moment.utc(expense.date)
+  }));
+}
+
 export function filterExpensesByTags(expenses, tags) {
   if (!tags.length) return expenses;
   else return _.filter(expenses, expense => _.includes(tags, expense.tag));
@@ -27,7 +34,7 @@ export function dateRangeToLabels(startDate, endDate, stepType = 'months') {
 }
 
 export function getFilteredExpensesByDates(expenses, fromDate, toDate) {
-  return _.sortBy(expenses, 'date').filter(expense =>
-    moment(expense.date).isBetween(fromDate, toDate, null, '[]')
+  return expenses.filter(expense =>
+    expense.date.isBetween(fromDate, toDate, null, '[]')
   );
 }

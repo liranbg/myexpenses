@@ -54,7 +54,7 @@ class BarChartCard extends Component {
       d.format(this.viewTypeFormatMap[viewType])
     );
     return (
-      <Card>
+      <Card fluid>
         <ButtonGroup toggle>
           {toDate.diff(fromDate, 'months') <= 1 && (
             <Button

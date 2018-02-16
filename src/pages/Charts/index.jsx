@@ -12,7 +12,10 @@ import {
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
-import { getFilteredExpensesByDates } from '../../helpers';
+import {
+  expensesDatesMomentify,
+  getFilteredExpensesByDates
+} from '../../helpers';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
 import BarChartCard from '../../components/Charts/BarChartCard';
@@ -23,19 +26,20 @@ export class ChartsPage extends Component {
   narrowDatesByExpenses = () => {
     const { fromDate, toDate, expenses } = this.props;
     if (expenses.length > 1) {
-      const minDate = moment(expenses[0].date);
-      const maxDate = moment(expenses[expenses.length - 1].date);
+      const minDate = moment(expenses[0].date).startOf('month');
+      const maxDate = moment(expenses[expenses.length - 1].date).endOf('month');
       this.props.dispatch(setDatesRange(fromDate, toDate, minDate, maxDate));
     }
   };
 
   render() {
-    const { tags, expenses } = this.props;
-    const groupedExpenses = _.groupBy(expenses, 'tag');
-    // const flattend = [].concat.apply([], [...Object.values(groupedExpenses)]);
-    // const ttlExpenses = Math.ceil(
-    //   flattend.map(expense => expense.amount).reduce((a, b) => a + b, 0)
-    // );
+    const { tags, expenses, selectedFromDate, selectedToDate } = this.props;
+    const filteredExpenses = getFilteredExpensesByDates(
+      expenses,
+      selectedFromDate,
+      selectedToDate
+    );
+    const groupedExpenses = _.groupBy(filteredExpenses, 'tag');
     return (
       <Container>
         <Header size="huge" content="Charts" />
@@ -49,9 +53,9 @@ export class ChartsPage extends Component {
           </Segment>
         </SegmentGroup>
         {!!Object.keys(groupedExpenses).length && (
-          <CardGroup itemsPerRow={2}>
-            <PieChartCard expenses={groupedExpenses} tags={tags} />
+          <CardGroup>
             <BarChartCard expenses={groupedExpenses} tags={tags} />
+            <PieChartCard expenses={groupedExpenses} tags={tags} />
           </CardGroup>
         )}
       </Container>
@@ -66,16 +70,9 @@ ChartsPage.propTypes = {
   toDate: PropTypes.object
 };
 
-function momtify(expenses) {
-  return expenses.map(expense => ({ ...expense, date: moment(expense.date) }));
-}
 const mapStateToProps = state => {
   return {
-    expenses: getFilteredExpensesByDates(
-      momtify(state.firestore.ordered.expenses) || [],
-      state.chartsView.selectedFromDate,
-      state.chartsView.selectedToDate
-    ),
+    expenses: expensesDatesMomentify(state.firestore.ordered.expenses) || [],
     tags: state.firestore.ordered.tags,
     selectedFromDate: state.chartsView.selectedFromDate,
     selectedToDate: state.chartsView.selectedToDate,
