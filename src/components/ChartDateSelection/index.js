@@ -49,8 +49,10 @@ class ChartDateSelection extends Component {
       setDatesRange(
         fromDate,
         toDate,
-        selectedFromDate.month(value),
-        shouldUpdateToDate ? selectedToDate.month(value) : selectedToDate
+        selectedFromDate.month(value).startOf('month'),
+        shouldUpdateToDate
+          ? selectedToDate.month(value).endOf('month')
+          : selectedToDate
       )
     );
   };
@@ -59,7 +61,7 @@ class ChartDateSelection extends Component {
     const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
     const shouldUpdateToDateMonth =
       selectedFromDate.year() === value &&
-      selectedFromDate.month() < selectedToDate.month();
+      selectedFromDate.month() > selectedToDate.month();
     this.props.dispatch(
       setDatesRange(
         fromDate,
@@ -79,7 +81,7 @@ class ChartDateSelection extends Component {
         fromDate,
         toDate,
         selectedFromDate,
-        selectedToDate.month(value)
+        selectedToDate.month(value).endOf('month')
       )
     );
   };
@@ -113,7 +115,6 @@ class ChartDateSelection extends Component {
     const toMonthsOptions = shouldLimitMonthsSelection
       ? fromMonthsOptions.slice(selectedFromDate.month())
       : fromMonthsOptions;
-
     return (
       <SegmentGroup horizontal>
         <Segment>
