@@ -3,8 +3,8 @@ import { Bar } from 'react-chartjs-2';
 import { Card, Button, ButtonGroup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Tag } from '../../proptypes';
-import { dateRangeToLabels } from '../../helpers';
+import { Tag } from '../../../proptypes';
+import { dateRangeToLabels } from '../../../helpers';
 
 class BarChartCard extends Component {
   viewTypeFormatMap = {
@@ -74,7 +74,7 @@ class BarChartCard extends Component {
           >
             Weekly
           </Button>
-          {toDate.diff(fromDate, 'weeks') >= 4 && (
+          {toDate.diff(fromDate, 'weeks') > 4 && (
             <Button
               active={viewType === 'month'}
               onClick={() => {
