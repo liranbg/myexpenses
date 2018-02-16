@@ -3,8 +3,8 @@ import { Bar } from 'react-chartjs-2';
 import { Card, Button, ButtonGroup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Tag } from '../../proptypes';
-import { dateRangeToLabels } from '../../helpers';
+import { Tag } from '../../../proptypes';
+import { dateRangeToLabels } from '../../../helpers';
 
 class BarChartCard extends Component {
   viewTypeFormatMap = {
@@ -54,7 +54,7 @@ class BarChartCard extends Component {
       d.format(this.viewTypeFormatMap[viewType])
     );
     return (
-      <Card fluid>
+      <Card>
         <ButtonGroup toggle>
           {toDate.diff(fromDate, 'months') <= 1 && (
             <Button

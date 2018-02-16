@@ -5,19 +5,18 @@ import PropTypes from 'prop-types';
 import {
   Segment,
   Header,
-  Card,
   CardGroup,
   Container,
   Button,
   SegmentGroup
 } from 'semantic-ui-react';
-import { Doughnut } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
-import { expensesToTagsUses, getFilteredExpensesByDates } from '../../helpers';
+import { getFilteredExpensesByDates } from '../../helpers';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
-import BarChartCard from '../../components/BarChartCard';
+import BarChartCard from '../../components/Charts/BarChartCard';
+import PieChartCard from '../../components/Charts/PieChartCard';
 import { setDatesRange } from '../../actions';
 
 export class ChartsPage extends Component {
@@ -33,10 +32,9 @@ export class ChartsPage extends Component {
   render() {
     const { tags, expenses } = this.props;
     const groupedExpenses = _.groupBy(expenses, 'tag');
-    const tagsUses = expensesToTagsUses(expenses);
     const flattend = [].concat.apply([], [...Object.values(groupedExpenses)]);
     const ttlExpenses = Math.ceil(
-      flattend.map(expense => expense.amount).reduce((a, b) => a + b)
+      flattend.map(expense => expense.amount).reduce((a, b) => a + b, 0)
     );
     return (
       <Container>
@@ -51,49 +49,9 @@ export class ChartsPage extends Component {
           </Segment>
         </SegmentGroup>
         {!!Object.keys(groupedExpenses).length && (
-          <CardGroup>
+          <CardGroup itemsPerRow={2}>
+            <PieChartCard expenses={groupedExpenses} tags={tags} />
             <BarChartCard expenses={groupedExpenses} tags={tags} />
-            <Card fluid>
-              <Doughnut
-                data={{
-                  labels: tags
-                    .filter(tag => tagsUses[tag.name])
-                    .map(tag => tag.name),
-                  datasets: [
-                    {
-                      data: tags
-                        .filter(tag => tagsUses[tag.name])
-                        .map(tag => tagsUses[tag.name] || 0),
-                      backgroundColor: tags
-                        .filter(tag => tagsUses[tag.name])
-                        .map(tag => tag.color)
-                    }
-                  ]
-                }}
-                options={{
-                  title: {
-                    display: true,
-                    text: 'Tags uses Doughnut Chart'
-                  },
-                  tooltips: {
-                    callbacks: {
-                      label: function(tooltipItem, data) {
-                        const dataset = data.datasets[tooltipItem.datasetIndex];
-                        const total = dataset.data.reduce(
-                          (previousValue, currentValue) =>
-                            previousValue + currentValue
-                        );
-                        const currentValue = dataset.data[tooltipItem.index];
-                        const percentage = Math.floor(
-                          currentValue / total * 100 + 0.5
-                        );
-                        return percentage + '%';
-                      }
-                    }
-                  }
-                }}
-              />
-            </Card>
           </CardGroup>
         )}
       </Container>
