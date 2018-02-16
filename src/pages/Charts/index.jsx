@@ -16,7 +16,7 @@ import { getFilteredExpensesByDates } from '../../helpers';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/ChartDateSelection';
 import BarChartCard from '../../components/Charts/BarChartCard';
-import PieChartCard from '../../components/Charts/PieChartCard';
+import PieChartCard from '../../components/Charts/DoughnutChartCard';
 import { setDatesRange } from '../../actions';
 
 export class ChartsPage extends Component {
@@ -32,10 +32,10 @@ export class ChartsPage extends Component {
   render() {
     const { tags, expenses } = this.props;
     const groupedExpenses = _.groupBy(expenses, 'tag');
-    const flattend = [].concat.apply([], [...Object.values(groupedExpenses)]);
-    const ttlExpenses = Math.ceil(
-      flattend.map(expense => expense.amount).reduce((a, b) => a + b, 0)
-    );
+    // const flattend = [].concat.apply([], [...Object.values(groupedExpenses)]);
+    // const ttlExpenses = Math.ceil(
+    //   flattend.map(expense => expense.amount).reduce((a, b) => a + b, 0)
+    // );
     return (
       <Container>
         <Header size="huge" content="Charts" />

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tag } from '../../../proptypes';
 
-class PieChartCard extends Component {
+class DoughnutChartCard extends Component {
   render() {
     const {expenses, tags} = this.props;
     const expensesTags = Object.keys(expenses);
@@ -52,10 +52,10 @@ class PieChartCard extends Component {
   }
 }
 
-PieChartCard.propTypes = {
+DoughnutChartCard.propTypes = {
   expenses: PropTypes.object,
   tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 };
 
-PieChartCard = connect()(PieChartCard);
-export default PieChartCard;
+DoughnutChartCard = connect()(DoughnutChartCard);
+export default DoughnutChartCard;
