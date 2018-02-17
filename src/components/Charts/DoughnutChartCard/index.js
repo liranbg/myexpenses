@@ -4,6 +4,7 @@ import { Card } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tag } from '../../../proptypes';
+import 'chart.piecelabel.js';
 
 class DoughnutChartCard extends Component {
   render() {
@@ -48,6 +49,38 @@ class DoughnutChartCard extends Component {
                   )} (${percentage}%)`;
                 }
               }
+            },
+            pieceLabel: {
+              // render 'label', 'value', 'percentage', 'image' or custom function, default is 'percentage'
+              render: 'label',
+
+              // precision for percentage, default is 0
+              precision: 0,
+
+              // identifies whether or not labels of value 0 are displayed, default is false
+              showZero: false,
+
+              // font size, default is defaultFontSize
+              fontSize: 12,
+
+              // font color, can be color array for each data or function for dynamic color, default is defaultFontColor
+              fontColor: '#fff',
+
+              // font style, default is defaultFontStyle
+              // fontStyle: 'normal',
+
+              // font family, default is defaultFontFamily
+              fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+
+              // draw label in arc, default is false
+              arc: true,
+
+              // position to draw label, available value is 'default', 'border' and 'outside'
+              // default is 'default'
+              position: 'default',
+
+              // draw label even it's overlap, default is false
+              overlap: true
             }
           }}
         />
