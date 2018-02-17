@@ -19,6 +19,10 @@ class BarChartCard extends Component {
     viewType: 'week'
   };
 
+  componentWillReceiveProps() {
+    this.setState({ viewType: 'week' });
+  }
+
   mapExpensesByLabels(expenses, labels) {
     let datapoints = [];
     const { tags } = this.props;

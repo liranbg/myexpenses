@@ -52,6 +52,18 @@ describe('dateRangeToLabels', () => {
     ]);
   });
 
+  it('should aggregate years from 2014 to 2018 include', function() {
+    let labelFormat = 'YYYY';
+    let stepType = 'year';
+    const startDate = moment('2014-01-01');
+    const endDate = moment('2018-01-01');
+    expect(
+      dateRangeToLabels(startDate, endDate, stepType).map(d =>
+        d.format(labelFormat)
+      )
+    ).toEqual(['2014', '2015', '2016', '2017', '2018']);
+  });
+
   it('should aggregate 3 dates labels between months january and march', function() {
     let labelFormat = 'MMMM YYYY';
     let stepType = 'month';

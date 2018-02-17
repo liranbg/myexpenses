@@ -23,7 +23,7 @@ export function filterExpensesByTags(expenses, tags) {
   else return _.filter(expenses, expense => _.includes(tags, expense.tag));
 }
 
-export function dateRangeToLabels(startDate, endDate, stepType = 'months') {
+export function dateRangeToLabels(startDate, endDate, stepType = 'month') {
   let labels = [];
   let iterator = moment(startDate);
   while (iterator.isSameOrBefore(endDate)) {
