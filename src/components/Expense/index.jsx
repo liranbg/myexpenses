@@ -20,7 +20,7 @@ import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
-import { getBatch } from '../../firebase';
+import { createBatch } from '../../firebase';
 
 class ExpenseCard extends Component {
   componentWillMount() {
@@ -49,12 +49,15 @@ class ExpenseCard extends Component {
     if (applyForAll) {
       let getOptions = {
         collection: 'expenses',
-        where: [['name', '==', expense.name]]
+        where: [['name', '==', expense.name]],
+        storeAs: 'expensesSameName'
       };
-      if (applyForUntaggedOnly)
+      if (applyForUntaggedOnly) {
         getOptions.where.push(['tag', '==', 'Untagged']);
+      }
+
+      let batch = createBatch();
       firestore.get(getOptions).then(queryDocumentSnapshot => {
-        const batch = getBatch();
         queryDocumentSnapshot.forEach(doc => {
           batch.update(doc.ref, updatedDoc);
         });
