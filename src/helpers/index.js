@@ -25,10 +25,11 @@ export function filterExpensesByTags(expenses, tags) {
 
 export function dateRangeToLabels(startDate, endDate, stepType = 'month') {
   let labels = [];
-  let iterator = moment(startDate);
-  while (iterator.isSameOrBefore(endDate)) {
-    labels.push(moment(iterator));
-    iterator = iterator.add(1, stepType);
+  let startIterator = moment(startDate).startOf(stepType);
+  let endIterator = moment(endDate).endOf(stepType);
+  while (startIterator.isSameOrBefore(endIterator)) {
+    labels.push(moment(startIterator));
+      startIterator = startIterator.add(1, stepType);
   }
   return labels;
 }
