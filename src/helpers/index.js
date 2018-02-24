@@ -74,7 +74,7 @@ export function buildExpensesByRows(rows) {
         return [...r.slice(1), md5.default(r.slice(1, 5).join()), ''];
       return [
         ...r.slice(0, 6),
-        md5.default(r.slice(0, 4).join()),
+        md5.default(r.slice(0, 4).join() + r[idIndex]),
         r[notesIndex]
       ];
     })

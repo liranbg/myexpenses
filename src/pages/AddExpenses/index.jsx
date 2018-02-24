@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import includes from 'lodash/includes'
+import includes from 'lodash/includes';
 import { Header, Container } from 'semantic-ui-react';
 import { withStyles } from 'material-ui/styles';
 import { Table, Button, InputLabel } from 'material-ui';
@@ -24,7 +24,12 @@ class AddExpensesPage extends Component {
     { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'amount', numeric: true, disablePadding: false, label: 'Amount' },
-    { id: 'currency', numeric: false, disablePadding: false, label: 'Currency' },
+    {
+      id: 'currency',
+      numeric: false,
+      disablePadding: false,
+      label: 'Currency'
+    },
     { id: 'tag', numeric: false, disablePadding: false, label: 'Tag' },
     { id: 'notes', numeric: false, disablePadding: false, label: 'Notes' }
   ];
