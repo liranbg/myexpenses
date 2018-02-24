@@ -195,7 +195,7 @@ class AddExpensesPage extends Component {
                     </Button>
                     <InputLabel htmlFor="expenses-file">
                         <Button className={classes.button} component="span" variant="raised" color="primary">
-                            Upload
+                            Import
                             <FileUpload className={classes.rightIcon}/>
                         </Button>
                     </InputLabel>
