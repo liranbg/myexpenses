@@ -21,7 +21,7 @@ const SIGNED_IN_ROUTES = [
   { route: '/expenses', title: 'Expenses' },
   { route: '/tags', title: 'Tags' },
   { route: '/charts', title: 'Charts' },
-  { route: '/addexpenses', title: 'Add Expenses' },
+  { route: '/addexpenses', title: 'Add Expenses' }
 ];
 
 class Header extends Component {
