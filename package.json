@@ -17,7 +17,7 @@
     "chart.js": "^2.7.1",
     "chart.piecelabel.js": "^0.9.0",
     "dateformat": "^3.0.3",
-    "firebase": "^4.10.0",
+    "firebase": "^4.10.1",
     "history": "^4.7.2",
     "lodash": "^4.17.5",
     "moment": "^2.20.1",
@@ -38,7 +38,7 @@
     "semantic-ui-react": "^0.78.2"
   },
   "devDependencies": {
-    "babel-jest": "^22.2.2",
+    "babel-jest": "^22.4.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-react-app": "^3.1.1",
     "cross-env": "^5.1.3",
