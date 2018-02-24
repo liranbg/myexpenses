@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Header, Container, Segment } from 'semantic-ui-react';
+import includes from 'lodash/includes'
+import { Header, Container } from 'semantic-ui-react';
 import { withStyles } from 'material-ui/styles';
 import { Table, Button, InputLabel } from 'material-ui';
 import XLSX from 'xlsx';
@@ -16,14 +17,14 @@ import { FileUpload, Save } from 'material-ui-icons';
 import EnhancedTableHead, { EnhancedTableToolbar } from './TableHead';
 import DateFormat from 'dateformat';
 import TimeAgo from 'react-timeago/lib/index';
-import { workbookToRows } from '../../helpers';
+import { buildExpensesByRows } from '../../helpers';
 
 class AddExpensesPage extends Component {
   tableHeaders = [
     { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'amount', numeric: true, disablePadding: false, label: 'Amount' },
-    { id: 'currency', numeric: false, disablePadding: false, label: 'Curr.' },
+    { id: 'currency', numeric: false, disablePadding: false, label: 'Currency' },
     { id: 'tag', numeric: false, disablePadding: false, label: 'Tag' },
     { id: 'notes', numeric: false, disablePadding: false, label: 'Notes' }
   ];
@@ -37,20 +38,34 @@ class AddExpensesPage extends Component {
     rowsPerPage: 10
   };
 
-  validateXL = e => {
-    const isSupportedFile = ['.xlsx', '.xls'].reduce(
-      (a, b) => (a ? a : e.target.value.endsWith(b)),
-      false
-    );
-    if (!isSupportedFile) return;
+  workbookToSheetRows = (binaryFile, sheetNum = 0) => {
+    const workbook = XLSX.read(binaryFile, { type: 'binary' });
+    const ws = workbook.Sheets[workbook.SheetNames[sheetNum]];
+    return XLSX.utils.sheet_to_json(ws, { header: 1 });
+  };
+
+  handleImport = e => {
+    if (!this.validateXL(e.target.value)) return;
     const f = e.target.files[0];
     const reader = new FileReader();
     reader.onload = e => {
-      const workbook = XLSX.read(e.target.result, { type: 'binary' });
-      const rows = workbookToRows(workbook);
-      this.setState({ data: rows });
+      const wsRows = this.workbookToSheetRows(e.target.result);
+      const expensesRows = buildExpensesByRows(wsRows);
+      this.setState({ data: expensesRows });
     };
     reader.readAsBinaryString(f);
+  };
+
+  validateXL = fName => {
+    return ['.xlsx', '.xls'].reduce((a, b) => a || fName.endsWith(b), false);
+  };
+
+  handleDeleteSelected = () => {
+    const { selected, data } = this.state;
+    this.setState({
+      data: data.filter(r => !includes(selected, r.id)),
+      selected: []
+    });
   };
 
   handleRequestSort = (event, property) => {
@@ -106,8 +121,6 @@ class AddExpensesPage extends Component {
     this.setState({ rowsPerPage: event.target.value });
   };
 
-  isSelected = id => this.state.selected.indexOf(id) !== -1;
-
   render() {
     const { classes } = this.props;
     const { data, order, orderBy, selected, rowsPerPage, page } = this.state;
@@ -119,7 +132,10 @@ class AddExpensesPage extends Component {
         <Header size="huge" content="Add Expenses" />
         {!!data.length && (
           <Paper className={classes.root}>
-            <EnhancedTableToolbar numSelected={selected.length} />
+            <EnhancedTableToolbar
+              numSelected={selected.length}
+              onDelete={this.handleDeleteSelected}
+            />
             <div className={classes.tableWrapper}>
               <Table className={classes.table}>
                 <EnhancedTableHead
@@ -135,7 +151,7 @@ class AddExpensesPage extends Component {
                   {data
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map(n => {
-                      const isSelected = this.isSelected(n.id);
+                      const isSelected = includes(this.state.selected, n.id);
                       return (
                         <TableRow
                           hover
@@ -149,7 +165,7 @@ class AddExpensesPage extends Component {
                           <TableCell padding="checkbox">
                             <Checkbox checked={isSelected} />
                           </TableCell>
-                          <TableCell padding="none">{n.name}</TableCell>
+                          <TableCell>{n.name}</TableCell>
                           <TableCell>
                             {DateFormat(n.date, 'mmmm dS, yyyy')} (<TimeAgo
                               date={n.date}
@@ -192,11 +208,12 @@ class AddExpensesPage extends Component {
         )}
         <Container>
           <input
-            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/comma-separated-values, text/csv, application/csv"
+            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+             application/vnd.ms-excel, text/comma-separated-values, text/csv, application/csv"
             className={classes.input}
             id="expenses-file"
             type="file"
-            onChange={this.validateXL}
+            onChange={this.handleImport}
           />
           <Button
             disabled={true}
@@ -241,8 +258,8 @@ export default withStyles(theme => ({
   },
   button: {
     marginTop: theme.spacing.unit * 3,
-    marginLeft: theme.spacing.unit,
-    float: 'right'
+    marginLeft: theme.spacing.unit
+    // float: 'right'
   },
   input: {
     display: 'none'

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import moment from 'moment';
-import XLSX from 'xlsx';
 import * as md5 from 'md5';
 
 export function expensesToTagsUses(expenses) {
@@ -55,7 +54,7 @@ function currencySignToText(sign) {
   }
 }
 
-export function workbookToRows(workbook) {
+export function buildExpensesByRows(rows) {
   // ILS Transaction
   //["07/12/2017", "GETT", "46", "₪", "46", "₪", "3425519", ""]
   // Foreign Transaction
@@ -67,15 +66,17 @@ export function workbookToRows(workbook) {
     currencyIndex = 5,
     idIndex = 6,
     notesIndex = 7;
-  const wsname = workbook.SheetNames[0];
-  const ws = workbook.Sheets[wsname];
-  return XLSX.utils
-    .sheet_to_json(ws, { header: 1 })
+  return rows
     .filter(r => !!r[dateIndex].match(regexDate) && r[nameIndex] !== '')
     .map(r => {
       if (r[dateIndex].match(regexDate) && r[dateIndex + 1].match(regexDate))
-        return [...r.slice(1), md5.default(r.slice(1, 4)), ''];
-      return r;
+        // Foreign Transaction
+        return [...r.slice(1), md5.default(r.slice(1, 5).join()), ''];
+      return [
+        ...r.slice(0, 6),
+        md5.default(r.slice(0, 4).join()),
+        r[notesIndex]
+      ];
     })
     .map(r => ({
       id: r[idIndex],
