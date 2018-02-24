@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Header, Container } from 'semantic-ui-react';
+import { Header, Container, Segment } from 'semantic-ui-react';
 import { withStyles } from 'material-ui/styles';
 import { Table, Button, InputLabel } from 'material-ui';
 import XLSX from 'xlsx';
@@ -16,8 +16,7 @@ import { FileUpload, Save } from 'material-ui-icons'
 import EnhancedTableHead, { EnhancedTableToolbar } from "./TableHead";
 import DateFormat from "dateformat";
 import TimeAgo from "react-timeago/lib/index";
-
-let counter = 0;
+import {workbookToRows} from "../../helpers";
 
 class AddExpensesPage extends Component {
     tableHeaders = [
@@ -25,23 +24,18 @@ class AddExpensesPage extends Component {
         {id: 'date', numeric: false, disablePadding: false, label: 'Date'},
         {id: 'amount', numeric: true, disablePadding: false, label: 'Amount'},
         {id: 'currency', numeric: false, disablePadding: false, label: 'Curr.'},
-        {id: 'tag', numeric: false, disablePadding: false, label: 'Tag'}
+        {id: 'tag', numeric: false, disablePadding: false, label: 'Tag'},
+        {id: 'notes', numeric: false, disablePadding: false, label: 'Notes'}
     ];
 
     state = {
         order: 'asc',
         orderBy: 'name',
         selected: [],
-        data: [
-            // AddExpensesPage.createData("Test", new Date(2018, 0, 31), 100, "ILS", "Untagged")
-        ],
+        data: [],
         page: 0,
         rowsPerPage: 10
     };
-
-    static createData(name, date, amount, currency, tag) {
-        return {id: ++counter, name, date, amount, currency, tag};
-    }
 
     validateXL = (e) => {
         const isSupportedFile = [".xlsx", ".xls"].reduce((a, b) => a ? a : e.target.value.endsWith(b), false);
@@ -49,9 +43,10 @@ class AddExpensesPage extends Component {
             return;
         const f = e.target.files[0];
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = (e) => {
             const workbook = XLSX.read(e.target.result, {type: 'binary'});
-            console.log(workbook.SheetNames);
+            const rows = workbookToRows(workbook);
+            this.setState({data: rows});
         };
         reader.readAsBinaryString(f)
     };
@@ -155,6 +150,7 @@ class AddExpensesPage extends Component {
                                             <TableCell numeric>{n.amount}</TableCell>
                                             <TableCell>{n.currency}</TableCell>
                                             <TableCell>{n.tag}</TableCell>
+                                            <TableCell>{n.notes}</TableCell>
                                         </TableRow>
                                     );
                                 })}
