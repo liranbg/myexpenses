@@ -3,6 +3,7 @@ import { Route } from 'react-router';
 import ExpensesPage from '../Expenses';
 import ChartsPage from '../Charts';
 import TagsPage from '../Tags';
+import AddExpensesPage from "../AddExpenses";
 import Header from '../../components/Header';
 import SignIn from '../../components/SignIn';
 import { firestoreConnect } from 'react-redux-firebase';
@@ -46,6 +47,7 @@ class MainApp extends Component {
             <Route exact path="/expenses" component={ExpensesPage} />
             <Route exact path="/tags" component={TagsPage} />
             <Route exact path="/charts" component={ChartsPage} />
+            <Route exact path="/addexpenses" component={AddExpensesPage} />
           </React.Fragment>
         )}
         <Segment

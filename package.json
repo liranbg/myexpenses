@@ -16,10 +16,13 @@
   "dependencies": {
     "chart.js": "^2.7.1",
     "chart.piecelabel.js": "^0.9.0",
+    "classnames": "^2.2.5",
     "dateformat": "^3.0.3",
     "firebase": "^4.10.1",
     "history": "^4.7.2",
     "lodash": "^4.17.5",
+    "material-ui": "^1.0.0-beta.34",
+    "material-ui-icons": "^1.0.0-beta.17",
     "moment": "^2.20.1",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
@@ -35,7 +38,8 @@
     "redux-firestore": "^0.2.8",
     "redux-logger": "^3.0.6",
     "semantic-ui-css": "^2.2.14",
-    "semantic-ui-react": "^0.78.2"
+    "semantic-ui-react": "^0.78.2",
+    "xlsx": "^0.12.2"
   },
   "devDependencies": {
     "babel-jest": "^22.4.1",
