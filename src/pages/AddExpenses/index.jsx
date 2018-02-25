@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import includes from 'lodash/includes';
-import { Header, Container } from 'semantic-ui-react';
+import { Header, Container} from 'semantic-ui-react';
 import { withStyles } from 'material-ui/styles';
 import { Table, Button, InputLabel } from 'material-ui';
 import XLSX from 'xlsx';
@@ -135,6 +135,37 @@ class AddExpensesPage extends Component {
     return (
       <Container>
         <Header size="huge" content="Add Expenses" />
+          <Container>
+              <input
+                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+             application/vnd.ms-excel, text/comma-separated-values, text/csv, application/csv"
+                  className={classes.input}
+                  id="expenses-file"
+                  type="file"
+                  onChange={this.handleImport}
+              />
+              <Button
+                  disabled={true}
+                  className={classes.button}
+                  component="span"
+                  variant="raised"
+                  color="primary"
+              >
+                  Save
+                  <Save className={classes.rightIcon} />
+              </Button>
+              <InputLabel htmlFor="expenses-file">
+                  <Button
+                      className={classes.button}
+                      component="span"
+                      variant="raised"
+                      color="primary"
+                  >
+                      Import
+                      <FileUpload className={classes.rightIcon} />
+                  </Button>
+              </InputLabel>
+          </Container>
         {!!data.length && (
           <Paper className={classes.root}>
             <EnhancedTableToolbar
@@ -211,37 +242,6 @@ class AddExpensesPage extends Component {
             </div>
           </Paper>
         )}
-        <Container>
-          <input
-            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-             application/vnd.ms-excel, text/comma-separated-values, text/csv, application/csv"
-            className={classes.input}
-            id="expenses-file"
-            type="file"
-            onChange={this.handleImport}
-          />
-          <Button
-            disabled={true}
-            className={classes.button}
-            component="span"
-            variant="raised"
-            color="primary"
-          >
-            Save
-            <Save className={classes.rightIcon} />
-          </Button>
-          <InputLabel htmlFor="expenses-file">
-            <Button
-              className={classes.button}
-              component="span"
-              variant="raised"
-              color="primary"
-            >
-              Import
-              <FileUpload className={classes.rightIcon} />
-            </Button>
-          </InputLabel>
-        </Container>
       </Container>
     );
   }
