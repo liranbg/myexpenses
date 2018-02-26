@@ -1,17 +1,28 @@
 import React, { Component } from 'react';
 import includes from 'lodash/includes';
-import { Header, Container } from 'semantic-ui-react';
-import { withStyles } from 'material-ui/styles';
-import { Table, Button, InputLabel } from 'material-ui';
+import {
+	Icon,
+	Menu,
+	Checkbox,
+	Input,
+	Header,
+	Container,
+	Table,
+	Button,
+	TableHeaderCell,
+	TableBody,
+	TableCell,
+	TableHeader,
+	TableRow
+} from 'semantic-ui-react';
 import XLSX from 'xlsx';
-import { TableBody, TableCell, TableFooter, TablePagination, TableRow } from 'material-ui/Table';
-import Paper from 'material-ui/Paper';
-import Checkbox from 'material-ui/Checkbox';
-import { FileUpload, Save } from 'material-ui-icons';
-import EnhancedTableHead, { EnhancedTableToolbar } from './TableHead';
 import DateFormat from 'dateformat';
-import TimeAgo from 'react-timeago/lib/index';
+import TimeAgo from 'react-timeago/lib';
 import { buildExpensesByRows } from '../../helpers';
+
+const acceptFiles =
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel, ' +
+	'text/comma-separated-values, text/csv, application/csv';
 
 class AddExpensesPage extends Component {
 	tableHeaders = [
@@ -59,7 +70,21 @@ class AddExpensesPage extends Component {
 		selected: [],
 		data: [],
 		page: 0,
-		rowsPerPage: 10
+		rowsPerPage: 10,
+		saveButtonLoading: false
+	};
+
+	expenseValueToNode = (expense, property) => {
+		switch (property) {
+			case 'date':
+				return (
+					<React.Fragment>
+						{DateFormat(expense[property], 'mmmm dS, yyyy')} (<TimeAgo date={expense[property]} />)
+					</React.Fragment>
+				);
+			default:
+				return expense[property];
+		}
 	};
 
 	workbookToSheetRows = (binaryFile, sheetNum = 0) => {
@@ -71,8 +96,10 @@ class AddExpensesPage extends Component {
 	};
 
 	handleImport = e => {
-		if (!this.validateXL(e.target.value)) return;
-		const f = e.target.files[0];
+	    const value = e.target.value, files = e.target.files;
+        // this.inputFileRef.value = "";
+		if (!this.validateXL(value)) return;
+		const f = files[0];
 		const reader = new FileReader();
 		reader.onload = e => {
 			const wsRows = this.workbookToSheetRows(e.target.result);
@@ -85,6 +112,7 @@ class AddExpensesPage extends Component {
 			});
 		};
 		reader.readAsBinaryString(f);
+        e.target.value = null; // we can import again
 	};
 
 	validateXL = fName => {
@@ -92,6 +120,7 @@ class AddExpensesPage extends Component {
 	};
 
 	handleSave = e => {
+	    this.setState({saveButtonLoading: !this.state.saveButtonLoading})
 		// Cancel Button (or set as wait)
 		// Save
 		// Done
@@ -125,19 +154,11 @@ class AddExpensesPage extends Component {
 		});
 	};
 
-	handleSelectAllClick = (event, checked) => {
-		if (checked) {
-			this.setState({
-				selected: this.state.data.map(n => n.id)
-			});
-			return;
-		}
-		this.setState({
-			selected: []
-		});
+	handleSelectAllClick = () => {
+		this.setState({ selected: !!this.state.selected.length ? [] : this.state.data.map(n => n.id) });
 	};
 
-	handleClick = (event, id) => {
+	handleRowClick = id => {
 		const { selected } = this.state;
 		const selectedIndex = selected.indexOf(id);
 		let newSelected = [];
@@ -160,150 +181,127 @@ class AddExpensesPage extends Component {
 		});
 	};
 
-	handleChangePage = (event, page) => {
-		this.setState({
-			page
-		});
-	};
-
-	handleChangeRowsPerPage = event => {
-		this.setState({
-			rowsPerPage: event.target.value
-		});
-	};
-
 	render() {
-		const { classes } = this.props;
-		const { data, order, orderBy, selected, rowsPerPage, page } = this.state;
-		const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
-
+		const {
+			data,
+			order,
+			orderBy,
+			selected,
+			rowsPerPage,
+			page,
+			saveButtonLoading
+		} = this.state;
+		const ttlPages = Math.floor(data.length / rowsPerPage);
+		/*
+		Add to sorting buttons
+		headers={this.tableHeaders}
+        numSelected={selected.length}
+        order={order}
+        orderBy={orderBy}
+        onSelectAllClick={this.handleSelectAllClick}
+        onRequestSort={this.handleRequestSort}
+        rowCount={data.length}
+		 */
 		return (
 			<Container>
 				<Header size="huge" content="Add Expenses" />
 				<Container>
-					<input
-						accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-             application/vnd.ms-excel, text/comma-separated-values, text/csv, application/csv"
-						className={classes.input}
+					<Input
+						style={{ display: 'none' }}
+						accept={acceptFiles}
 						id="expenses-file"
 						type="file"
 						onChange={this.handleImport}
 					/>
 					<Button
-						disabled={true}
-						className={classes.button}
-						component="span"
-						variant="raised"
-						color="primary"
+						disabled={!data.length || saveButtonLoading}
+						loading={saveButtonLoading}
+						onClick={this.handleSave}
+						primary
 					>
 						Save
-						<Save className={classes.rightIcon} />
 					</Button>
-					<InputLabel htmlFor="expenses-file">
-						<Button className={classes.button} component="span" variant="raised" color="primary">
-							Import
-							<FileUpload className={classes.rightIcon} />
-						</Button>
-					</InputLabel>
+					<Button primary as={'label'} htmlFor="expenses-file">
+						Import
+					</Button>
 				</Container>
-				{!!data.length && (
-					<Paper className={classes.root}>
-						<EnhancedTableToolbar numSelected={selected.length} onDelete={this.handleDeleteSelected} />
-						<div className={classes.tableWrapper}>
-							<Table className={classes.table}>
-								<EnhancedTableHead
-									headers={this.tableHeaders}
-									numSelected={selected.length}
-									order={order}
-									orderBy={orderBy}
-									onSelectAllClick={this.handleSelectAllClick}
-									onRequestSort={this.handleRequestSort}
-									rowCount={data.length}
+				<Table celled inverted selectable sortable>
+					<TableHeader>
+						<TableRow>
+							<TableHeaderCell>
+								<Checkbox
+									indeterminate={!!selected.length && selected.length < data.length}
+									checked={!!selected.length && selected.length === data.length}
+									onClick={this.handleSelectAllClick}
 								/>
-								<TableBody>
-									{data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(n => {
-										const isSelected = includes(this.state.selected, n.id);
-										return (
-											<TableRow
-												hover
-												onClick={event => this.handleClick(event, n.id)}
-												role="checkbox"
-												aria-checked={isSelected}
-												tabIndex={-1}
-												key={n.id}
-												selected={isSelected}
-											>
-												<TableCell padding="checkbox">
-													<Checkbox checked={isSelected} />
-												</TableCell>
-												<TableCell>{n.name}</TableCell>
-												<TableCell>
-													{DateFormat(n.date, 'mmmm dS, yyyy')} (<TimeAgo date={n.date} />)
-												</TableCell>
-												<TableCell numeric>{n.amount}</TableCell>
-												<TableCell>{n.currency}</TableCell>
-												<TableCell>{n.tag}</TableCell>
-												<TableCell>{n.notes}</TableCell>
-											</TableRow>
-										);
-									})}
-									{emptyRows > 0 && (
-										<TableRow
-											style={{
-												height: 49 * emptyRows
-											}}
-										>
-											<TableCell colSpan={6} />
+							</TableHeaderCell>
+							{this.tableHeaders.map(header => <TableHeaderCell key={header.id} content={header.label} />)}
+						</TableRow>
+					</TableHeader>
+					{!!data.length && (
+						<React.Fragment>
+							<TableBody>
+								{data.slice(rowsPerPage * page, rowsPerPage * (page + 1)).map((n, i) => {
+									const isSelected = includes(selected, n.id);
+									return (
+										<TableRow key={i} onClick={() => this.handleRowClick(n.id)}>
+											<TableCell>
+												<Checkbox onClick={() => this.handleRowClick(n.id)} checked={isSelected} />
+											</TableCell>
+											{this.tableHeaders.map(header => (
+												<TableCell key={header.id}>{this.expenseValueToNode(n, header.id)}</TableCell>
+											))}
 										</TableRow>
-									)}
-								</TableBody>
-								<TableFooter>
-									<TableRow>
-										<TablePagination
-											colSpan={6}
-											count={data.length}
-											rowsPerPage={rowsPerPage}
-											page={page}
-											backIconButtonProps={{
-												'aria-label': 'Previous Page'
-											}}
-											nextIconButtonProps={{
-												'aria-label': 'Next Page'
-											}}
-											onChangePage={this.handleChangePage}
-											onChangeRowsPerPage={this.handleChangeRowsPerPage}
-										/>
-									</TableRow>
-								</TableFooter>
-							</Table>
-						</div>
-					</Paper>
-				)}
+									);
+								})}
+							</TableBody>
+							<Table.Footer>
+								<Table.Row>
+									<TableHeaderCell colSpan="3" style={{ borderColor: null }}>
+										{!!selected.length && (
+											<Button
+												compact
+												onClick={this.handleDeleteSelected}
+												inverted
+												icon={'delete'}
+												content={`Delete ${selected.length} expenses`}
+											/>
+										)}
+									</TableHeaderCell>
+									<Table.HeaderCell colSpan="4">
+										<Menu floated="right" pagination inverted>
+											{!!page && (
+												<Menu.Item
+													as="a"
+													icon
+													onClick={() => {
+														this.setState({ page: page - 1 });
+													}}
+												>
+													<Icon name="chevron left" />
+												</Menu.Item>
+											)}
+											{page < ttlPages && (
+												<Menu.Item
+													as="a"
+													icon
+													onClick={() => {
+														this.setState({ page: page + 1 });
+													}}
+												>
+													<Icon name="chevron right" />
+												</Menu.Item>
+											)}
+										</Menu>
+									</Table.HeaderCell>
+								</Table.Row>
+							</Table.Footer>
+						</React.Fragment>
+					)}
+				</Table>
 			</Container>
 		);
 	}
 }
 
-export default withStyles(theme => ({
-	root: {
-		width: '100%',
-		marginTop: theme.spacing.unit * 3
-	},
-	table: {
-		minWidth: 800
-	},
-	tableWrapper: {
-		overflowX: 'auto'
-	},
-	rightIcon: {
-		marginLeft: theme.spacing.unit
-	},
-	button: {
-		marginTop: theme.spacing.unit * 3,
-		marginLeft: theme.spacing.unit
-		// float: 'right'
-	},
-	input: {
-		display: 'none'
-	}
-}))(AddExpensesPage);
+export default AddExpensesPage;
