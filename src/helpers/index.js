@@ -54,6 +54,19 @@ function currencySignToText(sign) {
   }
 }
 
+/**
+ * This function generate md5 ID upon its parameters
+ * @param dateStr: DD/MM/YYYY
+ * @param name
+ * @param amount
+ * @param currency
+ * @param misparShover
+ * @returns md5 string
+ */
+export function generateExpenseId(dateStr, name, amount, currency, misparShover=null) {
+    return md5.default([dateStr, name, amount, currency, misparShover? misparShover: ""].join());
+}
+
 export function buildExpensesByRows(rows) {
   // ILS Transaction
   //["07/12/2017", "GETT", "46", "₪", "46", "₪", "3425519", ""]
@@ -64,27 +77,25 @@ export function buildExpensesByRows(rows) {
     nameIndex = 1,
     amountIndex = 4,
     currencyIndex = 5,
-    idIndex = 6,
+    misparShoverIndex = 6,
     notesIndex = 7;
   return rows
     .filter(r => !!r[dateIndex].match(regexDate) && r[nameIndex] !== '')
     .map(r => {
-      if (r[dateIndex].match(regexDate) && r[dateIndex + 1].match(regexDate))
-        // Foreign Transaction
-        return [...r.slice(1), md5.default(r.slice(1, 5).join()), ''];
-      return [
-        ...r.slice(0, 6),
-        md5.default(r.slice(0, 4).join() + r[idIndex]),
-        r[notesIndex]
-      ];
+        // Foreign Transaction -> Add space for MisparShover & Notes
+        if (r[dateIndex].match(regexDate) && r[dateIndex + 1].match(regexDate))
+          return r.slice(1).concat(["", ""]);
+      return r;
+      //Now we can treat each line the same
     })
     .map(r => ({
-      id: r[idIndex],
       name: r[nameIndex],
       date: moment(r[dateIndex], 'DD/MM/YYYY'),
       tag: 'Untagged',
       amount: parseFloat(r[amountIndex]),
       notes: r[notesIndex],
-      currency: currencySignToText(r[currencyIndex])
+      currency: currencySignToText(r[currencyIndex]),
+      localTransaction: r[misparShoverIndex] !== '',
+      misparShover: r[misparShoverIndex]
     }));
 }

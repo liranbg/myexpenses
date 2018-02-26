@@ -56,7 +56,7 @@ class AddExpensesPage extends Component {
     reader.onload = e => {
       const wsRows = this.workbookToSheetRows(e.target.result);
       const expensesRows = buildExpensesByRows(wsRows);
-      this.setState({ data: expensesRows });
+      this.setState({ data: expensesRows.map((expenseRow, index)=>({...expenseRow, id: index}))});
     };
     reader.readAsBinaryString(f);
   };
