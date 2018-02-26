@@ -6,11 +6,11 @@ import ChartsViewReducer from './chart/chart-view';
 import { firestoreReducer } from 'redux-firestore';
 
 const expensesApp = combineReducers({
-  expensesView: expensesViewReducer,
-  chartsView: ChartsViewReducer,
-  firebase: firebaseReducer,
-  firestore: firestoreReducer,
-  router: routerReducer
+	expensesView: expensesViewReducer,
+	chartsView: ChartsViewReducer,
+	firebase: firebaseReducer,
+	firestore: firestoreReducer,
+	router: routerReducer
 });
 
 export default expensesApp;
