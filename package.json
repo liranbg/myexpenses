@@ -23,7 +23,7 @@
     "history": "^4.7.2",
     "lodash": "^4.17.5",
     "material-ui": "^1.0.0-beta.34",
-    "material-ui-icons": "^1.0.0-beta.17",
+    "material-ui-icons": "^1.0.0-beta.35",
     "md5": "^2.2.1",
     "moment": "^2.20.1",
     "prop-types": "^15.6.0",
@@ -40,7 +40,7 @@
     "redux-firestore": "^0.3.0",
     "redux-logger": "^3.0.6",
     "semantic-ui-css": "^2.2.14",
-    "semantic-ui-react": "^0.78.2",
+    "semantic-ui-react": "^0.78.3",
     "xlsx": "^0.12.2"
   },
   "devDependencies": {
