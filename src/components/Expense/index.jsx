@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import {
+	Modal,
+	Header,
 	Container,
 	Search,
 	CardContent,
@@ -22,6 +24,41 @@ import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { createBatch } from '../../firebase';
 
+class DeleteExpense extends Component {
+	close = () => this.modal.setState({ open: false });
+
+	handleDeleteApproved = () => {
+		this.close();
+		this.props.handleDelete();
+	};
+
+	render() {
+		const { expense } = this.props;
+		return (
+			<Modal
+				dimmer={'blurring'}
+				style={{ display: 'block' }}
+				ref={modal => (this.modal = modal)}
+				trigger={
+					<Button negative icon={'trash'} floated={'right'} basic compact content={'Delete Expense'} />
+				}
+				basic
+				size="small"
+			>
+				<Header icon="alarm" content="Deleting an Expense" />
+				<Modal.Content>
+					<p>You are about to delete an Expense named '{expense.name}'</p>
+					<p>Are you sure?</p>
+				</Modal.Content>
+				<Modal.Actions>
+					<Button onClick={this.close} icon={'remove'} content={'No'} color="red" />
+					<Button onClick={this.handleDeleteApproved} icon={'checkmark'} content={'Yes'} color="green" />
+				</Modal.Actions>
+			</Modal>
+		);
+	}
+}
+
 class ExpenseCard extends Component {
 	componentWillMount() {
 		this.resetSearchComponent();
@@ -38,20 +75,18 @@ class ExpenseCard extends Component {
 			applyForUntaggedOnly: true
 		});
 
-	handleResultSelect = (e, { result }) => {
-		const { profile, expense, firestore } = this.props;
-		const { applyForUntaggedOnly, applyForAll } = this.state;
-		this.setState({
-			value: result.title
-		});
+	setTag = async (expenseName, expenseId, tag, modifiedBy, applyForAll, applyForUntaggedOnly) => {
+		const { firestore } = this.props;
+
 		const updatedDoc = {
-			tag: result.title,
-			modifiedBy: profile.email
+			tag,
+			modifiedBy: modifiedBy
 		};
+
 		if (applyForAll) {
 			let getOptions = {
 				collection: 'expenses',
-				where: [['name', '==', expense.name]],
+				where: [['name', '==', expenseName]],
 				storeAs: 'expensesSameName'
 			};
 			if (applyForUntaggedOnly) {
@@ -59,15 +94,29 @@ class ExpenseCard extends Component {
 			}
 
 			let batch = createBatch();
-			firestore.get(getOptions).then(queryDocumentSnapshot => {
-				queryDocumentSnapshot.forEach(doc => {
-					batch.update(doc.ref, updatedDoc);
-				});
-				batch.commit();
+			const queryDocumentSnapshot = await firestore.get(getOptions);
+			queryDocumentSnapshot.forEach(doc => {
+				// console.log("Updating doc", doc.id);
+				batch.update(doc.ref, updatedDoc);
 			});
+			batch.commit();
 		} else {
-			firestore.update(`expenses/${expense.id}`, updatedDoc);
+			firestore.update({ collection: 'expenses', doc: expenseId }, updatedDoc);
 		}
+	};
+
+	handleResultSelect = async (e, { result }) => {
+		const { profile, expense } = this.props;
+		const { applyForUntaggedOnly, applyForAll } = this.state;
+		await this.setTag(
+			expense.name,
+			expense.id,
+			result.title,
+			profile.email,
+			applyForAll,
+			applyForUntaggedOnly
+		);
+		this.resetSearchComponent();
 	};
 
 	handleSearchChange = (e, { value }) => {
@@ -91,6 +140,12 @@ class ExpenseCard extends Component {
 		}, 100);
 	};
 
+	deleteExpense = () => {
+		console.log('Deleting expense:', this.props.expense.name);
+		this.props.firestore.delete(`expenses/${this.props.expense.id}`);
+		this.resetSearchComponent();
+	};
+
 	deleteExpenseTag = () => {
 		const { profile } = this.props;
 		this.props.firestore.update(`expenses/${this.props.expense.id}`, {
@@ -106,11 +161,12 @@ class ExpenseCard extends Component {
 
 	render() {
 		const { expense, tags } = this.props;
+		const tag = tags.find(tag => tag.name === expense.tag);
 		const { isLoading, value, results, applyForAll, applyForUntaggedOnly } = this.state;
 		return (
 			<Card
 				style={{
-					borderBottom: `2px solid ${tags.find(tag => tag.name === expense.tag).color}`
+					borderBottom: `2px solid ${tag ? tag.color : '#000'}`
 				}}
 			>
 				<Segment
@@ -129,17 +185,19 @@ class ExpenseCard extends Component {
 						icon={<Icon name="tag" />}
 						content={expense.tag || 'Untagged'}
 					/>
-					{this.isExpenseUntagged() ? null : (
+					{this.isExpenseUntagged() ? (
+						<DeleteExpense expense={this.props.expense} handleDelete={this.deleteExpense} />
+					) : (
 						<Button
 							floated="right"
 							compact
 							basic
 							negative
+							content={'Delete tag'}
 							onClick={this.deleteExpenseTag}
 							icon={{
 								name: 'trash'
 							}}
-							size="mini"
 						/>
 					)}
 				</Segment>
