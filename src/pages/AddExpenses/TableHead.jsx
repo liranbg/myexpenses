@@ -17,11 +17,11 @@ const toolbarStyles = theme => ({
 			? {
 					color: theme.palette.secondary.dark,
 					backgroundColor: lighten(theme.palette.secondary.light, 0.4)
-				}
+			  }
 			: {
 					color: lighten(theme.palette.secondary.light, 0.4),
 					backgroundColor: theme.palette.secondary.dark
-				},
+			  },
 	spacer: {
 		flex: '1 1 100%'
 	},

@@ -31,10 +31,11 @@ class BarChartCard extends Component {
 		Object.entries(expenses).forEach(entry => {
 			let key = entry[0];
 			let values = entry[1];
+			const tag = tags.find(tag => tag.name === key);
 			let datapoint = {
 				label: key,
 				data: Array(labels.length).fill(0),
-				backgroundColor: tags.find(tag => tag.name === key).color
+				backgroundColor: tag?tag.color: "#000"
 			};
 
 			let labelTip = 0;

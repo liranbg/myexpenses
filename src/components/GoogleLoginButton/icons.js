@@ -216,7 +216,7 @@ export const GoogleIcon = ({ disabled, type }) => (
 				: {
 						...iconStyle,
 						...disabledIconStyle
-					}
+				  }
 		}
 	>
 		{!disabled ? (type === 'dark' ? darkSvg : lightSvg) : disabledSvg}

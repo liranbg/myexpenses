@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CirclePicker } from 'react-color';
-
 import { Header, Container, ModalActions, ModalContent, Button, Modal } from 'semantic-ui-react';
 
 const colorsPalette = [
