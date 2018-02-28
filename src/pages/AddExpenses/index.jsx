@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import includes from 'lodash/includes';
+import sortBy from 'lodash/sortBy';
+import { createBatch } from '../../firebase';
 import {
+	Message,
 	Icon,
 	Menu,
 	Checkbox,
@@ -18,7 +21,10 @@ import {
 import XLSX from 'xlsx';
 import DateFormat from 'dateformat';
 import TimeAgo from 'react-timeago/lib';
-import { buildExpensesByRows } from '../../helpers';
+import { buildExpensesByRows, generateExpenseId } from '../../helpers';
+import { firestoreConnect } from 'react-redux-firebase';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 
 const acceptFiles =
 	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel, ' +
@@ -65,13 +71,16 @@ class AddExpensesPage extends Component {
 	];
 
 	state = {
-		order: 'asc',
-		orderBy: 'name',
+		showError: false,
+		errorMessage: '',
+		order: 'ascending',
+		orderBy: null,
 		selected: [],
 		data: [],
 		page: 0,
 		rowsPerPage: 10,
-		saveButtonLoading: false
+		saveButtonLoading: false,
+		importButtonLoading: false
 	};
 
 	expenseValueToNode = (expense, property) => {
@@ -96,34 +105,77 @@ class AddExpensesPage extends Component {
 	};
 
 	handleImport = e => {
-	    const value = e.target.value, files = e.target.files;
-        // this.inputFileRef.value = "";
-		if (!this.validateXL(value)) return;
-		const f = files[0];
-		const reader = new FileReader();
-		reader.onload = e => {
-			const wsRows = this.workbookToSheetRows(e.target.result);
-			const expensesRows = buildExpensesByRows(wsRows);
+		this.setState({ importButtonLoading: true, showError: false });
+		const { expensesIds } = this.props;
+		const value = e.target.value,
+			files = e.target.files;
+		if (this.validateXL(value)) {
+			const f = files[0];
+			const reader = new FileReader();
+			reader.onload = e => {
+				try {
+					const wsRows = this.workbookToSheetRows(e.target.result);
+					const expensesRows = buildExpensesByRows(wsRows);
+					this.setState({
+						data: expensesRows
+							.map(expense => ({
+								...expense,
+								id: generateExpenseId(
+									expense.date.format('DD/MM/YYYY'),
+									expense.name,
+									expense.amount,
+									expense.currency,
+									expense.misparShover
+								)
+							}))
+							.filter(expense => expensesIds.indexOf(expense.id) === -1)
+					});
+				} catch (e) {
+					this.setState({ showError: true, errorMessage: 'There was an error reading your file' });
+				} finally {
+					e.target.value = null; // we can import again
+					this.setState({ importButtonLoading: false });
+				}
+			};
+			reader.readAsBinaryString(f);
+		} else
 			this.setState({
-				data: expensesRows.map((expenseRow, index) => ({
-					...expenseRow,
-					id: index
-				}))
+				importButtonLoading: false,
+				showError: true,
+				errorMessage: 'Invalid Excel File'
 			});
-		};
-		reader.readAsBinaryString(f);
-        e.target.value = null; // we can import again
 	};
 
 	validateXL = fName => {
 		return ['.xlsx', '.xls'].reduce((a, b) => a || fName.endsWith(b), false);
 	};
 
-	handleSave = e => {
-	    this.setState({saveButtonLoading: !this.state.saveButtonLoading})
-		// Cancel Button (or set as wait)
-		// Save
-		// Done
+	handleSave = () => {
+		const { data } = this.state;
+		const { profile, firebase, expensesIds } = this.props;
+		this.setState({ saveButtonLoading: true });
+		let batch = createBatch();
+		data
+			.map(expense => ({
+				...expense,
+				date: expense.date.toDate(),
+				createdBy: profile.email,
+				createdOn: new Date()
+			}))
+			.filter(expense => expensesIds.indexOf(expense.id) === -1)
+			.forEach(expense => {
+				const docId = expense.id;
+				delete expense.id;
+				console.debug('Adding expense ID', docId);
+				batch.set(
+					firebase
+						.firestore()
+						.collection('expenses')
+						.doc(docId.toString()),
+					expense
+				);
+			});
+		batch.commit().finally(() => this.setState({ saveButtonLoading: false }));
 	};
 
 	handleDeleteSelected = () => {
@@ -134,23 +186,19 @@ class AddExpensesPage extends Component {
 		});
 	};
 
-	handleRequestSort = (event, property) => {
-		const orderBy = property;
-		let order = 'desc';
-
-		if (this.state.orderBy === property && this.state.order === 'desc') {
-			order = 'asc';
+	handleSort = column => () => {
+		const { orderBy, data, order } = this.state;
+		if (column !== orderBy) {
+			this.setState({
+				orderBy: column,
+				data: sortBy(data, [column]),
+				order: 'ascending'
+			});
+			return;
 		}
-
-		const data =
-			order === 'desc'
-				? this.state.data.sort((a, b) => (b[orderBy] < a[orderBy] ? -1 : 1))
-				: this.state.data.sort((a, b) => (a[orderBy] < b[orderBy] ? -1 : 1));
-
 		this.setState({
-			data,
-			order,
-			orderBy
+			data: data.reverse(),
+			order: order === 'ascending' ? 'descending' : 'ascending'
 		});
 	};
 
@@ -183,25 +231,19 @@ class AddExpensesPage extends Component {
 
 	render() {
 		const {
+			showError,
+			errorMessage,
 			data,
 			order,
 			orderBy,
 			selected,
 			rowsPerPage,
 			page,
-			saveButtonLoading
+			saveButtonLoading,
+			importButtonLoading
 		} = this.state;
 		const ttlPages = Math.floor(data.length / rowsPerPage);
-		/*
-		Add to sorting buttons
-		headers={this.tableHeaders}
-        numSelected={selected.length}
-        order={order}
-        orderBy={orderBy}
-        onSelectAllClick={this.handleSelectAllClick}
-        onRequestSort={this.handleRequestSort}
-        rowCount={data.length}
-		 */
+
 		return (
 			<Container>
 				<Header size="huge" content="Add Expenses" />
@@ -221,9 +263,18 @@ class AddExpensesPage extends Component {
 					>
 						Save
 					</Button>
-					<Button primary as={'label'} htmlFor="expenses-file">
+					<Button
+						loading={importButtonLoading}
+						disabled={importButtonLoading}
+						primary
+						as={'label'}
+						htmlFor="expenses-file"
+					>
 						Import
 					</Button>
+					<Message negative hidden={!showError}>
+						<Message.Header content={errorMessage} />
+					</Message>
 				</Container>
 				<Table celled inverted selectable sortable>
 					<TableHeader>
@@ -235,7 +286,14 @@ class AddExpensesPage extends Component {
 									onClick={this.handleSelectAllClick}
 								/>
 							</TableHeaderCell>
-							{this.tableHeaders.map(header => <TableHeaderCell key={header.id} content={header.label} />)}
+							{this.tableHeaders.map(header => (
+								<TableHeaderCell
+									onClick={this.handleSort(header.id)}
+									sorted={orderBy === header.id ? order : null}
+									key={header.id}
+									content={header.label}
+								/>
+							))}
 						</TableRow>
 					</TableHeader>
 					{!!data.length && (
