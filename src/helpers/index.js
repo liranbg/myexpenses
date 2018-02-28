@@ -80,7 +80,7 @@ export function buildExpensesByRows(rows) {
 		misparShoverIndex = 6,
 		notesIndex = 7;
 	return rows
-		.filter(r => !!r[dateIndex].match(regexDate) && r[nameIndex] !== '')
+		.filter(r => r.length && !!r[dateIndex].match(regexDate) && r[nameIndex] !== '')
 		.map(r => {
 			// Foreign Transaction -> Add space for MisparShover & Notes
 			if (r[dateIndex].match(regexDate) && r[dateIndex + 1].match(regexDate))

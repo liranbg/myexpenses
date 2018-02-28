@@ -304,4 +304,14 @@ class AddExpensesPage extends Component {
 	}
 }
 
+AddExpensesPage = compose(
+	firestoreConnect([
+		{ collection: 'expenses', orderBy: ['date'] },
+		{ collection: 'tags', orderBy: 'name' }
+	]),
+	connect(({ firebase: { profile }, firestore: { ordered } }) => ({
+		profile,
+		expensesIds: ordered.expenses.map(e => e.id)
+	}))
+)(AddExpensesPage);
 export default AddExpensesPage;

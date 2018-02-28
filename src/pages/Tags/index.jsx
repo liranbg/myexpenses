@@ -126,6 +126,12 @@ const mapStateToProps = state => ({
 		: {}
 });
 
-TagsPage = compose(firestoreConnect(), connect(mapStateToProps))(TagsPage);
+TagsPage = compose(
+	firestoreConnect([
+		{ collection: 'expenses', orderBy: ['date'] },
+		{ collection: 'tags', orderBy: ['name'] }
+	]),
+	connect(mapStateToProps)
+)(TagsPage);
 
 export default TagsPage;

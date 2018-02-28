@@ -15,6 +15,8 @@ import { connect } from 'react-redux';
 import { filterExpensesByTag, remFilterExpensesByTag } from '../../actions';
 import ExpensesSearch from '../../components/ExpenseSearch';
 import { filterExpensesByTags } from '../../helpers';
+import { compose } from 'redux';
+import { firestoreConnect } from 'react-redux-firebase';
 
 class ExpensesPage extends Component {
 	state = {
@@ -97,14 +99,14 @@ class ExpensesPage extends Component {
 								totalPages={ttlPages}
 							/>
 						</Segment>
+						<Divider />
+						<CardGroup stackable itemsPerRow={3}>
+							{expensesToDisplay
+								.slice((activePage - 1) * ttlCardsPerPage, activePage * ttlCardsPerPage)
+								.map((expense, i) => <ExpenseCard key={i} expense={expense} tags={tags} />)}
+						</CardGroup>
 					</React.Fragment>
 				)}
-				<Divider />
-				<CardGroup stackable itemsPerRow={3}>
-					{expensesToDisplay
-						.slice((activePage - 1) * ttlCardsPerPage, activePage * ttlCardsPerPage)
-						.map((expense, i) => <ExpenseCard key={i} expense={expense} tags={tags} />)}
-				</CardGroup>
 			</Container>
 		);
 	}
@@ -122,9 +124,15 @@ ExpensesPage.defaultProps = {
 	filterTags: []
 };
 
-ExpensesPage = connect(state => ({
-	expenses: state.firestore.ordered.expenses,
-	filterTags: state.expensesView.filterTags,
-	tags: state.firestore.ordered.tags
-}))(ExpensesPage);
+ExpensesPage = compose(
+	firestoreConnect([
+		{ collection: 'expenses', orderBy: ['date'] },
+		{ collection: 'tags', orderBy: 'name' }
+	]),
+	connect(({ firestore: { ordered }, expensesView }) => ({
+		expenses: ordered.expenses,
+		filterTags: expensesView.filterTags,
+		tags: ordered.tags
+	}))
+)(ExpensesPage);
 export default ExpensesPage;

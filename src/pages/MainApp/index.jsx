@@ -9,39 +9,8 @@ import SignIn from '../../components/SignIn';
 import { firestoreConnect } from 'react-redux-firebase';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import PropTypes from 'prop-types';
-import { Segment } from 'semantic-ui-react';
 
 class MainApp extends Component {
-	static contextTypes = {
-		store: PropTypes.object.isRequired
-	};
-
-	componentWillMount() {
-		const { firestore } = this.context.store;
-		firestore.setListeners([
-			{
-				collection: 'expenses',
-				orderBy: ['date']
-			},
-			{
-				collection: 'tags',
-				orderBy: ['name']
-			}
-		]);
-	}
-
-	componentWillUnmount() {
-		const { firestore } = this.context.store;
-		firestore.unsetListeners([
-			{
-				collection: 'expenses'
-			},
-			{
-				collection: 'tags'
-			}
-		]);
-	}
 
 	render() {
 		const { profile } = this.props;
@@ -80,8 +49,7 @@ class MainApp extends Component {
 
 export default compose(
 	firestoreConnect(),
-	connect(({ firebase: { auth, profile } }) => ({
-		auth,
+	connect(({ firebase: { profile } }) => ({
 		profile
 	}))
 )(MainApp);
