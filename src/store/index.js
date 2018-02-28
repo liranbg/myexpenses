@@ -12,24 +12,21 @@ const history = createHistory();
 middlewares.push(routerMiddleware(history));
 
 const rrfConfig = {
-  userProfile: 'users',
-  useFirestoreForProfile: true
+	userProfile: 'users',
+	useFirestoreForProfile: true
 };
 
 const createStoreWithFirebase = compose(
-  reactReduxFirebase(firebase, rrfConfig),
-  reduxFirestore(firebase)
+	reactReduxFirebase(firebase, rrfConfig),
+	reduxFirestore(firebase)
 )(createStore);
 
 if (process.env.NODE_ENV === `development`) {
-  const { logger } = require(`redux-logger`);
-  // middlewares.push(logger);
+	const { logger } = require(`redux-logger`);
+	// middlewares.push(logger);
 }
 
-const store = createStoreWithFirebase(
-  reducers,
-  applyMiddleware(...middlewares)
-);
+const store = createStoreWithFirebase(reducers, applyMiddleware(...middlewares));
 
 export default store;
 export { history };
