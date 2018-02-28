@@ -57,10 +57,10 @@ class ExpensesPage extends Component {
 		});
 
 	render() {
-		const { activePage, ttlCardsPerPage } = this.state;
+		const { activePage, ttlCardsPerPage, value } = this.state;
 		const { expenses, tags, filterTags } = this.props;
 		const expensesToDisplay = filterExpensesByTags(
-			this.state.value ? this.props.expenses.filter(r => r.name === this.state.value) : expenses,
+			!!value ? expenses.filter(r => r.name === value) : expenses,
 			filterTags
 		);
 		const ttlPages = Math.round(Math.ceil(expensesToDisplay.length / ttlCardsPerPage));
@@ -99,14 +99,16 @@ class ExpensesPage extends Component {
 								totalPages={ttlPages}
 							/>
 						</Segment>
-						<Divider />
-						<CardGroup stackable itemsPerRow={3}>
-							{expensesToDisplay
-								.slice((activePage - 1) * ttlCardsPerPage, activePage * ttlCardsPerPage)
-								.map((expense, i) => <ExpenseCard key={i} expense={expense} tags={tags} />)}
-						</CardGroup>
 					</React.Fragment>
 				)}
+				{!!expensesToDisplay.length && <React.Fragment>
+                    <Divider />
+                    <CardGroup stackable itemsPerRow={3}>
+                        {expensesToDisplay
+                            .slice((activePage - 1) * ttlCardsPerPage, activePage * ttlCardsPerPage)
+                            .map((expense, i) => <ExpenseCard key={i} expense={expense} tags={tags} />)}
+                    </CardGroup>
+				</React.Fragment> }
 			</Container>
 		);
 	}

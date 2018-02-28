@@ -71,7 +71,7 @@ class ExpenseCard extends Component {
 			isLoading: false,
 			results: [],
 			value: '',
-			applyForAll: true,
+			applyForAll: false,
 			applyForUntaggedOnly: true
 		});
 
