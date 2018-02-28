@@ -4,4 +4,4 @@ dist
 yarn.lock
 package-lock.json
 .idea
-lib
+lib/serviceAccountKey.json
