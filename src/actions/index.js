@@ -1,24 +1,23 @@
 import moment from 'moment';
 
 export const FILTER_EXPENSES_BY_TAG = 'FILTER_EXPENSES_BY_TAG';
-export const REM_FILTER_EXPENSES_BY_TAG = 'REM_FILTER_EXPENSES_BY_TAG';
+export const FILTER_EXPENSES_BY_NAME = 'FILTER_EXPENSES_BY_NAME';
 export const SET_DATES_RANGE = 'SET_DATES_RANGE';
 
-export function filterExpensesByTag(tagName, replaceAll = false) {
+export function filterExpensesByTag(tags) {
 	return {
 		type: FILTER_EXPENSES_BY_TAG,
 		payload: {
-			tagName: tagName,
-			replaceAll: replaceAll
+			tags
 		}
 	};
 }
 
-export function remFilterExpensesByTag(tagName) {
+export function filterExpensesByName(expenseName) {
 	return {
-		type: REM_FILTER_EXPENSES_BY_TAG,
+		type: FILTER_EXPENSES_BY_NAME,
 		payload: {
-			tagName: tagName
+			expenseName
 		}
 	};
 }

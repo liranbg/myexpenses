@@ -11,7 +11,6 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 
 class MainApp extends Component {
-
 	render() {
 		const { profile } = this.props;
 		return (

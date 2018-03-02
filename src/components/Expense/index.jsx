@@ -14,7 +14,7 @@ import {
 	Checkbox,
 	Segment
 } from 'semantic-ui-react';
-import { Tag } from '../../proptypes';
+import { Expense, Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { filterExpensesByTag } from '../../actions';
@@ -25,23 +25,42 @@ import { compose } from 'redux';
 import { createBatch } from '../../firebase';
 
 class DeleteExpense extends Component {
-	close = () => this.modal.setState({ open: false });
+	state = { modalOpen: false };
+
+	static propTypes = {
+		handleDelete: PropTypes.func,
+		expense: PropTypes.shape(Expense)
+	};
+
+	handleOpen = () => this.setState({ modalOpen: true });
+
+	handleClose = () => this.setState({ modalOpen: false });
 
 	handleDeleteApproved = () => {
-		this.close();
+		this.handleClose();
 		this.props.handleDelete();
 	};
 
 	render() {
 		const { expense } = this.props;
+		const { modalOpen } = this.state;
 		return (
 			<Modal
 				dimmer={'blurring'}
 				style={{ display: 'block' }}
-				ref={modal => (this.modal = modal)}
 				trigger={
-					<Button negative icon={'trash'} floated={'right'} basic compact content={'Delete Expense'} />
+					<Button
+						onClick={this.handleOpen}
+						negative
+						icon={'trash'}
+						floated={'right'}
+						basic
+						compact
+						content={'Delete Expense'}
+					/>
 				}
+				open={modalOpen}
+				onClose={this.handleClose}
 				basic
 				size="small"
 			>
@@ -51,7 +70,7 @@ class DeleteExpense extends Component {
 					<p>Are you sure?</p>
 				</Modal.Content>
 				<Modal.Actions>
-					<Button onClick={this.close} icon={'remove'} content={'No'} color="red" />
+					<Button onClick={this.handleClose} icon={'remove'} content={'No'} color="red" />
 					<Button onClick={this.handleDeleteApproved} icon={'checkmark'} content={'Yes'} color="green" />
 				</Modal.Actions>
 			</Modal>
@@ -60,6 +79,11 @@ class DeleteExpense extends Component {
 }
 
 class ExpenseCard extends Component {
+	static propTypes = {
+		expense: PropTypes.object.isRequired,
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+	};
+
 	componentWillMount() {
 		this.resetSearchComponent();
 	}
@@ -141,7 +165,7 @@ class ExpenseCard extends Component {
 	};
 
 	deleteExpense = () => {
-		console.log('Deleting expense:', this.props.expense.name);
+		console.debug('Deleting expense:', this.props.expense.name);
 		this.props.firestore.delete(`expenses/${this.props.expense.id}`);
 		this.resetSearchComponent();
 	};
@@ -298,11 +322,6 @@ class ExpenseCard extends Component {
 		);
 	}
 }
-
-ExpenseCard.propTypes = {
-	expense: PropTypes.object.isRequired,
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag))
-};
 
 ExpenseCard = compose(
 	firestoreConnect(),

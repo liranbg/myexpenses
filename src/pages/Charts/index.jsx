@@ -36,12 +36,13 @@ export class ChartsPage extends Component {
 						<Button onClick={this.narrowDatesByExpenses} content={'Narrow Dates'} />
 					</Segment>
 				</SegmentGroup>
-				{!!Object.keys(groupedExpenses).length && tags && (
-					<CardGroup>
-						<BarChartCard expenses={groupedExpenses} tags={tags} />
-						<PieChartCard expenses={groupedExpenses} tags={tags} />
-					</CardGroup>
-				)}
+				{!!Object.keys(groupedExpenses).length &&
+					tags && (
+						<CardGroup>
+							<BarChartCard expenses={groupedExpenses} tags={tags} />
+							<PieChartCard expenses={groupedExpenses} tags={tags} />
+						</CardGroup>
+					)}
 			</Container>
 		);
 	}
@@ -54,9 +55,9 @@ ChartsPage.propTypes = {
 	toDate: PropTypes.object
 };
 
-const mapStateToProps = ({firestore: {ordered}, chartsView}) => {
+const mapStateToProps = ({ firestore: { ordered }, chartsView }) => {
 	return {
-		expenses: ordered.expenses? expensesDatesMomentify(ordered.expenses): [],
+		expenses: ordered.expenses ? expensesDatesMomentify(ordered.expenses) : [],
 		tags: ordered.tags,
 		selectedFromDate: chartsView.selectedFromDate,
 		selectedToDate: chartsView.selectedToDate,

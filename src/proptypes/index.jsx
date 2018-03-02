@@ -18,7 +18,3 @@ export const Expense = {
 	createdBy: PropTypes.string,
 	modifiedBy: PropTypes.string
 };
-
-export const ExpensesView = {
-	filterTags: PropTypes.arrayOf(PropTypes.string.isRequired)
-};

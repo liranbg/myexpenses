@@ -35,7 +35,7 @@ class BarChartCard extends Component {
 			let datapoint = {
 				label: key,
 				data: Array(labels.length).fill(0),
-				backgroundColor: tag?tag.color: "#000"
+				backgroundColor: tag ? tag.color : '#000'
 			};
 
 			let labelTip = 0;

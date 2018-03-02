@@ -26,6 +26,10 @@ export function filterExpensesByTags(expenses, tags) {
 	else return _.filter(expenses, expense => _.includes(tags, expense.tag));
 }
 
+export function filterExpensesByName(expenses, name) {
+	return _.filter(expenses, expense => expense.name === name);
+}
+
 export function dateRangeToLabels(startDate, endDate, stepType = 'month') {
 	let labels = [];
 	let startIterator = moment(startDate).startOf(stepType);
