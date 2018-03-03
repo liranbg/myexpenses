@@ -5,7 +5,8 @@ moment.locale('en');
 
 export const Tag = {
 	id: PropTypes.string.isRequired,
-	name: PropTypes.string.isRequired
+	name: PropTypes.string.isRequired,
+	color: PropTypes.string.isRequired
 };
 
 export const Expense = {
@@ -15,6 +16,10 @@ export const Expense = {
 	amount: PropTypes.number.isRequired,
 	tag: PropTypes.string.isRequired,
 	currency: PropTypes.string.isRequired,
-	createdBy: PropTypes.string,
+	localTransaction: PropTypes.bool.isRequired,
+	misparShover: PropTypes.string,
+	notes: PropTypes.string,
+	createdBy: PropTypes.string.isRequired,
+	createdOn: PropTypes.oneOfType([PropTypes.instanceOf(moment), PropTypes.instanceOf(Date)]),
 	modifiedBy: PropTypes.string
 };

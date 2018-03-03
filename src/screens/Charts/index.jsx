@@ -14,6 +14,13 @@ import { setDatesRange } from '../../actions';
 import { firestoreConnect } from 'react-redux-firebase';
 
 export class ChartsPage extends Component {
+	static propTypes = {
+		expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+		fromDate: PropTypes.object,
+		toDate: PropTypes.object
+	};
+
 	narrowDatesByExpenses = () => {
 		const { fromDate, toDate, expenses } = this.props;
 		if (expenses.length > 1) {
@@ -48,13 +55,6 @@ export class ChartsPage extends Component {
 	}
 }
 
-ChartsPage.propTypes = {
-	expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-	fromDate: PropTypes.object,
-	toDate: PropTypes.object
-};
-
 const mapStateToProps = ({ firestore: { ordered }, chartsView }) => {
 	return {
 		expenses: ordered.expenses ? expensesDatesMomentify(ordered.expenses) : [],
@@ -66,11 +66,10 @@ const mapStateToProps = ({ firestore: { ordered }, chartsView }) => {
 	};
 };
 
-ChartsPage = compose(
+export default compose(
 	firestoreConnect([
 		{ collection: 'expenses', orderBy: ['date'] },
 		{ collection: 'tags', orderBy: ['name'] }
 	]),
 	connect(mapStateToProps)
 )(ChartsPage);
-export default ChartsPage;

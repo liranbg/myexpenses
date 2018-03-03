@@ -30,7 +30,7 @@ const acceptFiles =
 	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel, ' +
 	'text/comma-separated-values, text/csv, application/csv';
 
-class AddExpensesPage extends Component {
+class AddExpensesScreen extends Component {
 	tableHeaders = [
 		{
 			id: 'name',
@@ -362,14 +362,13 @@ class AddExpensesPage extends Component {
 	}
 }
 
-AddExpensesPage = compose(
+export default compose(
 	firestoreConnect([
 		{ collection: 'expenses', orderBy: ['date'] },
 		{ collection: 'tags', orderBy: 'name' }
 	]),
 	connect(({ firebase: { profile }, firestore: { ordered } }) => ({
 		profile,
-		expensesIds: ordered.expenses.map(e => e.id)
+		expensesIds: ordered.expenses ? ordered.expenses.map(e => e.id) : []
 	}))
-)(AddExpensesPage);
-export default AddExpensesPage;
+)(AddExpensesScreen);

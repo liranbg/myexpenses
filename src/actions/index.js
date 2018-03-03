@@ -4,25 +4,25 @@ export const FILTER_EXPENSES_BY_TAG = 'FILTER_EXPENSES_BY_TAG';
 export const FILTER_EXPENSES_BY_NAME = 'FILTER_EXPENSES_BY_NAME';
 export const SET_DATES_RANGE = 'SET_DATES_RANGE';
 
-export function filterExpensesByTag(tags) {
+const filterExpensesByTag = tags => {
 	return {
 		type: FILTER_EXPENSES_BY_TAG,
 		payload: {
 			tags
 		}
 	};
-}
+};
 
-export function filterExpensesByName(expenseName) {
+const filterExpensesByName = expenseName => {
 	return {
 		type: FILTER_EXPENSES_BY_NAME,
 		payload: {
 			expenseName
 		}
 	};
-}
+};
 
-export function setDatesRange(fromDate, toDate, selectedFromDate, selectedToDate) {
+const setDatesRange = (fromDate, toDate, selectedFromDate, selectedToDate) => {
 	return {
 		type: SET_DATES_RANGE,
 		payload: {
@@ -32,4 +32,6 @@ export function setDatesRange(fromDate, toDate, selectedFromDate, selectedToDate
 			selectedToDate: moment(selectedToDate)
 		}
 	};
-}
+};
+
+export { filterExpensesByName, filterExpensesByTag, setDatesRange };

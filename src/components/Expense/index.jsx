@@ -24,7 +24,7 @@ import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { createBatch } from '../../firebase';
 
-class DeleteExpense extends Component {
+class DeleteExpenseModal extends Component {
 	state = { modalOpen: false };
 
 	static propTypes = {
@@ -210,7 +210,7 @@ class ExpenseCard extends Component {
 						content={expense.tag || 'Untagged'}
 					/>
 					{this.isExpenseUntagged() ? (
-						<DeleteExpense expense={this.props.expense} handleDelete={this.deleteExpense} />
+						<DeleteExpenseModal expense={this.props.expense} handleDelete={this.deleteExpense} />
 					) : (
 						<Button
 							floated="right"

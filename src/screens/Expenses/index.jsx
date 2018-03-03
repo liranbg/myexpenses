@@ -11,7 +11,7 @@ import { compose } from 'redux';
 import { firestoreConnect } from 'react-redux-firebase';
 import TagsSelection from '../../components/TagsSelection';
 
-class ExpensesPage extends Component {
+class ExpensesScreen extends Component {
 	static propTypes = {
 		expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
 		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
@@ -76,7 +76,7 @@ class ExpensesPage extends Component {
 	}
 }
 
-ExpensesPage = compose(
+export default compose(
 	firestoreConnect([
 		{ collection: 'expenses', orderBy: ['date'] },
 		{ collection: 'tags', orderBy: 'name' }
@@ -95,5 +95,4 @@ ExpensesPage = compose(
 			selectedTags: expensesView.selectedTags
 		};
 	})
-)(ExpensesPage);
-export default ExpensesPage;
+)(ExpensesScreen);

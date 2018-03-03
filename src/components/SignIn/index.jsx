@@ -8,6 +8,13 @@ import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 
 class SignInForm extends Component {
+	static propTypes = {
+		firebase: PropTypes.shape({
+			login: PropTypes.func.isRequired
+		}),
+		profile: PropTypes.object
+	};
+
 	handleGoogleLogin = () => {
 		this.props.firebase.login({
 			provider: 'google',
@@ -20,11 +27,10 @@ class SignInForm extends Component {
 		const { profile } = this.props;
 		if (!profile.isLoaded)
 			return (
-				<Dimmer active={!profile.isLoaded}>
-					<Loader active={!profile.isLoaded} size="huge">
-						Loading
-					</Loader>
-				</Dimmer>
+				<Dimmer
+					active={!profile.isLoaded}
+					children={<Loader active={!profile.isLoaded} size="huge" content={'Loading'} />}
+				/>
 			);
 		return (
 			<Container>
@@ -57,12 +63,6 @@ class SignInForm extends Component {
 	}
 }
 
-SignInForm.propTypes = {
-	firebase: PropTypes.shape({
-		login: PropTypes.func.isRequired
-	}),
-	profile: PropTypes.object
-};
 export default compose(
 	firestoreConnect(),
 	connect(({ firebase: { profile } }) => ({

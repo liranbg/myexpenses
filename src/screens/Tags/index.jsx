@@ -10,14 +10,15 @@ import { push } from 'react-router-redux';
 import { expensesToTagsUses } from '../../helpers';
 import TagSegment from '../../components/TagSegment';
 
-const INITIAL_STATE = {
-	newTagName: '',
-	actionAddTagLoading: false
-};
+class TagsScreen extends Component {
+	static propTypes = {
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+		tagsUses: PropTypes.object.isRequired
+	};
 
-class TagsPage extends Component {
 	state = {
-		...INITIAL_STATE
+		newTagName: '',
+		actionAddTagLoading: false
 	};
 
 	setActionAddTagLoading = bool =>
@@ -55,7 +56,7 @@ class TagsPage extends Component {
 
 	newTagNameInputHandler = e => {
 		this.setState({
-			newTagName: TagsPage.jsUcfirst(e.target.value)
+			newTagName: TagsScreen.jsUcfirst(e.target.value)
 		});
 	};
 
@@ -109,29 +110,17 @@ class TagsPage extends Component {
 	}
 }
 
-TagsPage.propTypes = {
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-	tagsUses: PropTypes.object.isRequired
-};
-
-TagsPage.defaultProps = {
-	tags: [],
-	tagsUses: {}
-};
-
 const mapStateToProps = state => ({
-	tags: state.firestore.ordered.tags,
+	tags: state.firestore.ordered.tags ? state.firestore.ordered.tags : [],
 	tagsUses: state.firestore.ordered.expenses
 		? expensesToTagsUses(state.firestore.ordered.expenses)
 		: {}
 });
 
-TagsPage = compose(
+export default compose(
 	firestoreConnect([
 		{ collection: 'expenses', orderBy: ['date'] },
 		{ collection: 'tags', orderBy: ['name'] }
 	]),
 	connect(mapStateToProps)
-)(TagsPage);
-
-export default TagsPage;
+)(TagsScreen);
