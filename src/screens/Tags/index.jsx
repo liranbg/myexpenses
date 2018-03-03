@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 import { push } from 'react-router-redux';
 import { expensesToTagsUses } from '../../helpers';
-import TagSegment from '../../components/TagSegment';
+import TagSegment from '../../components/Tags/TagSegment';
 
 class TagsScreen extends Component {
 	static propTypes = {
@@ -78,7 +78,7 @@ class TagsScreen extends Component {
 						tagName={tag.name}
 						onDeleteTag={this.deleteTag}
 						onSelectUses={() => {
-							this.props.dispatch(filterExpensesByTag(tag.name, true));
+							this.props.dispatch(filterExpensesByTag([tag.name]));
 							this.props.dispatch(push('/expenses'));
 						}}
 						onSelectTagColor={this.setTagColor}

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Search, Input } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import { filterExpensesByName } from '../../actions';
+import { filterExpensesByName } from '../../../actions/index';
 import { connect } from 'react-redux';
 
 class ExpensesSearch extends Component {

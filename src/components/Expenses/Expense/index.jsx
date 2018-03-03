@@ -14,15 +14,15 @@ import {
 	Checkbox,
 	Segment
 } from 'semantic-ui-react';
-import { Expense, Tag } from '../../proptypes';
+import { Expense, Tag } from '../../../proptypes/index';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { filterExpensesByTag } from '../../actions';
+import { filterExpensesByTag } from '../../../actions/index';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
-import { createBatch } from '../../firebase';
+import { createBatch } from '../../../firebase/index';
 
 class DeleteExpenseModal extends Component {
 	state = { modalOpen: false };
@@ -180,7 +180,7 @@ class ExpenseCard extends Component {
 	};
 
 	handleFilterByTag = (e, { content }) => {
-		this.props.dispatch(filterExpensesByTag(content));
+		this.props.dispatch(filterExpensesByTag([content]));
 	};
 
 	render() {

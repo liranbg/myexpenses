@@ -3,7 +3,7 @@ import { compose } from 'redux';
 import { replace } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { Loader, Dimmer, Header, Grid, Container, Segment } from 'semantic-ui-react';
-import GoogleButton from '../GoogleLoginButton';
+import GoogleButton from './GoogleLoginButton';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 

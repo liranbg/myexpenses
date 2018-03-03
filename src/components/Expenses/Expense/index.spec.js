@@ -4,7 +4,7 @@ import ExpenseCard from './index';
 import Adapter from 'enzyme-adapter-react-16';
 import Enzyme, { shallow, mount } from 'enzyme';
 import renderer from 'react-test-renderer';
-import store from '../../store';
+import store from '../../../store/index';
 
 Enzyme.configure({ adapter: new Adapter() });
 

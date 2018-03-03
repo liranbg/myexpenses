@@ -13,6 +13,7 @@ const expensesViewReducer = (state = INITIAL_STATE, action) => {
 				expenseName: action.payload.expenseName
 			};
 		case FILTER_EXPENSES_BY_TAG:
+			console.log(state);
 			return {
 				...state,
 				selectedTags: [...action.payload.tags]

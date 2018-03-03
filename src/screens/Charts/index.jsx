@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
 import { expensesDatesMomentify, getFilteredExpensesByDates } from '../../helpers';
 import { compose } from 'redux';
-import ChartDateSelection from '../../components/ChartDateSelection';
+import ChartDateSelection from '../../components/Charts/ChartDateSelection';
 import BarChartCard from '../../components/Charts/BarChartCard';
 import PieChartCard from '../../components/Charts/DoughnutChartCard';
 import { setDatesRange } from '../../actions';

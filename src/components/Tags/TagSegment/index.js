@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Segment, Button, Icon, Label } from 'semantic-ui-react';
-import TagColorPicker from '../../components/TagColorPicker';
+import TagColorPicker from '../TagColorPicker/index';
 
 const TagSegment = ({
 	tagId,

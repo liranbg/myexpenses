@@ -26,9 +26,7 @@ import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
-const acceptFiles =
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel, ' +
-	'text/comma-separated-values, text/csv, application/csv';
+const acceptFiles = '.xlsx, .xls';
 
 class AddExpensesScreen extends Component {
 	tableHeaders = [
