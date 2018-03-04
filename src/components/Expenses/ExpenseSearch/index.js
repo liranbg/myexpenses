@@ -6,13 +6,15 @@ import { filterExpensesByName } from '../../../actions/index';
 import { connect } from 'react-redux';
 
 class ExpensesSearch extends Component {
+	state = {
+		isLoading: false,
+		results: [],
+		value: ''
+	};
+
 	static propTypes = {
 		expenses: PropTypes.array.isRequired
 	};
-
-	componentWillMount() {
-		this.resetSearchComponent();
-	}
 
 	resetSearchComponent = () => {
 		this.setState({
@@ -27,10 +29,6 @@ class ExpensesSearch extends Component {
 		this.setState({ value: result.title });
 		this.props.dispatch(filterExpensesByName(result.title));
 	};
-
-	componentWillReceiveProps() {
-		this.setState({ value: this.props.expenseName });
-	}
 
 	handleSearchChange = (e, { value }) => {
 		this.setState({
@@ -52,7 +50,7 @@ class ExpensesSearch extends Component {
 	};
 
 	render() {
-		const { isLoading, results } = this.state;
+		const { isLoading, results, value } = this.state;
 		const { expenseName } = this.props;
 		return (
 			<Search
@@ -60,7 +58,7 @@ class ExpensesSearch extends Component {
 				onResultSelect={this.handleResultSelect}
 				onSearchChange={this.handleSearchChange}
 				results={results}
-				value={expenseName}
+				value={expenseName.length > 0 ? expenseName : value}
 				input={<Input fluid icon="tags" iconPosition="left" placeholder="Enter an Expense name..." />}
 			/>
 		);

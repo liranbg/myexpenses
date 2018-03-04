@@ -6,7 +6,8 @@ moment.locale('en');
 export const Tag = {
 	id: PropTypes.string.isRequired,
 	name: PropTypes.string.isRequired,
-	color: PropTypes.string.isRequired
+	color: PropTypes.string.isRequired,
+	uses: PropTypes.number
 };
 
 export const Expense = {

@@ -7,13 +7,11 @@ import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 import { push } from 'react-router-redux';
-import { expensesToTagsUses } from '../../helpers';
 import TagSegment from '../../components/Tags/TagSegment';
 
 class TagsScreen extends Component {
 	static propTypes = {
-		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-		tagsUses: PropTypes.object.isRequired
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 	};
 
 	state = {
@@ -45,7 +43,8 @@ class TagsScreen extends Component {
 		this.props.firestore
 			.add('tags', {
 				name: tagName,
-				color: '#000000'
+				color: '#000000',
+				uses: 0
 			})
 			.then(() => this.setActionAddTagLoading(false));
 	};
@@ -65,14 +64,14 @@ class TagsScreen extends Component {
 	};
 
 	render() {
-		const { tags, tagsUses } = this.props;
+		const { tags } = this.props;
 		return (
 			<Container>
 				<Header size="huge" content="Tags" />
 				{tags.map(tag => (
 					<TagSegment
 						key={tag.id}
-						tagUses={tagsUses[tag.name] || 0}
+						tagUses={tag.uses}
 						tagColor={tag.color}
 						tagId={tag.id}
 						tagName={tag.name}
@@ -110,17 +109,9 @@ class TagsScreen extends Component {
 	}
 }
 
-const mapStateToProps = state => ({
-	tags: state.firestore.ordered.tags ? state.firestore.ordered.tags : [],
-	tagsUses: state.firestore.ordered.expenses
-		? expensesToTagsUses(state.firestore.ordered.expenses)
-		: {}
-});
-
 export default compose(
-	firestoreConnect([
-		{ collection: 'expenses', orderBy: ['date'] },
-		{ collection: 'tags', orderBy: ['name'] }
-	]),
-	connect(mapStateToProps)
+	firestoreConnect([{ collection: 'tags', orderBy: ['name'] }]),
+	connect(state => ({
+		tags: state.firestore.ordered.tags ? state.firestore.ordered.tags : []
+	}))
 )(TagsScreen);

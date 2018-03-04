@@ -69,7 +69,7 @@ class ExpensesScreen extends Component {
 				<CardGroup stackable itemsPerRow={3}>
 					{expenses
 						.slice((activePage - 1) * ttlCardsPerPage, activePage * ttlCardsPerPage)
-						.map((expense, i) => <ExpenseCard key={i} expense={expense} tags={tags} />)}
+						.map((expense, i) => <ExpenseCard key={i} expense={{ ...expense }} tags={tags} />)}
 				</CardGroup>
 			</Container>
 		);
