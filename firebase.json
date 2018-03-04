@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "source": "./functions/tag-uses"
+  },
+
   "hosting": {
     "public": "dist",
     "rewrites": [

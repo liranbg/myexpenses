@@ -23,7 +23,6 @@ import DateFormat from 'dateformat';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { createBatch } from '../../../firebase/index';
-import { slugify } from '../../../helpers';
 
 class DeleteExpenseModal extends Component {
 	state = { modalOpen: false };
@@ -107,7 +106,6 @@ class ExpenseCard extends Component {
 			tag,
 			modifiedBy: modifiedBy
 		};
-		let tagValues = { [tag]: 0 }; // {newTag: 0, 'x': -2, 'y':-5} - x,y are old tags.
 
 		if (applyForAll) {
 			let batch = createBatch();
@@ -123,34 +121,14 @@ class ExpenseCard extends Component {
 			const queryDocumentSnapshot = await firestore.get(getOptions);
 			queryDocumentSnapshot.docs.map(doc => {
 				if (tag !== doc.data().tag) {
-					tagValues[doc.data().tag] = (tagValues[doc.data().tag] || 0) - 1;
-					tagValues[tag]++;
+					// console.log("Updating doc", doc.id);
+					batch.update(doc.ref, updatedDoc);
 				}
-				// console.log("Updating doc", doc.id);
-				batch.update(doc.ref, updatedDoc);
 			});
 			batch.commit();
 		} else {
-			tagValues[this.props.expense.tag] = -1;
-			tagValues[tag] = 1;
 			firestore.update({ collection: 'expenses', doc: expenseId }, updatedDoc);
 		}
-
-		// Updates uses
-		let batch = createBatch();
-		Object.entries(tagValues).map(i => {
-			let id = slugify(i[0]),
-				usesDelta = i[1];
-			let tag = this.props.tags.find(tag => tag.id === id);
-			batch.update(
-				firestore
-					.firestore()
-					.collection('tags')
-					.doc(tag.id),
-				{ uses: tag.uses + usesDelta }
-			);
-		});
-		batch.commit();
 	};
 
 	handleResultSelect = async (e, { result }) => {
@@ -195,21 +173,12 @@ class ExpenseCard extends Component {
 	};
 
 	deleteExpenseTag = async () => {
-		const { profile, expense, firestore } = this.props;
+		const { profile, firestore } = this.props;
 		const newTag = 'Untagged';
-
-		firestore.update(`tags/${slugify(expense.tag)}`, {
-			//dec current tag
-			uses: this.props.tags.find(tag => tag.id === slugify(expense.tag)).uses - 1
-		});
 		firestore.update(`expenses/${this.props.expense.id}`, {
 			//set as untagged
 			tag: newTag,
 			modifiedBy: profile.email
-		});
-		firestore.update(`tags/${slugify(newTag)}`, {
-			//inc untagged
-			uses: this.props.tags.find(tag => tag.id === slugify(newTag)).uses + 1
 		});
 		this.resetSearchComponent();
 	};
