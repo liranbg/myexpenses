@@ -14,34 +14,53 @@ import {
 	Checkbox,
 	Segment
 } from 'semantic-ui-react';
-import { Tag } from '../../proptypes';
+import { Expense, Tag } from '../../../proptypes/index';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { filterExpensesByTag } from '../../actions';
+import { filterExpensesByTag } from '../../../actions/index';
 import TimeAgo from 'react-timeago';
 import DateFormat from 'dateformat';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
-import { createBatch } from '../../firebase';
+import { createBatch } from '../../../firebase/index';
 
-class DeleteExpense extends Component {
-	close = () => this.modal.setState({ open: false });
+class DeleteExpenseModal extends Component {
+	state = { modalOpen: false };
+
+	static propTypes = {
+		handleDelete: PropTypes.func,
+		expense: PropTypes.shape(Expense)
+	};
+
+	handleOpen = () => this.setState({ modalOpen: true });
+
+	handleClose = () => this.setState({ modalOpen: false });
 
 	handleDeleteApproved = () => {
-		this.close();
+		this.handleClose();
 		this.props.handleDelete();
 	};
 
 	render() {
 		const { expense } = this.props;
+		const { modalOpen } = this.state;
 		return (
 			<Modal
 				dimmer={'blurring'}
 				style={{ display: 'block' }}
-				ref={modal => (this.modal = modal)}
 				trigger={
-					<Button negative icon={'trash'} floated={'right'} basic compact content={'Delete Expense'} />
+					<Button
+						onClick={this.handleOpen}
+						negative
+						icon={'trash'}
+						floated={'right'}
+						basic
+						compact
+						content={'Delete Expense'}
+					/>
 				}
+				open={modalOpen}
+				onClose={this.handleClose}
 				basic
 				size="small"
 			>
@@ -51,7 +70,7 @@ class DeleteExpense extends Component {
 					<p>Are you sure?</p>
 				</Modal.Content>
 				<Modal.Actions>
-					<Button onClick={this.close} icon={'remove'} content={'No'} color="red" />
+					<Button onClick={this.handleClose} icon={'remove'} content={'No'} color="red" />
 					<Button onClick={this.handleDeleteApproved} icon={'checkmark'} content={'Yes'} color="green" />
 				</Modal.Actions>
 			</Modal>
@@ -60,6 +79,11 @@ class DeleteExpense extends Component {
 }
 
 class ExpenseCard extends Component {
+	static propTypes = {
+		expense: PropTypes.object.isRequired,
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+	};
+
 	componentWillMount() {
 		this.resetSearchComponent();
 	}
@@ -84,6 +108,7 @@ class ExpenseCard extends Component {
 		};
 
 		if (applyForAll) {
+			let batch = createBatch();
 			let getOptions = {
 				collection: 'expenses',
 				where: [['name', '==', expenseName]],
@@ -93,11 +118,12 @@ class ExpenseCard extends Component {
 				getOptions.where.push(['tag', '==', 'Untagged']);
 			}
 
-			let batch = createBatch();
 			const queryDocumentSnapshot = await firestore.get(getOptions);
-			queryDocumentSnapshot.forEach(doc => {
-				// console.log("Updating doc", doc.id);
-				batch.update(doc.ref, updatedDoc);
+			queryDocumentSnapshot.docs.map(doc => {
+				if (tag !== doc.data().tag) {
+					// console.log("Updating doc", doc.id);
+					batch.update(doc.ref, updatedDoc);
+				}
 			});
 			batch.commit();
 		} else {
@@ -141,22 +167,24 @@ class ExpenseCard extends Component {
 	};
 
 	deleteExpense = () => {
-		console.log('Deleting expense:', this.props.expense.name);
+		console.debug('Deleting expense:', this.props.expense.name);
 		this.props.firestore.delete(`expenses/${this.props.expense.id}`);
 		this.resetSearchComponent();
 	};
 
-	deleteExpenseTag = () => {
-		const { profile } = this.props;
-		this.props.firestore.update(`expenses/${this.props.expense.id}`, {
-			tag: 'Untagged',
+	deleteExpenseTag = async () => {
+		const { profile, firestore } = this.props;
+		const newTag = 'Untagged';
+		firestore.update(`expenses/${this.props.expense.id}`, {
+			//set as untagged
+			tag: newTag,
 			modifiedBy: profile.email
 		});
 		this.resetSearchComponent();
 	};
 
 	handleFilterByTag = (e, { content }) => {
-		this.props.dispatch(filterExpensesByTag(content));
+		this.props.dispatch(filterExpensesByTag([content]));
 	};
 
 	render() {
@@ -186,7 +214,7 @@ class ExpenseCard extends Component {
 						content={expense.tag || 'Untagged'}
 					/>
 					{this.isExpenseUntagged() ? (
-						<DeleteExpense expense={this.props.expense} handleDelete={this.deleteExpense} />
+						<DeleteExpenseModal expense={this.props.expense} handleDelete={this.deleteExpense} />
 					) : (
 						<Button
 							floated="right"
@@ -299,16 +327,9 @@ class ExpenseCard extends Component {
 	}
 }
 
-ExpenseCard.propTypes = {
-	expense: PropTypes.object.isRequired,
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag))
-};
-
-ExpenseCard = compose(
+export default compose(
 	firestoreConnect(),
 	connect(({ firebase: { profile } }) => ({
 		profile
 	}))
 )(ExpenseCard);
-
-export default ExpenseCard;

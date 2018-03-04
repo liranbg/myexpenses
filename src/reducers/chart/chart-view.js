@@ -4,7 +4,7 @@ import moment from 'moment';
 export const INITIAL_STATE = {
 	fromDate: moment
 		.utc()
-		.year(2014)
+		.year(2016)
 		.startOf('year'),
 	toDate: moment
 		.utc()
@@ -12,7 +12,7 @@ export const INITIAL_STATE = {
 		.endOf('year'),
 	selectedFromDate: moment
 		.utc()
-		.year(2014)
+		.year(2016)
 		.startOf('year'),
 	selectedToDate: moment
 		.utc()
@@ -32,12 +32,7 @@ function setDate(payload) {
 const chartsViewReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
 		case SET_DATES_RANGE:
-			return Object.assign(
-				{
-					...state
-				},
-				setDate(action.payload)
-			);
+			return Object.assign({ ...state }, setDate(action.payload));
 		default:
 			return state;
 	}

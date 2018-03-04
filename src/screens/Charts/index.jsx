@@ -7,13 +7,20 @@ import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
 import { expensesDatesMomentify, getFilteredExpensesByDates } from '../../helpers';
 import { compose } from 'redux';
-import ChartDateSelection from '../../components/ChartDateSelection';
+import ChartDateSelection from '../../components/Charts/ChartDateSelection';
 import BarChartCard from '../../components/Charts/BarChartCard';
 import PieChartCard from '../../components/Charts/DoughnutChartCard';
 import { setDatesRange } from '../../actions';
 import { firestoreConnect } from 'react-redux-firebase';
 
 export class ChartsPage extends Component {
+	static propTypes = {
+		expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
+		fromDate: PropTypes.object,
+		toDate: PropTypes.object
+	};
+
 	narrowDatesByExpenses = () => {
 		const { fromDate, toDate, expenses } = this.props;
 		if (expenses.length > 1) {
@@ -36,27 +43,21 @@ export class ChartsPage extends Component {
 						<Button onClick={this.narrowDatesByExpenses} content={'Narrow Dates'} />
 					</Segment>
 				</SegmentGroup>
-				{!!Object.keys(groupedExpenses).length && tags && (
-					<CardGroup>
-						<BarChartCard expenses={groupedExpenses} tags={tags} />
-						<PieChartCard expenses={groupedExpenses} tags={tags} />
-					</CardGroup>
-				)}
+				{!!Object.keys(groupedExpenses).length &&
+					tags && (
+						<CardGroup>
+							<BarChartCard expenses={groupedExpenses} tags={tags} />
+							<PieChartCard expenses={groupedExpenses} tags={tags} />
+						</CardGroup>
+					)}
 			</Container>
 		);
 	}
 }
 
-ChartsPage.propTypes = {
-	expenses: PropTypes.arrayOf(PropTypes.shape(Expense)),
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-	fromDate: PropTypes.object,
-	toDate: PropTypes.object
-};
-
-const mapStateToProps = ({firestore: {ordered}, chartsView}) => {
+const mapStateToProps = ({ firestore: { ordered }, chartsView }) => {
 	return {
-		expenses: ordered.expenses? expensesDatesMomentify(ordered.expenses): [],
+		expenses: ordered.expenses ? expensesDatesMomentify(ordered.expenses) : [],
 		tags: ordered.tags,
 		selectedFromDate: chartsView.selectedFromDate,
 		selectedToDate: chartsView.selectedToDate,
@@ -65,11 +66,10 @@ const mapStateToProps = ({firestore: {ordered}, chartsView}) => {
 	};
 };
 
-ChartsPage = compose(
+export default compose(
 	firestoreConnect([
 		{ collection: 'expenses', orderBy: ['date'] },
 		{ collection: 'tags', orderBy: ['name'] }
 	]),
 	connect(mapStateToProps)
 )(ChartsPage);
-export default ChartsPage;

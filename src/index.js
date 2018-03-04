@@ -1,7 +1,7 @@
 import 'semantic-ui-css/semantic.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MainApp from './pages/MainApp';
+import MainApp from './screens/MainApp';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import store, { history } from './store';

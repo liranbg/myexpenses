@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Divider, Segment, SegmentGroup, Header, Dropdown } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import { setDatesRange } from '../../actions';
+import { setDatesRange } from '../../../actions/index';
 
 class ChartDateSelection extends Component {
 	monthsOptions = [

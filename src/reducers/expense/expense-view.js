@@ -1,31 +1,21 @@
-import _ from 'lodash';
-import { FILTER_EXPENSES_BY_TAG, REM_FILTER_EXPENSES_BY_TAG } from '../../actions';
+import { FILTER_EXPENSES_BY_TAG, FILTER_EXPENSES_BY_NAME } from '../../actions';
 
-export const INITIAL_STATE = {
-	filterTags: []
+let INITIAL_STATE = {
+	selectedTags: [],
+	expenseName: ''
 };
-
-function setExpensesViewByTag(state, payload) {
-	if (payload.replaceAll) state.filterTags = [payload.tagName];
-	else state.filterTags = _.union(state.filterTags, [payload.tagName]);
-	return state;
-}
-
-function remExpensesViewTags(state, payload) {
-	state.filterTags = state.filterTags.filter(e => e !== payload.tagName);
-	return state;
-}
 
 const expensesViewReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
+		case FILTER_EXPENSES_BY_NAME:
+			return {
+				...state,
+				expenseName: action.payload.expenseName
+			};
 		case FILTER_EXPENSES_BY_TAG:
 			return {
-				...setExpensesViewByTag(state, action.payload)
-			};
-		case REM_FILTER_EXPENSES_BY_TAG:
-			return {
-				state,
-				filterTags: [...state.filterTags.filter(tag => tag !== action.payload.tagName)]
+				...state,
+				selectedTags: [...action.payload.tags]
 			};
 		default:
 			return state;

@@ -7,17 +7,16 @@ import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 import { push } from 'react-router-redux';
-import { expensesToTagsUses } from '../../helpers';
-import TagSegment from '../../components/TagSegment';
+import TagSegment from '../../components/Tags/TagSegment';
 
-const INITIAL_STATE = {
-	newTagName: '',
-	actionAddTagLoading: false
-};
+class TagsScreen extends Component {
+	static propTypes = {
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+	};
 
-class TagsPage extends Component {
 	state = {
-		...INITIAL_STATE
+		newTagName: '',
+		actionAddTagLoading: false
 	};
 
 	setActionAddTagLoading = bool =>
@@ -44,7 +43,8 @@ class TagsPage extends Component {
 		this.props.firestore
 			.add('tags', {
 				name: tagName,
-				color: '#000000'
+				color: '#000000',
+				uses: 0
 			})
 			.then(() => this.setActionAddTagLoading(false));
 	};
@@ -55,7 +55,7 @@ class TagsPage extends Component {
 
 	newTagNameInputHandler = e => {
 		this.setState({
-			newTagName: TagsPage.jsUcfirst(e.target.value)
+			newTagName: TagsScreen.jsUcfirst(e.target.value)
 		});
 	};
 
@@ -64,20 +64,20 @@ class TagsPage extends Component {
 	};
 
 	render() {
-		const { tags, tagsUses } = this.props;
+		const { tags } = this.props;
 		return (
 			<Container>
 				<Header size="huge" content="Tags" />
 				{tags.map(tag => (
 					<TagSegment
 						key={tag.id}
-						tagUses={tagsUses[tag.name] || 0}
+						tagUses={tag.uses}
 						tagColor={tag.color}
 						tagId={tag.id}
 						tagName={tag.name}
 						onDeleteTag={this.deleteTag}
 						onSelectUses={() => {
-							this.props.dispatch(filterExpensesByTag(tag.name, true));
+							this.props.dispatch(filterExpensesByTag([tag.name]));
 							this.props.dispatch(push('/expenses'));
 						}}
 						onSelectTagColor={this.setTagColor}
@@ -109,29 +109,9 @@ class TagsPage extends Component {
 	}
 }
 
-TagsPage.propTypes = {
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-	tagsUses: PropTypes.object.isRequired
-};
-
-TagsPage.defaultProps = {
-	tags: [],
-	tagsUses: {}
-};
-
-const mapStateToProps = state => ({
-	tags: state.firestore.ordered.tags,
-	tagsUses: state.firestore.ordered.expenses
-		? expensesToTagsUses(state.firestore.ordered.expenses)
-		: {}
-});
-
-TagsPage = compose(
-	firestoreConnect([
-		{ collection: 'expenses', orderBy: ['date'] },
-		{ collection: 'tags', orderBy: ['name'] }
-	]),
-	connect(mapStateToProps)
-)(TagsPage);
-
-export default TagsPage;
+export default compose(
+	firestoreConnect([{ collection: 'tags', orderBy: ['name'] }]),
+	connect(state => ({
+		tags: state.firestore.ordered.tags ? state.firestore.ordered.tags : []
+	}))
+)(TagsScreen);

@@ -11,29 +11,23 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 
 class MainApp extends Component {
-
 	render() {
 		const { profile } = this.props;
 		return (
 			<React.Fragment>
-				<div className="App">
-					<Header />
-					{profile.isEmpty ? (
-						<div>
-							<SignIn />
-						</div>
-					) : (
-						<React.Fragment>
-							<Route exact path="/expenses" component={ExpensesPage} />
-							<Route exact path="/tags" component={TagsPage} />
-							<Route exact path="/charts" component={ChartsPage} />
-							<Route exact path="/addexpenses" component={AddExpensesPage} />
-						</React.Fragment>
-					)}
-				</div>
+				<Header />
+				{profile.isEmpty ? (
+					<SignIn />
+				) : (
+					<React.Fragment>
+						<Route exact path="/expenses" component={ExpensesPage} />
+						<Route exact path="/tags" component={TagsPage} />
+						<Route exact path="/charts" component={ChartsPage} />
+						<Route exact path="/addexpenses" component={AddExpensesPage} />
+					</React.Fragment>
+				)}
 				<div
 					style={{
-						position: 'absolute',
 						right: 0,
 						bottom: 0,
 						left: 0,

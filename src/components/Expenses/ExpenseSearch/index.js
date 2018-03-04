@@ -1,14 +1,20 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { Search, Input } from 'semantic-ui-react';
-import { Expense, ExpensesView, Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
-import ExpensesPage from '../../pages/Expenses';
+import { filterExpensesByName } from '../../../actions/index';
+import { connect } from 'react-redux';
 
 class ExpensesSearch extends Component {
-	componentWillMount() {
-		this.resetSearchComponent();
-	}
+	state = {
+		isLoading: false,
+		results: [],
+		value: ''
+	};
+
+	static propTypes = {
+		expenses: PropTypes.array.isRequired
+	};
 
 	resetSearchComponent = () => {
 		this.setState({
@@ -16,14 +22,12 @@ class ExpensesSearch extends Component {
 			results: [],
 			value: ''
 		});
-		this.props.onSelected('');
+		this.props.dispatch(filterExpensesByName(''));
 	};
 
 	handleResultSelect = (e, { result }) => {
-		this.setState({
-			value: result.title
-		});
-		this.props.onSelected(result.title);
+		this.setState({ value: result.title });
+		this.props.dispatch(filterExpensesByName(result.title));
 	};
 
 	handleSearchChange = (e, { value }) => {
@@ -32,7 +36,7 @@ class ExpensesSearch extends Component {
 			value
 		});
 		setTimeout(() => {
-			if (this.state.value.length < 1) return this.resetSearchComponent();
+			if (!this.state.value.length) return this.resetSearchComponent();
 			const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
 			const isMatch = result => re.test(result.name);
 			let results = _.uniqBy(_.filter(this.props.expenses, isMatch), 'name');
@@ -46,23 +50,23 @@ class ExpensesSearch extends Component {
 	};
 
 	render() {
-		const { isLoading, value, results } = this.state;
+		const { isLoading, results, value } = this.state;
+		const { expenseName } = this.props;
 		return (
 			<Search
 				loading={isLoading}
 				onResultSelect={this.handleResultSelect}
 				onSearchChange={this.handleSearchChange}
 				results={results}
-				value={value}
+				value={expenseName.length > 0 ? expenseName : value}
 				input={<Input fluid icon="tags" iconPosition="left" placeholder="Enter an Expense name..." />}
 			/>
 		);
 	}
 }
 
-ExpensesSearch.propTypes = {
-	expenses: PropTypes.array.isRequired,
-	onSelected: PropTypes.func.isRequired
-};
+ExpensesSearch = connect(({ expensesView }) => ({ expenseName: expensesView.expenseName }))(
+	ExpensesSearch
+);
 
 export default ExpensesSearch;
