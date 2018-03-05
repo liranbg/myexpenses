@@ -42,7 +42,10 @@ class MainApp extends Component {
 }
 
 export default compose(
-	firestoreConnect(),
+    firestoreConnect([
+        { collection: 'expenses', orderBy: ['date'] },
+        { collection: 'tags', orderBy: 'name' }
+    ]),
 	connect(({ firebase: { profile } }) => ({
 		profile
 	}))

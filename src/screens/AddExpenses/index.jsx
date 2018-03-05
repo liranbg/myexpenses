@@ -361,10 +361,7 @@ class AddExpensesScreen extends Component {
 }
 
 export default compose(
-	firestoreConnect([
-		{ collection: 'expenses', orderBy: ['date'] },
-		{ collection: 'tags', orderBy: 'name' }
-	]),
+	firestoreConnect(),
 	connect(({ firebase: { profile }, firestore: { ordered } }) => ({
 		profile,
 		expensesIds: ordered.expenses ? ordered.expenses.map(e => e.id) : []

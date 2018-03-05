@@ -77,10 +77,7 @@ class ExpensesScreen extends Component {
 }
 
 export default compose(
-	firestoreConnect([
-		{ collection: 'expenses', orderBy: ['date'] },
-		{ collection: 'tags', orderBy: 'name' }
-	]),
+    firestoreConnect(),
 	connect(({ firestore: { ordered }, expensesView }) => {
 		return {
 			expenses: ordered.expenses
