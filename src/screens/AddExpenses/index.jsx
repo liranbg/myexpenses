@@ -5,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import { createBatch } from '../../firebase';
 import {
 	Message,
-    Dropdown,
+	Dropdown,
 	Icon,
 	Menu,
 	Checkbox,
@@ -27,32 +27,47 @@ import { buildExpensesByRows, generateExpenseId } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import {Tag} from "../../proptypes";
+import { Tag } from '../../proptypes';
 
 const acceptFiles = '.xlsx, .xls';
 
 const currencyOptions = [
-    { key: 'ILS', value: 'ILS', text: 'ILS ₪' },
-    { key: 'USD', value: 'USD', text: 'USD $' },
-    { key: 'EUR', value: 'EUR', text: 'EUR €' }
+	{ key: 'ILS', value: 'ILS', text: 'ILS ₪' },
+	{ key: 'USD', value: 'USD', text: 'USD $' },
+	{ key: 'EUR', value: 'EUR', text: 'EUR €' }
 ];
-const TagsDropdownSelection = (props) => {
-    return <Dropdown compact inline labeled placeholder='Tag' search options={props.tags.map(tag=>({key:tag.id, value: tag.id, text: tag.name}))} />
-}
-const AddExpenseRow = (props) => {
-    return <TableRow>
-        <TableCell children={<Button onClick={props.addRow} compact positive circular icon='add' />}/>
-        <TableCell children={<Input fluid size={"mini"} placeholder={"Expense Name"}/>}/>
-        <TableCell children={null}/>
-        <TableCell children={<Input fluid size={"mini"} placeholder={"Amount"} type={"number"}/>}/>
-        <TableCell children={<Dropdown compact inline labeled placeholder='Currency' search options={currencyOptions} />}/>
-        <TableCell children={<TagsDropdownSelection tags={props.tags} />}/>
-        <TableCell children={<Input fluid size={"mini"} placeholder={"Notes"}/>}/>
-    </TableRow>
+const TagsDropdownSelection = props => {
+	return (
+		<Dropdown
+			compact
+			inline
+			labeled
+			placeholder="Tag"
+			search
+			options={props.tags.map(tag => ({ key: tag.id, value: tag.id, text: tag.name }))}
+		/>
+	);
+};
+const AddExpenseRow = props => {
+	return (
+		<TableRow>
+			<TableCell children={<Button onClick={props.addRow} compact positive circular icon="add" />} />
+			<TableCell children={<Input fluid size={'mini'} placeholder={'Expense Name'} />} />
+			<TableCell children={null} />
+			<TableCell children={<Input fluid size={'mini'} placeholder={'Amount'} type={'number'} />} />
+			<TableCell
+				children={
+					<Dropdown compact inline labeled placeholder="Currency" search options={currencyOptions} />
+				}
+			/>
+			<TableCell children={<TagsDropdownSelection tags={props.tags} />} />
+			<TableCell children={<Input fluid size={'mini'} placeholder={'Notes'} />} />
+		</TableRow>
+	);
 };
 AddExpenseRow.PropTypes = {
-    addRow: PropTypes.func,
-    tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+	addRow: PropTypes.func,
+	tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 };
 
 class AddExpensesScreen extends Component {
@@ -268,7 +283,7 @@ class AddExpensesScreen extends Component {
 			importButtonLoading
 		} = this.state;
 		const ttlPages = Math.floor(data.length / rowsPerPage);
-		const {tags} = this.props;
+		const { tags } = this.props;
 
 		return (
 			<Container>
@@ -322,63 +337,65 @@ class AddExpensesScreen extends Component {
 							))}
 						</TableRow>
 					</TableHeader>
-                    <TableBody>
-                        <AddExpenseRow tags={tags} addRow={()=>console.log("clicked")}/>
-                        {data.slice(rowsPerPage * page, rowsPerPage * (page + 1)).map((n, i) => {
-                            const isSelected = includes(selected, n.id);
-                            return (
-                                <TableRow key={i} onClick={() => this.handleRowClick(n.id)}>
-                                    <TableCell>
-                                        <Checkbox onClick={() => this.handleRowClick(n.id)} checked={isSelected} />
-                                    </TableCell>
-                                    {this.tableHeaders.map(header => (
-                                        <TableCell key={header.id}>{this.expenseValueToNode(n, header.id)}</TableCell>
-                                    ))}
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                    {!!data.length && <Table.Footer>
-                        <Table.Row>
-                            <TableHeaderCell colSpan="3" style={{ borderColor: null }}>
-                                {!!selected.length && (
-                                    <Button
-                                        compact
-                                        onClick={this.handleDeleteSelected}
-                                        inverted
-                                        icon={'delete'}
-                                        content={`Delete ${selected.length} expenses`}
-                                    />
-                                )}
-                            </TableHeaderCell>
-                            <Table.HeaderCell colSpan="4">
-                                <Menu floated="right" pagination inverted>
-                                    {!!page && (
-                                        <Menu.Item
-                                            as="a"
-                                            icon
-                                            onClick={() => {
-                                                this.setState({ page: page - 1 });
-                                            }}
-                                        >
-                                            <Icon name="chevron left" />
-                                        </Menu.Item>
-                                    )}
-                                    {page < ttlPages && (
-                                        <Menu.Item
-                                            as="a"
-                                            icon
-                                            onClick={() => {
-                                                this.setState({ page: page + 1 });
-                                            }}
-                                        >
-                                            <Icon name="chevron right" />
-                                        </Menu.Item>
-                                    )}
-                                </Menu>
-                            </Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Footer>}
+					<TableBody>
+						<AddExpenseRow tags={tags} addRow={() => console.log('clicked')} />
+						{data.slice(rowsPerPage * page, rowsPerPage * (page + 1)).map((n, i) => {
+							const isSelected = includes(selected, n.id);
+							return (
+								<TableRow key={i} onClick={() => this.handleRowClick(n.id)}>
+									<TableCell>
+										<Checkbox onClick={() => this.handleRowClick(n.id)} checked={isSelected} />
+									</TableCell>
+									{this.tableHeaders.map(header => (
+										<TableCell key={header.id}>{this.expenseValueToNode(n, header.id)}</TableCell>
+									))}
+								</TableRow>
+							);
+						})}
+					</TableBody>
+					{!!data.length && (
+						<Table.Footer>
+							<Table.Row>
+								<TableHeaderCell colSpan="3" style={{ borderColor: null }}>
+									{!!selected.length && (
+										<Button
+											compact
+											onClick={this.handleDeleteSelected}
+											inverted
+											icon={'delete'}
+											content={`Delete ${selected.length} expenses`}
+										/>
+									)}
+								</TableHeaderCell>
+								<Table.HeaderCell colSpan="4">
+									<Menu floated="right" pagination inverted>
+										{!!page && (
+											<Menu.Item
+												as="a"
+												icon
+												onClick={() => {
+													this.setState({ page: page - 1 });
+												}}
+											>
+												<Icon name="chevron left" />
+											</Menu.Item>
+										)}
+										{page < ttlPages && (
+											<Menu.Item
+												as="a"
+												icon
+												onClick={() => {
+													this.setState({ page: page + 1 });
+												}}
+											>
+												<Icon name="chevron right" />
+											</Menu.Item>
+										)}
+									</Menu>
+								</Table.HeaderCell>
+							</Table.Row>
+						</Table.Footer>
+					)}
 				</Table>
 			</Container>
 		);
@@ -390,6 +407,6 @@ export default compose(
 	connect(({ firebase: { profile }, firestore: { ordered } }) => ({
 		profile,
 		expensesIds: ordered.expenses ? ordered.expenses.map(e => e.id) : [],
-        tags: ordered.tags?ordered.tags: []
+		tags: ordered.tags ? ordered.tags : []
 	}))
 )(AddExpensesScreen);
