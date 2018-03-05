@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import ExpenseCard from './index';
 import Adapter from 'enzyme-adapter-react-16';
-import Enzyme, { shallow, mount } from 'enzyme';
+import Enzyme, { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
 import store from '../../../store/index';
 
@@ -15,6 +15,8 @@ test('ExpenseCard Component is generated', async () => {
 		date: new Date(),
 		name: 'ד"ר פול שקשוקה',
 		id: '50c281ffbd2aa1f11723a44b348eee4d',
+        createdBy: "Test",
+		localTransaction: true,
 		tag: 'Untagged'
 	};
 	const tags = [{ id: '3zW1pkwjUjK95ye2diwv', name: 'Untagged', color: '#fff' }];
