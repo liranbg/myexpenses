@@ -179,7 +179,7 @@ class AddExpensesScreen extends Component {
 					expense
 				);
 			});
-		batch.commit().finally(() => this.setState({ saveButtonLoading: false }));
+		batch.commit().finally(() => this.setState({ saveButtonLoading: false, data: [] }));
 	};
 
 	handleDeleteSelected = () => {
@@ -233,7 +233,8 @@ class AddExpensesScreen extends Component {
 		});
 	};
 
-	handleAddExpense = (name, date, amount, currency, tag, notes) => {
+	handleAddRow = (name, date, amount, currency, tag, notes) => {
+		//This function will be called from add expense row
 		const { firestore } = this.props;
 		const expenseId = generateExpenseId(date.format('DD/MM/YYYY'), name, amount, currency);
 		return firestore
@@ -242,7 +243,7 @@ class AddExpensesScreen extends Component {
 			.doc(expenseId)
 			.get()
 			.then(d => {
-				if (d.exists) {
+				if (d.exists || this.state.data.find(e => e.id === expenseId)) {
 					this.setState({
 						showError: true,
 						errorMessage: `Expense '${name}' already exists (id: ${expenseId})`
@@ -252,14 +253,17 @@ class AddExpensesScreen extends Component {
 				let expDoc = {
 					name,
 					date: date,
-					amount,
+					amount: parseInt(amount),
 					currency: currency.toUpperCase(),
+					localTransaction: currency.toUpperCase() === 'ILS',
 					tag,
 					notes,
 					id: expenseId
 				};
 				this.setState({
-					data: [expDoc, ...this.state.data]
+					data: [expDoc, ...this.state.data],
+					errorMessage: '',
+					showError: false
 				});
 				return true;
 			});
@@ -347,7 +351,7 @@ class AddExpensesScreen extends Component {
 								</TableRow>
 							);
 						})}
-						<AddExpenseRow tags={tags} addRow={this.handleAddExpense} />
+						<AddExpenseRow tags={tags} addRow={this.handleAddRow} />
 					</TableBody>
 					{!!data.length && (
 						<Table.Footer>

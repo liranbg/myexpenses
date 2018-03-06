@@ -272,7 +272,9 @@ class ExpenseCard extends Component {
 							}}
 						>
 							<Icon name={'user'} />
-							<Label content={`Last updated by: ${expense.modifiedBy}`} />
+							<Label
+								content={`Last updated by: ${expense.modifiedBy ? expense.modifiedBy : expense.createdBy}`}
+							/>
 						</Container>
 					</Card.Meta>
 					<Card.Description>{expense.notes}</Card.Description>
