@@ -77,7 +77,7 @@ class ExpensesScreen extends Component {
 }
 
 export default compose(
-    firestoreConnect(),
+	firestoreConnect(),
 	connect(({ firestore: { ordered }, expensesView }) => {
 		return {
 			expenses: ordered.expenses

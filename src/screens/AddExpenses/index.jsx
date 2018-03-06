@@ -7,7 +7,6 @@ import {
 	Icon,
 	Menu,
 	Checkbox,
-	Input,
 	Header,
 	Container,
 	Table,
@@ -24,9 +23,10 @@ import TimeAgo from 'react-timeago/lib';
 import { buildExpensesByRows, generateExpenseId } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
+import AddExpenseRow from '../../components/Expenses/AddExpenseRow';
 import { connect } from 'react-redux';
-
-const acceptFiles = '.xlsx, .xls';
+import { Tag } from '../../proptypes';
+import { acceptFiles } from '../../constants';
 
 class AddExpensesScreen extends Component {
 	tableHeaders = [
@@ -111,9 +111,15 @@ class AddExpensesScreen extends Component {
 			const f = files[0];
 			const reader = new FileReader();
 			reader.onload = e => {
+				console.log(e);
 				try {
 					const wsRows = this.workbookToSheetRows(e.target.result);
 					const expensesRows = buildExpensesByRows(wsRows);
+					if (expensesRows.length === 0)
+						return this.setState({
+							showError: true,
+							errorMessage: 'No expenses were found in your excel.'
+						});
 					this.setState({
 						data: expensesRows
 							.map(expense => ({
@@ -128,7 +134,7 @@ class AddExpensesScreen extends Component {
 							}))
 							.filter(expense => expensesIds.indexOf(expense.id) === -1)
 					});
-				} catch (e) {
+				} catch (err) {
 					this.setState({ showError: true, errorMessage: 'There was an error reading your file' });
 				} finally {
 					e.target.value = null; // we can import again
@@ -173,7 +179,7 @@ class AddExpensesScreen extends Component {
 					expense
 				);
 			});
-		batch.commit().finally(() => this.setState({ saveButtonLoading: false }));
+		batch.commit().finally(() => this.setState({ saveButtonLoading: false, data: [] }));
 	};
 
 	handleDeleteSelected = () => {
@@ -227,6 +233,42 @@ class AddExpensesScreen extends Component {
 		});
 	};
 
+	handleAddRow = (name, date, amount, currency, tag, notes) => {
+		//This function will be called from add expense row
+		const { firestore } = this.props;
+		const expenseId = generateExpenseId(date.format('DD/MM/YYYY'), name, amount, currency);
+		return firestore
+			.firestore()
+			.collection('expenses')
+			.doc(expenseId)
+			.get()
+			.then(d => {
+				if (d.exists || this.state.data.find(e => e.id === expenseId)) {
+					this.setState({
+						showError: true,
+						errorMessage: `Expense '${name}' already exists (id: ${expenseId})`
+					});
+					return false;
+				}
+				let expDoc = {
+					name,
+					date: date,
+					amount: parseInt(amount),
+					currency: currency.toUpperCase(),
+					localTransaction: currency.toUpperCase() === 'ILS',
+					tag,
+					notes,
+					id: expenseId
+				};
+				this.setState({
+					data: [expDoc, ...this.state.data],
+					errorMessage: '',
+					showError: false
+				});
+				return true;
+			});
+	};
+
 	render() {
 		const {
 			showError,
@@ -241,12 +283,13 @@ class AddExpensesScreen extends Component {
 			importButtonLoading
 		} = this.state;
 		const ttlPages = Math.floor(data.length / rowsPerPage);
+		const { tags } = this.props;
 
 		return (
 			<Container>
 				<Header size="huge" content="Add Expenses" />
 				<Container>
-					<Input
+					<input
 						style={{ display: 'none' }}
 						accept={acceptFiles}
 						id="expenses-file"
@@ -294,65 +337,64 @@ class AddExpensesScreen extends Component {
 							))}
 						</TableRow>
 					</TableHeader>
+					<TableBody>
+						{data.slice(rowsPerPage * page, rowsPerPage * (page + 1)).map((n, i) => {
+							const isSelected = includes(selected, n.id);
+							return (
+								<TableRow key={i} onClick={() => this.handleRowClick(n.id)}>
+									<TableCell>
+										<Checkbox onClick={() => this.handleRowClick(n.id)} checked={isSelected} />
+									</TableCell>
+									{this.tableHeaders.map(header => (
+										<TableCell key={header.id}>{this.expenseValueToNode(n, header.id)}</TableCell>
+									))}
+								</TableRow>
+							);
+						})}
+						<AddExpenseRow tags={tags} addRow={this.handleAddRow} />
+					</TableBody>
 					{!!data.length && (
-						<React.Fragment>
-							<TableBody>
-								{data.slice(rowsPerPage * page, rowsPerPage * (page + 1)).map((n, i) => {
-									const isSelected = includes(selected, n.id);
-									return (
-										<TableRow key={i} onClick={() => this.handleRowClick(n.id)}>
-											<TableCell>
-												<Checkbox onClick={() => this.handleRowClick(n.id)} checked={isSelected} />
-											</TableCell>
-											{this.tableHeaders.map(header => (
-												<TableCell key={header.id}>{this.expenseValueToNode(n, header.id)}</TableCell>
-											))}
-										</TableRow>
-									);
-								})}
-							</TableBody>
-							<Table.Footer>
-								<Table.Row>
-									<TableHeaderCell colSpan="3" style={{ borderColor: null }}>
-										{!!selected.length && (
-											<Button
-												compact
-												onClick={this.handleDeleteSelected}
-												inverted
-												icon={'delete'}
-												content={`Delete ${selected.length} expenses`}
-											/>
+						<Table.Footer>
+							<Table.Row>
+								<TableHeaderCell colSpan="3" style={{ borderColor: null }}>
+									{!!selected.length && (
+										<Button
+											compact
+											onClick={this.handleDeleteSelected}
+											inverted
+											icon={'delete'}
+											content={`Delete ${selected.length} expenses`}
+										/>
+									)}
+								</TableHeaderCell>
+								<Table.HeaderCell colSpan="4">
+									<Menu floated="right" pagination inverted>
+										{!!page && (
+											<Menu.Item
+												as="a"
+												icon
+												onClick={() => {
+													this.setState({ page: page - 1 });
+												}}
+											>
+												<Icon name="chevron left" />
+											</Menu.Item>
 										)}
-									</TableHeaderCell>
-									<Table.HeaderCell colSpan="4">
-										<Menu floated="right" pagination inverted>
-											{!!page && (
-												<Menu.Item
-													as="a"
-													icon
-													onClick={() => {
-														this.setState({ page: page - 1 });
-													}}
-												>
-													<Icon name="chevron left" />
-												</Menu.Item>
-											)}
-											{page < ttlPages && (
-												<Menu.Item
-													as="a"
-													icon
-													onClick={() => {
-														this.setState({ page: page + 1 });
-													}}
-												>
-													<Icon name="chevron right" />
-												</Menu.Item>
-											)}
-										</Menu>
-									</Table.HeaderCell>
-								</Table.Row>
-							</Table.Footer>
-						</React.Fragment>
+										{page < ttlPages && (
+											<Menu.Item
+												as="a"
+												icon
+												onClick={() => {
+													this.setState({ page: page + 1 });
+												}}
+											>
+												<Icon name="chevron right" />
+											</Menu.Item>
+										)}
+									</Menu>
+								</Table.HeaderCell>
+							</Table.Row>
+						</Table.Footer>
 					)}
 				</Table>
 			</Container>
@@ -364,6 +406,7 @@ export default compose(
 	firestoreConnect(),
 	connect(({ firebase: { profile }, firestore: { ordered } }) => ({
 		profile,
-		expensesIds: ordered.expenses ? ordered.expenses.map(e => e.id) : []
+		expensesIds: ordered.expenses ? ordered.expenses.map(e => e.id) : [],
+		tags: ordered.tags ? ordered.tags : []
 	}))
 )(AddExpensesScreen);

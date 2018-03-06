@@ -66,7 +66,4 @@ const mapStateToProps = ({ firestore: { ordered }, chartsView }) => {
 	};
 };
 
-export default compose(
-	firestoreConnect(),
-	connect(mapStateToProps)
-)(ChartsPage);
+export default compose(firestoreConnect(), connect(mapStateToProps))(ChartsPage);

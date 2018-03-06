@@ -15,7 +15,7 @@ test('ExpenseCard Component is generated', async () => {
 		date: new Date(),
 		name: 'ד"ר פול שקשוקה',
 		id: '50c281ffbd2aa1f11723a44b348eee4d',
-        createdBy: "Test",
+		createdBy: 'Test',
 		localTransaction: true,
 		tag: 'Untagged'
 	};
