@@ -1,15 +1,12 @@
 import React, { Component } from 'react';
 import includes from 'lodash/includes';
-import PropTypes from 'prop-types';
 import sortBy from 'lodash/sortBy';
 import { createBatch } from '../../firebase';
 import {
 	Message,
-	Dropdown,
 	Icon,
 	Menu,
 	Checkbox,
-	Input,
 	Header,
 	Container,
 	Table,
@@ -26,49 +23,10 @@ import TimeAgo from 'react-timeago/lib';
 import { buildExpensesByRows, generateExpenseId } from '../../helpers';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
+import AddExpenseRow from '../../components/Expenses/AddExpenseRow';
 import { connect } from 'react-redux';
 import { Tag } from '../../proptypes';
-
-const acceptFiles = '.xlsx, .xls';
-
-const currencyOptions = [
-	{ key: 'ILS', value: 'ILS', text: 'ILS ₪' },
-	{ key: 'USD', value: 'USD', text: 'USD $' },
-	{ key: 'EUR', value: 'EUR', text: 'EUR €' }
-];
-const TagsDropdownSelection = props => {
-	return (
-		<Dropdown
-			compact
-			inline
-			labeled
-			placeholder="Tag"
-			search
-			options={props.tags.map(tag => ({ key: tag.id, value: tag.id, text: tag.name }))}
-		/>
-	);
-};
-const AddExpenseRow = props => {
-	return (
-		<TableRow>
-			<TableCell children={<Button onClick={props.addRow} compact positive circular icon="add" />} />
-			<TableCell children={<Input fluid size={'mini'} placeholder={'Expense Name'} />} />
-			<TableCell children={null} />
-			<TableCell children={<Input fluid size={'mini'} placeholder={'Amount'} type={'number'} />} />
-			<TableCell
-				children={
-					<Dropdown compact inline labeled placeholder="Currency" search options={currencyOptions} />
-				}
-			/>
-			<TableCell children={<TagsDropdownSelection tags={props.tags} />} />
-			<TableCell children={<Input fluid size={'mini'} placeholder={'Notes'} />} />
-		</TableRow>
-	);
-};
-AddExpenseRow.PropTypes = {
-	addRow: PropTypes.func,
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag))
-};
+import { acceptFiles } from '../../constants';
 
 class AddExpensesScreen extends Component {
 	tableHeaders = [
@@ -153,9 +111,15 @@ class AddExpensesScreen extends Component {
 			const f = files[0];
 			const reader = new FileReader();
 			reader.onload = e => {
+				console.log(e);
 				try {
 					const wsRows = this.workbookToSheetRows(e.target.result);
 					const expensesRows = buildExpensesByRows(wsRows);
+					if (expensesRows.length === 0)
+						return this.setState({
+							showError: true,
+							errorMessage: 'No expenses were found in your excel.'
+						});
 					this.setState({
 						data: expensesRows
 							.map(expense => ({
@@ -170,7 +134,7 @@ class AddExpensesScreen extends Component {
 							}))
 							.filter(expense => expensesIds.indexOf(expense.id) === -1)
 					});
-				} catch (e) {
+				} catch (err) {
 					this.setState({ showError: true, errorMessage: 'There was an error reading your file' });
 				} finally {
 					e.target.value = null; // we can import again
@@ -269,6 +233,30 @@ class AddExpensesScreen extends Component {
 		});
 	};
 
+	handleAddExpense = (name, date, amount, currency, tag, notes) => {
+        const { firestore } = this.props;
+		const expenseId = generateExpenseId(date.format('DD/MM/YYYY'), name, amount, currency);
+        return firestore.get({ collection: 'expenses', doc: expenseId }).then(d=>{
+        	if (d.exists) {
+                this.setState({ showError: true, errorMessage: `Expense '${name}' already exists (id: ${expenseId})` });
+                return false;
+			}
+            let expDoc = {
+                name,
+                date: date,
+                amount,
+                currency: currency.toUpperCase(),
+                tag,
+                notes,
+                id: expenseId
+            };
+            this.setState({
+                data: [expDoc, ...this.state.data]
+            });
+            return true;
+		});
+	};
+
 	render() {
 		const {
 			showError,
@@ -289,7 +277,7 @@ class AddExpensesScreen extends Component {
 			<Container>
 				<Header size="huge" content="Add Expenses" />
 				<Container>
-					<Input
+					<input
 						style={{ display: 'none' }}
 						accept={acceptFiles}
 						id="expenses-file"
@@ -338,7 +326,6 @@ class AddExpensesScreen extends Component {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						<AddExpenseRow tags={tags} addRow={() => console.log('clicked')} />
 						{data.slice(rowsPerPage * page, rowsPerPage * (page + 1)).map((n, i) => {
 							const isSelected = includes(selected, n.id);
 							return (
@@ -352,6 +339,7 @@ class AddExpensesScreen extends Component {
 								</TableRow>
 							);
 						})}
+						<AddExpenseRow tags={tags} addRow={this.handleAddExpense} />
 					</TableBody>
 					{!!data.length && (
 						<Table.Footer>
