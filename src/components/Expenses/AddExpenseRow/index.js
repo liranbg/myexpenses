@@ -9,12 +9,12 @@ import { Label, Dropdown, Input, Button, TableCell, TableRow } from 'semantic-ui
 
 const INITIAL_STATE = {
 	addButton: false,
-    name: '',
-    amount: '',
-    currency: 'ils',
-    tag: 'Untagged',
-    notes: '',
-    date: moment()
+	name: '',
+	amount: '',
+	currency: 'ils',
+	tag: 'Untagged',
+	notes: '',
+	date: moment()
 };
 
 class AddExpenseRow extends Component {
@@ -23,14 +23,14 @@ class AddExpenseRow extends Component {
 		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
 	};
 
-	state = {...INITIAL_STATE};
+	state = { ...INITIAL_STATE };
 
 	componentWillMount() {
 		this.reset();
 	}
 
 	reset() {
-		this.setState({...INITIAL_STATE});
+		this.setState({ ...INITIAL_STATE });
 	}
 
 	handleChangeDate = date => this.setState({ date: moment(date.startOf('day')) });
@@ -38,12 +38,10 @@ class AddExpenseRow extends Component {
 	handleSetTag = (e, { value }) => this.setState({ tag: value });
 
 	handleAddRow = async () => {
-		this.setState({addButton:true});
+		this.setState({ addButton: true });
 		const { name, date, amount, currency, tag, notes } = this.state;
-		if (await this.props.addRow(name, date, amount, currency, tag, notes))
-			this.reset();
-		else
-			this.setState({addButton:false});
+		if (await this.props.addRow(name, date, amount, currency, tag, notes)) this.reset();
+		else this.setState({ addButton: false });
 	};
 
 	validInput = () => {
@@ -60,7 +58,14 @@ class AddExpenseRow extends Component {
 				<TableCell
 					children={
 						this.validInput() ? (
-							<Button loading={addButton} onClick={this.handleAddRow} compact positive circular icon="add" />
+							<Button
+								loading={addButton}
+								onClick={this.handleAddRow}
+								compact
+								positive
+								circular
+								icon="add"
+							/>
 						) : null
 					}
 				/>
@@ -94,7 +99,6 @@ class AddExpenseRow extends Component {
 				<TableCell
 					children={
 						<Input
-
 							labelPosition="right"
 							onChange={(e, { value }) => this.setState({ amount: value })}
 							fluid

@@ -234,27 +234,35 @@ class AddExpensesScreen extends Component {
 	};
 
 	handleAddExpense = (name, date, amount, currency, tag, notes) => {
-        const { firestore } = this.props;
+		const { firestore } = this.props;
 		const expenseId = generateExpenseId(date.format('DD/MM/YYYY'), name, amount, currency);
-        return firestore.get({ collection: 'expenses', doc: expenseId }).then(d=>{
-        	if (d.exists) {
-                this.setState({ showError: true, errorMessage: `Expense '${name}' already exists (id: ${expenseId})` });
-                return false;
-			}
-            let expDoc = {
-                name,
-                date: date,
-                amount,
-                currency: currency.toUpperCase(),
-                tag,
-                notes,
-                id: expenseId
-            };
-            this.setState({
-                data: [expDoc, ...this.state.data]
-            });
-            return true;
-		});
+		return firestore
+			.firestore()
+			.collection('expenses')
+			.doc(expenseId)
+			.get()
+			.then(d => {
+				if (d.exists) {
+					this.setState({
+						showError: true,
+						errorMessage: `Expense '${name}' already exists (id: ${expenseId})`
+					});
+					return false;
+				}
+				let expDoc = {
+					name,
+					date: date,
+					amount,
+					currency: currency.toUpperCase(),
+					tag,
+					notes,
+					id: expenseId
+				};
+				this.setState({
+					data: [expDoc, ...this.state.data]
+				});
+				return true;
+			});
 	};
 
 	render() {
