@@ -40,7 +40,7 @@ export class ChartsPage extends Component {
 				<SegmentGroup>
 					<ChartDateSelection />
 					<Segment textAlign={'center'}>
-						<Button onClick={this.narrowDatesByExpenses} content={'Narrow Dates'} />
+						<Button basic primary onClick={this.narrowDatesByExpenses} content={'Narrow Dates'} />
 					</Segment>
 				</SegmentGroup>
 				{!!Object.keys(groupedExpenses).length &&
