@@ -7,7 +7,7 @@ import { compose } from 'redux';
 import { push } from 'react-router-redux';
 import { filterExpensesByTag } from '../../../actions';
 import { Tag } from '../../../proptypes';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 
 class TagSegment extends React.Component {
 	static propTypes = {
@@ -21,15 +21,22 @@ class TagSegment extends React.Component {
 
 	setTagColor = color => {
 		console.debug('Setting Tags color', this.props.tag.id);
-		this.setState({isSettingColor: true});
-		this.props.firestore.update(`tags/${this.props.tag.id}`, {
-			color: color
-		}).finally(()=>this.setState({isSettingColor: false}));
+		this.setState({ isSettingColor: true });
+		this.props.firestore
+			.update(`tags/${this.props.tag.id}`, {
+				color: color
+			})
+			.finally(() => this.setState({ isSettingColor: false }));
 	};
 
 	deleteTag = () => {
 		console.debug('Deleting Tag', this.props.tag.id);
 		this.props.firestore.delete(`tags/${this.props.tag.id}`);
+	};
+
+	handleUsesClick = () => {
+		this.props.dispatch(filterExpensesByTag([this.props.tag.name]));
+		this.props.dispatch(push('/expenses'));
 	};
 
 	render() {
@@ -40,7 +47,7 @@ class TagSegment extends React.Component {
 					borderRightWidth: 2,
 					borderBottomWidth: 2,
 					borderStyle: 'solid',
-					borderColor: tag.color,
+					borderColor: tag.color
 					// cursor: 'pointer'
 				}}
 			>
@@ -57,17 +64,21 @@ class TagSegment extends React.Component {
 					onClick={this.deleteTag}
 				/>
 				<Icon name="tag" /> {tag.name}{' '}
-				<TagColorPicker loading={this.state.isSettingColor}
-								active={!this.state.isSettingColor}
-								onSelectTagColor={this.setTagColor}
-								selectedColor={tag.color} />
-				<Label
-					style={{ float: 'right' }}
-					as={'a'}
-					onClick={() => {
-						this.props.dispatch(filterExpensesByTag([tag.name]));
-						this.props.dispatch(push('/expenses'));
-					}}
+				<TagColorPicker
+					loading={this.state.isSettingColor}
+					active={!this.state.isSettingColor}
+					onSelectTagColor={this.setTagColor}
+					selectedColor={tag.color}
+				/>
+				<Button
+					style={{ minWidth: 100, textAlign: 'left' }}
+					basic
+					icon={'credit card alternative'}
+					secondary
+					compact
+					floated={'right'}
+					size={'small'}
+					onClick={this.handleUsesClick}
 					content={`${tag.uses} uses`}
 				/>
 			</Segment>

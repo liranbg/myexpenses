@@ -6,28 +6,32 @@ import { colorsPalette } from '../../../constants';
 
 class TagColorPicker extends Component {
 	static propTypes = {
-        selectedColor: PropTypes.string.isRequired,
-        onSelectTagColor: PropTypes.func.isRequired,
+		selectedColor: PropTypes.string.isRequired,
+		onSelectTagColor: PropTypes.func.isRequired,
 		active: PropTypes.bool,
 		loading: PropTypes.bool
-    };
+	};
 
 	getCurrentColor() {
-		return !!this.state.tempColor.length?this.state.tempColor:this.props.selectedColor
+		return !!this.state.tempColor.length ? this.state.tempColor : this.props.selectedColor;
 	}
 
 	state = {
-		tempColor: ""
+		tempColor: ''
 	};
 
-	close = (e, {positive}) => {
-		if (positive && !!this.state.tempColor.length && this.props.selectedColor !== this.state.tempColor) {
-			this.props.onSelectTagColor(this.state.tempColor)
+	close = (e, { positive }) => {
+		if (
+			positive &&
+			!!this.state.tempColor.length &&
+			this.props.selectedColor !== this.state.tempColor
+		) {
+			this.props.onSelectTagColor(this.state.tempColor);
 		}
-		this.setState({tempColor: ""});
-        this.modal.setState({
-            open: false
-        });
+		this.setState({ tempColor: '' });
+		this.modal.setState({
+			open: false
+		});
 	};
 
 	render() {
@@ -36,13 +40,15 @@ class TagColorPicker extends Component {
 				ref={modal => (this.modal = modal)}
 				size={'mini'}
 				trigger={
-					<Button active={this.props.active}
-							loading={this.props.loading}
-							primary={true}
-							floated={'right'}
-							compact={true}
-							size={'small'}
-							icon="paint brush" />
+					<Button
+						active={this.props.active}
+						loading={this.props.loading}
+						primary={true}
+						floated={'right'}
+						compact={true}
+						size={'small'}
+						icon="paint brush"
+					/>
 				}
 				closeIcon
 			>
@@ -63,7 +69,7 @@ class TagColorPicker extends Component {
 						<CirclePicker
 							colors={[...colorsPalette, '#7D7D7D']}
 							color={this.getCurrentColor()}
-							onChangeComplete={color => this.setState({tempColor:color.hex})}
+							onChangeComplete={color => this.setState({ tempColor: color.hex })}
 						/>
 					</Container>
 				</ModalContent>
@@ -76,14 +82,14 @@ class TagColorPicker extends Component {
 						compact
 						size={'small'}
 					/>
-                    <Button
-                        onClick={this.close}
-                        negative
-                        icon={'cancel'}
-                        content={'Cancel'}
-                        compact
-                        size={'small'}
-                    />
+					<Button
+						onClick={this.close}
+						negative
+						icon={'cancel'}
+						content={'Cancel'}
+						compact
+						size={'small'}
+					/>
 				</ModalActions>
 			</Modal>
 		);
