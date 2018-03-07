@@ -1,23 +1,11 @@
 import { SET_DATES_RANGE } from '../../actions';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 export const INITIAL_STATE = {
-	fromDate: moment
-		.utc()
-		.year(2016)
-		.startOf('year'),
-	toDate: moment
-		.utc()
-		.year(2018)
-		.endOf('year'),
-	selectedFromDate: moment
-		.utc()
-		.year(2016)
-		.startOf('year'),
-	selectedToDate: moment
-		.utc()
-		.year(2018)
-		.endOf('year')
+	fromDate: DateTime.utc(2016).startOf('year'),
+	toDate: DateTime.utc(2018).endOf('year'),
+	selectedFromDate: DateTime.utc(2016).startOf('year'),
+	selectedToDate: DateTime.utc(2018).endOf('year')
 };
 
 function setDate(payload) {

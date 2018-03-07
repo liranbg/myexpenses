@@ -4,7 +4,7 @@ export const currencyOptions = [
 	{ key: 'eur', value: 'eur', text: 'EUR', sign: '€' }
 ];
 
-export const acceptFiles = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const acceptFiles = 'application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 export const colorsPalette = [
 	'#D98880',

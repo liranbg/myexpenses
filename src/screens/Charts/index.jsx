@@ -1,11 +1,10 @@
 import _ from 'lodash';
-import moment from 'moment';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Segment, Header, CardGroup, Container, Button, SegmentGroup } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
-import { expensesDatesMomentify, getFilteredExpensesByDates } from '../../helpers';
+import { expensesDatesLuxonify, getFilteredExpensesByDates } from '../../helpers';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/Charts/ChartDateSelection';
 import BarChartCard from '../../components/Charts/BarChartCard';
@@ -24,8 +23,8 @@ export class ChartsPage extends Component {
 	narrowDatesByExpenses = () => {
 		const { fromDate, toDate, expenses } = this.props;
 		if (expenses.length > 1) {
-			const minDate = moment(expenses[0].date).startOf('month');
-			const maxDate = moment(expenses[expenses.length - 1].date).endOf('month');
+			const minDate = expenses[0].date.startOf('month');
+			const maxDate = expenses[expenses.length - 1].date.endOf('month');
 			this.props.dispatch(setDatesRange(fromDate, toDate, minDate, maxDate));
 		}
 	};
@@ -57,7 +56,7 @@ export class ChartsPage extends Component {
 
 const mapStateToProps = ({ firestore: { ordered }, chartsView }) => {
 	return {
-		expenses: ordered.expenses ? expensesDatesMomentify(ordered.expenses) : [],
+		expenses: ordered.expenses ? expensesDatesLuxonify(ordered.expenses) : [],
 		tags: ordered.tags,
 		selectedFromDate: chartsView.selectedFromDate,
 		selectedToDate: chartsView.selectedToDate,

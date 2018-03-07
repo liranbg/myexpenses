@@ -4,6 +4,7 @@ import moment from 'moment/moment';
 import PropTypes from 'prop-types';
 import DatePicker from 'react-datepicker';
 import TagsDropDownSelection from '../../Tags/TagsDropDownSelection';
+import { DateTime } from 'luxon';
 import { currencyOptions } from '../../../constants';
 import { Label, Dropdown, Input, Button, TableCell, TableRow } from 'semantic-ui-react';
 
@@ -33,14 +34,25 @@ class AddExpenseRow extends Component {
 		this.setState({ ...INITIAL_STATE });
 	}
 
-	handleChangeDate = date => this.setState({ date: moment(date.startOf('day')) });
+	handleChangeDate = date => this.setState({ date: date.startOf('day') });
 
 	handleSetTag = (e, { value }) => this.setState({ tag: value });
 
 	handleAddRow = async () => {
 		this.setState({ addButton: true });
 		const { name, date, amount, currency, tag, notes } = this.state;
-		if (await this.props.addRow(name, date, amount, currency, tag, notes)) this.reset();
+		//TODO once DatePicker stops using moment(), we can update this section
+		if (
+			await this.props.addRow(
+				name,
+				DateTime.fromJSDate(moment(date).toDate()),
+				amount,
+				currency,
+				tag,
+				notes
+			)
+		)
+			this.reset();
 		else this.setState({ addButton: false });
 	};
 
