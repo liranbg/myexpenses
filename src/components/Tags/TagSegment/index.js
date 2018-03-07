@@ -1,56 +1,78 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Button, Icon, Label } from 'semantic-ui-react';
 import TagColorPicker from '../TagColorPicker/index';
+import { Segment, Button, Icon, Label } from 'semantic-ui-react';
+import { firestoreConnect } from 'react-redux-firebase';
+import { compose } from 'redux';
+import { push } from 'react-router-redux';
+import { filterExpensesByTag } from '../../../actions';
+import { Tag } from '../../../proptypes';
+import { connect } from "react-redux";
 
-const TagSegment = ({
-	tagId,
-	tagName,
-	tagColor,
-	tagUses,
-	onDeleteTag,
-	onSelectUses,
-	onSelectTagColor
-}) => {
-	return (
-		<Segment
-			key={tagId}
-			style={{
-				borderTopWidth: 2,
-				borderTopStyle: 'solid',
-				borderTopColor: tagColor
-			}}
-		>
-			<Button
-				tagid={tagId}
-				compact
-				negative
-				disabled={!!tagUses}
-				floated={'right'}
-				icon={'trash'}
-				size={'small'}
-				onClick={onDeleteTag}
-			/>
-			<Icon name="tag" /> {tagName}{' '}
-			<Label circular as={'a'} onClick={onSelectUses}>
-				{tagUses} uses
-			</Label>
-			<TagColorPicker
-				onSelectTagColor={color => onSelectTagColor(color, tagId)}
-				selectedColor={tagColor}
-			/>
-		</Segment>
-	);
-};
+class TagSegment extends React.Component {
+	static propTypes = {
+		tag: PropTypes.shape(Tag)
+	};
 
-TagSegment.propTypes = {
-	tagId: PropTypes.string.isRequired,
-	tagName: PropTypes.string.isRequired,
-	tagColor: PropTypes.string.isRequired,
-	tagUses: PropTypes.number.isRequired,
-	onDeleteTag: PropTypes.func.isRequired,
-	onSelectUses: PropTypes.func.isRequired,
-	onSelectTagColor: PropTypes.func.isRequired
-};
+	state = {
+		isDeleting: false,
+		isSettingColor: false
+	};
 
-export default TagSegment;
+	setTagColor = color => {
+		console.debug('Setting Tags color', this.props.tag.id);
+		this.setState({isSettingColor: true});
+		this.props.firestore.update(`tags/${this.props.tag.id}`, {
+			color: color
+		}).finally(()=>this.setState({isSettingColor: false}));
+	};
+
+	deleteTag = () => {
+		console.debug('Deleting Tag', this.props.tag.id);
+		this.props.firestore.delete(`tags/${this.props.tag.id}`);
+	};
+
+	render() {
+		const { tag } = this.props;
+		return (
+			<Segment
+				style={{
+					borderRightWidth: 2,
+					borderBottomWidth: 2,
+					borderStyle: 'solid',
+					borderColor: tag.color,
+					// cursor: 'pointer'
+				}}
+			>
+				<Button
+					loading={this.state.isDeleting}
+					active={!this.state.isDeleting && tag.uses === 0}
+					tagid={tag.id}
+					compact
+					negative
+					disabled={!!tag.uses}
+					floated={'right'}
+					icon={'trash'}
+					size={'small'}
+					onClick={this.deleteTag}
+				/>
+				<Icon name="tag" /> {tag.name}{' '}
+				<TagColorPicker loading={this.state.isSettingColor}
+								active={!this.state.isSettingColor}
+								onSelectTagColor={this.setTagColor}
+								selectedColor={tag.color} />
+				<Label
+					style={{ float: 'right' }}
+					as={'a'}
+					onClick={() => {
+						this.props.dispatch(filterExpensesByTag([tag.name]));
+						this.props.dispatch(push('/expenses'));
+					}}
+					content={`${tag.uses} uses`}
+				/>
+			</Segment>
+		);
+	}
+}
+
+export default compose(firestoreConnect(), connect())(TagSegment);

@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import { Header, Container, Segment, Button, Input } from 'semantic-ui-react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { filterExpensesByTag } from '../../actions';
 import { Tag } from '../../proptypes';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
-import { push } from 'react-router-redux';
 import TagSegment from '../../components/Tags/TagSegment';
 
 class TagsScreen extends Component {
@@ -24,18 +22,6 @@ class TagsScreen extends Component {
 			actionAddTagLoading: bool
 		});
 
-	setTagColor = (color, tagId) => {
-		console.debug('Setting Tags color', tagId);
-		this.props.firestore.update(`tags/${tagId}`, {
-			color: color
-		});
-	};
-
-	deleteTag = (e, { tagid }) => {
-		console.debug('Deleting Tag', tagid);
-		this.props.firestore.delete(`tags/${tagid}`);
-	};
-
 	addTag = () => {
 		if (!this.state.newTagName.trim()) return;
 		this.setActionAddTagLoading(true);
@@ -43,10 +29,10 @@ class TagsScreen extends Component {
 		this.props.firestore
 			.add('tags', {
 				name: tagName,
-				color: '#000000',
+				color: '#fff',
 				uses: 0
 			})
-			.then(() => this.setActionAddTagLoading(false));
+			.finally(() => this.setActionAddTagLoading(false));
 	};
 
 	static jsUcfirst(s) {
@@ -68,49 +54,34 @@ class TagsScreen extends Component {
 		return (
 			<Container>
 				<Header size="huge" content="Tags" />
-				{tags.map(tag => (
-					<TagSegment
-						key={tag.id}
-						tagUses={tag.uses}
-						tagColor={tag.color}
-						tagId={tag.id}
-						tagName={tag.name}
-						onDeleteTag={this.deleteTag}
-						onSelectUses={() => {
-							this.props.dispatch(filterExpensesByTag([tag.name]));
-							this.props.dispatch(push('/expenses'));
-						}}
-						onSelectTagColor={this.setTagColor}
-					/>
-				))}
 				<Segment>
 					<Button
 						loading={this.state.actionAddTagLoading}
 						disabled={this.state.actionAddTagLoading}
-						compact
 						positive
 						content="Add"
 						floated="right"
 						icon={'plus'}
-						size="small"
 						onClick={this.addTag}
 					/>
 					<Input
 						onKeyPress={this.newTagNameKeyPressed}
 						onChange={this.newTagNameInputHandler}
+						size={'small'}
 						icon="tags"
 						iconPosition="left"
 						focus
 						placeholder="New Tag Name..."
 					/>
 				</Segment>
+				{tags.map(tag => <TagSegment tag={tag} key={tag.id} />)}
 			</Container>
 		);
 	}
 }
 
 export default compose(
-	firestoreConnect([{ collection: 'tags', orderBy: ['name'] }]),
+	firestoreConnect(),
 	connect(state => ({
 		tags: state.firestore.ordered.tags ? state.firestore.ordered.tags : []
 	}))
