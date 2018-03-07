@@ -111,7 +111,6 @@ class AddExpensesScreen extends Component {
 			const f = files[0];
 			const reader = new FileReader();
 			reader.onload = e => {
-				console.log(e);
 				try {
 					const wsRows = this.workbookToSheetRows(e.target.result);
 					const expensesRows = buildExpensesByRows(wsRows);
@@ -125,7 +124,7 @@ class AddExpensesScreen extends Component {
 							.map(expense => ({
 								...expense,
 								id: generateExpenseId(
-									expense.date.format('DD/MM/YYYY'),
+									expense.date,
 									expense.name,
 									expense.amount,
 									expense.currency,
@@ -162,7 +161,7 @@ class AddExpensesScreen extends Component {
 		data
 			.map(expense => ({
 				...expense,
-				date: expense.date.toDate(),
+				date: expense.date.toJSDate(),
 				createdBy: profile.email,
 				createdOn: new Date()
 			}))
@@ -236,7 +235,7 @@ class AddExpensesScreen extends Component {
 	handleAddRow = (name, date, amount, currency, tag, notes) => {
 		//This function will be called from add expense row
 		const { firestore } = this.props;
-		const expenseId = generateExpenseId(date.format('DD/MM/YYYY'), name, amount, currency);
+		const expenseId = generateExpenseId(date, name, amount, currency);
 		return firestore
 			.firestore()
 			.collection('expenses')

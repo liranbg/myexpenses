@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import moment from 'moment';
+import { DateTime, Interval } from 'luxon';
 import * as md5 from 'md5';
 
 export function expensesToTagsUses(expenses) {
@@ -14,10 +14,10 @@ export function expensesToTagsUses(expenses) {
 	);
 }
 
-export function expensesDatesMomentify(expenses) {
+export function expensesDatesLuxonify(expenses) {
 	return expenses.map(expense => ({
 		...expense,
-		date: moment.utc(expense.date)
+		date: DateTime.fromJSDate(expense.date)
 	}));
 }
 
@@ -32,17 +32,21 @@ export function filterExpensesByName(expenses, name) {
 
 export function dateRangeToLabels(startDate, endDate, stepType = 'month') {
 	let labels = [];
-	let startIterator = moment(startDate).startOf(stepType);
-	let endIterator = moment(endDate).endOf(stepType);
-	while (startIterator.isSameOrBefore(endIterator)) {
-		labels.push(moment(startIterator));
-		startIterator = startIterator.add(1, stepType);
+	const allowedStartOf = ['year', 'years', 'months', 'month', 'day', 'days'];
+	let startIterator =
+		allowedStartOf.indexOf(stepType) !== -1 ? startDate.startOf(stepType) : startDate;
+	let endIterator = allowedStartOf.indexOf(stepType) !== -1 ? endDate.endOf(stepType) : endDate;
+	while (startIterator <= endIterator) {
+		labels.push(startIterator);
+		startIterator = startIterator.plus({ [stepType]: 1 });
 	}
 	return labels;
 }
 
 export function getFilteredExpensesByDates(expenses, fromDate, toDate) {
-	return expenses.filter(expense => expense.date.isBetween(fromDate, toDate, null, '[]'));
+	return expenses.filter(expense =>
+		Interval.fromDateTimes(fromDate, toDate.plus({ days: 1 })).contains(expense.date)
+	);
 }
 
 function currencySignToText(sign) {
@@ -60,15 +64,17 @@ function currencySignToText(sign) {
 
 /**
  * This function generate md5 ID upon its parameters
- * @param dateStr: DD/MM/YYYY
+ * @param d: Luxon Object!
  * @param name
  * @param amount
  * @param currency
  * @param misparShover
  * @returns md5 string
  */
-export function generateExpenseId(dateStr, name, amount, currency, misparShover = null) {
-	return md5.default([dateStr, name, amount, currency, misparShover ? misparShover : ''].join());
+export function generateExpenseId(d, name, amount, currency, misparShover = null) {
+	return md5.default(
+		[d.toFormat('dd/MM/yyyy'), name, amount, currency, misparShover ? misparShover : ''].join()
+	);
 }
 
 export function buildExpensesByRows(rows) {
@@ -94,7 +100,7 @@ export function buildExpensesByRows(rows) {
 		})
 		.map(r => ({
 			name: r[nameIndex],
-			date: moment(r[dateIndex], 'DD/MM/YYYY'),
+			date: DateTime.fromFormat(r[dateIndex], 'dd/MM/yyyy'),
 			tag: 'Untagged',
 			amount: parseFloat(r[amountIndex]),
 			notes: r[notesIndex],
@@ -103,66 +109,3 @@ export function buildExpensesByRows(rows) {
 			misparShover: r[misparShoverIndex]
 		}));
 }
-
-export const slugify = text => {
-	// Use hash map for special characters
-	let specialChars = {
-		à: 'a',
-		ä: 'a',
-		á: 'a',
-		â: 'a',
-		æ: 'a',
-		å: 'a',
-		ë: 'e',
-		è: 'e',
-		é: 'e',
-		ê: 'e',
-		î: 'i',
-		ï: 'i',
-		ì: 'i',
-		í: 'i',
-		ò: 'o',
-		ó: 'o',
-		ö: 'o',
-		ô: 'o',
-		ø: 'o',
-		ù: 'o',
-		ú: 'u',
-		ü: 'u',
-		û: 'u',
-		ñ: 'n',
-		ç: 'c',
-		ß: 's',
-		ÿ: 'y',
-		œ: 'o',
-		ŕ: 'r',
-		ś: 's',
-		ń: 'n',
-		ṕ: 'p',
-		ẃ: 'w',
-		ǵ: 'g',
-		ǹ: 'n',
-		ḿ: 'm',
-		ǘ: 'u',
-		ẍ: 'x',
-		ź: 'z',
-		ḧ: 'h',
-		'·': '-',
-		'/': '-',
-		_: '-',
-		',': '-',
-		':': '-',
-		';': '-'
-	};
-
-	return text
-		.toString()
-		.toLowerCase()
-		.replace(/\s+/g, '-') // Replace spaces with -
-		.replace(/./g, (target, index, str) => specialChars[target] || target) // Replace special characters using the hash map
-		.replace(/&/g, '-and-') // Replace & with 'and'
-		.replace(/[^\w\-]+/g, '') // Remove all non-word chars
-		.replace(/\-\-+/g, '-') // Replace multiple - with single -
-		.replace(/^-+/, '') // Trim - from start of text
-		.replace(/-+$/, ''); // Trim - from end of text
-};

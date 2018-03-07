@@ -26,7 +26,6 @@ test('ExpenseCard Component is generated', async () => {
 			<ExpenseCard tags={tags} expense={expense} />
 		</Provider>
 	);
-	// console.log(component.getInstance());
 	let tree = component.toJSON();
 	expect(tree.type).toBe('div');
 

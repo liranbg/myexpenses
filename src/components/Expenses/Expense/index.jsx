@@ -121,7 +121,6 @@ class ExpenseCard extends Component {
 			const queryDocumentSnapshot = await firestore.get(getOptions);
 			queryDocumentSnapshot.docs.map(doc => {
 				if (tag !== doc.data().tag) {
-					// console.log("Updating doc", doc.id);
 					batch.update(doc.ref, updatedDoc);
 				}
 			});
@@ -276,8 +275,17 @@ class ExpenseCard extends Component {
 								content={`Last updated by: ${expense.modifiedBy ? expense.modifiedBy : expense.createdBy}`}
 							/>
 						</Container>
+						{expense.notes && (
+							<Container
+								style={{
+									marginTop: 6
+								}}
+							>
+								<Icon name={'file text'} />
+								<Label content={expense.notes} />
+							</Container>
+						)}
 					</Card.Meta>
-					<Card.Description>{expense.notes}</Card.Description>
 				</Card.Content>
 				{this.isExpenseUntagged() && (
 					<CardContent extra>

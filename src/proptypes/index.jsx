@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
-moment.locale('en');
+export const DateType = PropTypes.oneOfType([
+	PropTypes.instanceOf(DateTime),
+	PropTypes.instanceOf(Date)
+]);
 
 export const Tag = {
 	id: PropTypes.string.isRequired,
@@ -13,7 +16,7 @@ export const Tag = {
 export const Expense = {
 	id: PropTypes.string.isRequired,
 	name: PropTypes.string.isRequired,
-	date: PropTypes.oneOfType([PropTypes.instanceOf(moment), PropTypes.instanceOf(Date)]),
+	date: DateType,
 	amount: PropTypes.number.isRequired,
 	tag: PropTypes.string.isRequired,
 	currency: PropTypes.string.isRequired,
@@ -21,6 +24,6 @@ export const Expense = {
 	misparShover: PropTypes.string,
 	notes: PropTypes.string,
 	createdBy: PropTypes.string.isRequired,
-	createdOn: PropTypes.oneOfType([PropTypes.instanceOf(moment), PropTypes.instanceOf(Date)]),
+	createdOn: DateType,
 	modifiedBy: PropTypes.string
 };

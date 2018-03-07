@@ -2,40 +2,53 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CirclePicker } from 'react-color';
 import { Header, Container, ModalActions, ModalContent, Button, Modal } from 'semantic-ui-react';
-
-const colorsPalette = [
-	'#D98880',
-	'#EC7063',
-	'#C39BD3',
-	'#8E44AD',
-	'#5499C7',
-	'#85C1E9',
-	'#48C9B0',
-	'#A2D9CE',
-	'#F9E79F',
-	'#F8C471',
-	'#FAE5D3',
-	'#B03A2E',
-	'#884EA0',
-	'#2471A3',
-	'#1A5276',
-	'#0E6655'
-];
+import { colorsPalette } from '../../../constants';
 
 class TagColorPicker extends Component {
-	close = () =>
+	static propTypes = {
+		selectedColor: PropTypes.string.isRequired,
+		onSelectTagColor: PropTypes.func.isRequired,
+		active: PropTypes.bool,
+		loading: PropTypes.bool
+	};
+
+	getCurrentColor() {
+		return !!this.state.tempColor.length ? this.state.tempColor : this.props.selectedColor;
+	}
+
+	state = {
+		tempColor: ''
+	};
+
+	close = (e, { positive }) => {
+		if (
+			positive &&
+			!!this.state.tempColor.length &&
+			this.props.selectedColor !== this.state.tempColor
+		) {
+			this.props.onSelectTagColor(this.state.tempColor);
+		}
+		this.setState({ tempColor: '' });
 		this.modal.setState({
 			open: false
 		});
+	};
 
 	render() {
-		const { selectedColor, onSelectTagColor } = this.props;
 		return (
 			<Modal
 				ref={modal => (this.modal = modal)}
 				size={'mini'}
 				trigger={
-					<Button primary={true} floated={'right'} compact={true} size={'small'} icon="paint brush" />
+					<Button
+						active={this.props.active}
+						loading={this.props.loading}
+						primary={true}
+						floated={'right'}
+						compact={true}
+						size={'small'}
+						icon="paint brush"
+					/>
 				}
 				closeIcon
 			>
@@ -43,7 +56,7 @@ class TagColorPicker extends Component {
 					icon="paint brush"
 					content="Pick Color"
 					style={{
-						backgroundColor: selectedColor
+						backgroundColor: this.getCurrentColor()
 					}}
 				/>
 				<ModalContent>
@@ -54,9 +67,9 @@ class TagColorPicker extends Component {
 						}}
 					>
 						<CirclePicker
-							colors={colorsPalette}
-							color={selectedColor}
-							onChangeComplete={color => onSelectTagColor(color.hex)}
+							colors={[...colorsPalette, '#7D7D7D']}
+							color={this.getCurrentColor()}
+							onChangeComplete={color => this.setState({ tempColor: color.hex })}
 						/>
 					</Container>
 				</ModalContent>
@@ -69,15 +82,18 @@ class TagColorPicker extends Component {
 						compact
 						size={'small'}
 					/>
+					<Button
+						onClick={this.close}
+						negative
+						icon={'cancel'}
+						content={'Cancel'}
+						compact
+						size={'small'}
+					/>
 				</ModalActions>
 			</Modal>
 		);
 	}
 }
-
-TagColorPicker.propTypes = {
-	selectedColor: PropTypes.string.isRequired,
-	onSelectTagColor: PropTypes.func.isRequired
-};
 
 export default TagColorPicker;

@@ -1,199 +1,121 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
-import { Divider, Segment, SegmentGroup, Header, Dropdown } from 'semantic-ui-react';
+import { Segment, SegmentGroup, Header, Button } from 'semantic-ui-react';
+import DatePicker from 'react-datepicker';
 import { connect } from 'react-redux';
 import { setDatesRange } from '../../../actions/index';
+import { DateType } from '../../../proptypes';
+import moment from 'moment';
+import { DateTime } from 'luxon';
 
 class ChartDateSelection extends Component {
-	monthsOptions = [
-		{
-			key: 0,
-			text: 'January',
-			value: 0
-		},
-		{
-			key: 1,
-			text: 'February',
-			value: 1
-		},
-		{
-			key: 2,
-			text: 'March',
-			value: 2
-		},
-		{
-			key: 3,
-			text: 'April',
-			value: 3
-		},
-		{
-			key: 4,
-			text: 'May',
-			value: 4
-		},
-		{
-			key: 5,
-			text: 'June',
-			value: 5
-		},
-		{
-			key: 6,
-			text: 'July',
-			value: 6
-		},
-		{
-			key: 7,
-			text: 'August',
-			value: 7
-		},
-		{
-			key: 8,
-			text: 'September',
-			value: 8
-		},
-		{
-			key: 9,
-			text: 'October',
-			value: 9
-		},
-		{
-			key: 10,
-			text: 'November',
-			value: 10
-		},
-		{
-			key: 11,
-			text: 'December',
-			value: 11
-		}
-	];
-
-	setFromYearValue = (e, { value }) => {
-		const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
-		this.props.dispatch(
-			setDatesRange(fromDate, toDate, selectedFromDate.year(value), selectedToDate)
-		);
+	static propTypes = {
+		fromDate: DateType,
+		toDate: DateType,
+		selectedFromDate: DateType,
+		selectedToDate: DateType
 	};
 
-	setFromMonthValue = (e, { value }) => {
-		const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
-
-		const shouldUpdateToDate =
-			selectedFromDate.year() === selectedToDate.year() &&
-			selectedToDate.month() <= selectedFromDate.month(value).month();
-
-		this.props.dispatch(
-			setDatesRange(
-				fromDate,
-				toDate,
-				selectedFromDate.month(value).startOf('month'),
-				shouldUpdateToDate ? selectedToDate.month(value).endOf('month') : selectedToDate
-			)
-		);
+	state = {
+		showFrom: false,
+		showTo: false
 	};
 
-	setToYearValue = (e, { value }) => {
-		const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
-		const shouldUpdateToDateMonth =
-			selectedFromDate.year() === value && selectedFromDate.month() > selectedToDate.month();
-		this.props.dispatch(
-			setDatesRange(
-				fromDate,
-				toDate,
-				selectedFromDate,
-				shouldUpdateToDateMonth
-					? selectedToDate.year(value).month(selectedFromDate.month())
-					: selectedToDate.year(value)
-			)
-		);
+	toggleShowFromCalendar = () => {
+		this.setState({ showFrom: !this.state.showFrom });
 	};
 
-	setToMonthValue = (e, { value }) => {
-		const { fromDate, toDate, selectedFromDate, selectedToDate } = this.props;
-		this.props.dispatch(
-			setDatesRange(fromDate, toDate, selectedFromDate, selectedToDate.month(value).endOf('month'))
-		);
+	toggleShowToCalendar = () => {
+		this.setState({ showTo: !this.state.showTo });
 	};
 
-	getFromYearsOptions() {
-		const { fromDate, toDate } = this.props;
-		return _.range(fromDate.year(), toDate.year() + 1).map(num => ({
-			key: num,
-			text: num.toString(),
-			value: num
-		}));
-	}
+	handleChangeStart = d => {
+		const { fromDate, toDate, selectedToDate } = this.props;
+		let newSelectedFromDate = DateTime.fromJSDate(
+			moment(d)
+				.startOf('day')
+				.toDate()
+		);
+		this.props.dispatch(setDatesRange(fromDate, toDate, newSelectedFromDate, selectedToDate));
+		this.toggleShowFromCalendar();
+	};
 
-	getToYearsOptions() {
-		const { selectedFromDate, toDate } = this.props;
-		return _.range(selectedFromDate.year(), toDate.year() + 1).map(num => ({
-			key: num,
-			text: num.toString(),
-			value: num
-		}));
-	}
+	handleChangeEnd = d => {
+		const { fromDate, toDate, selectedFromDate } = this.props;
+		let newSelectedToDate = DateTime.fromJSDate(
+			moment(d)
+				.startOf('day')
+				.toDate()
+		);
+		this.props.dispatch(setDatesRange(fromDate, toDate, selectedFromDate, newSelectedToDate));
+		this.toggleShowToCalendar();
+	};
 
 	render() {
-		const { selectedFromDate, selectedToDate } = this.props;
-		const fromOptions = this.getFromYearsOptions();
-		const toOptions = this.getToYearsOptions();
-		let fromMonthsOptions = this.monthsOptions;
-		const shouldLimitMonthsSelection = selectedFromDate.year() === selectedToDate.year();
-
-		const toMonthsOptions = shouldLimitMonthsSelection
-			? fromMonthsOptions.slice(selectedFromDate.month())
-			: fromMonthsOptions;
+		const { selectedFromDate, selectedToDate, fromDate } = this.props;
 		return (
 			<SegmentGroup horizontal>
 				<Segment>
-					<Header textAlign={'center'} content={'From Year'} />
-					<Dropdown
-						value={selectedFromDate.year()}
-						onChange={this.setFromYearValue}
-						placeholder="Year"
+					<Header textAlign={'center'} content={'From'} />
+					<Button
+						onClick={this.toggleShowFromCalendar}
 						fluid
-						selection
-						options={fromOptions}
+						primary
+						content={selectedFromDate.toFormat('LLLL dd, yyyy')}
+						icon={'calendar'}
 					/>
-					<Divider hidden />
-					<Dropdown
-						value={selectedFromDate.month()}
-						onChange={this.setFromMonthValue}
-						placeholder="Year"
-						fluid
-						selection
-						options={fromMonthsOptions}
-					/>
+					{this.state.showFrom && (
+						<DatePicker
+							selected={moment(selectedFromDate.toJSDate())}
+							minDate={moment(fromDate.toJSDate())}
+							inline
+							selectsStart
+							peekNextMonth
+							fixedHeight
+							showMonthDropdown
+							showYearDropdown
+							withPortal
+							startDate={moment(selectedFromDate.toJSDate())}
+							endDate={moment(selectedToDate.toJSDate())}
+							onChange={this.handleChangeStart}
+							onClickOutside={this.toggleShowFromCalendar}
+						/>
+					)}
 				</Segment>
 				<Segment>
-					<Header textAlign={'center'} content={'To Year'} />
-					<Dropdown
-						value={selectedToDate.year()}
-						onChange={this.setToYearValue}
-						placeholder="Year"
+					<Header textAlign={'center'} content={'To'} />
+					<Button
+						onClick={this.toggleShowToCalendar}
 						fluid
-						selection
-						options={toOptions}
+						primary
+						content={selectedToDate.toFormat('LLLL dd, yyyy')}
+						icon={'calendar'}
 					/>
-					<Divider hidden />
-					<Dropdown
-						value={selectedToDate.month()}
-						onChange={this.setToMonthValue}
-						placeholder="Year"
-						fluid
-						selection
-						options={toMonthsOptions}
-					/>
+					{this.state.showTo && (
+						<DatePicker
+							selected={moment(selectedToDate.toJSDate())}
+							minDate={moment(fromDate.toJSDate())}
+							inline
+							selectsEnd
+							fixedHeight
+							peekNextMonth
+							showMonthDropdown
+							showYearDropdown
+							withPortal
+							startDate={moment(selectedFromDate.toJSDate())}
+							endDate={moment(selectedToDate.toJSDate())}
+							onChange={this.handleChangeEnd}
+							onClickOutside={this.toggleShowToCalendar}
+						/>
+					)}
 				</Segment>
 			</SegmentGroup>
 		);
 	}
 }
 
-ChartDateSelection = connect(state => ({
+export default connect(state => ({
 	fromDate: state.chartsView.fromDate,
 	toDate: state.chartsView.toDate,
 	selectedFromDate: state.chartsView.selectedFromDate,
 	selectedToDate: state.chartsView.selectedToDate
 }))(ChartDateSelection);
-export default ChartDateSelection;

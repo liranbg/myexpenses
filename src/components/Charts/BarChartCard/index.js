@@ -7,22 +7,52 @@ import { Tag } from '../../../proptypes';
 import { dateRangeToLabels } from '../../../helpers';
 
 class BarChartCard extends Component {
+	static propTypes = {
+		expenses: PropTypes.object,
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+	};
+
 	viewTypeFormatMap = {
-		day: 'MMM Do',
-		week: 'MMMM D',
-		month: 'MMMM YYYY',
-		quarter: '[Q]Q YYYY',
-		year: 'YYYY'
+		day: 'LLL dd',
+		week: 'LLLL dd',
+		month: 'LLLL yyyy',
+		quarter: 'Qq yyyy',
+		year: 'yyyy'
 	};
 
 	state = {
 		viewType: 'week'
 	};
 
-	componentWillReceiveProps() {
-		this.setState({
-			viewType: 'week'
-		});
+	static showDays(from, to) {
+		return to.diff(from).as('days') < 90;
+	}
+
+	static showWeeks(from, to) {
+		return to.diff(from).as('weeks') <= 12;
+	}
+
+	static showMonths(from, to) {
+		return to.diff(from).as('weeks') > 4;
+	}
+
+	static showQuarters(from, to) {
+		return to.diff(from).as('months') >= 8;
+	}
+
+	static showYears(from, to) {
+		return to.diff(from).as('years') >= 1;
+	}
+
+	componentWillReceiveProps(nextProps) {
+		const { fromDate, toDate } = nextProps;
+		let viewType = 'week';
+		if (BarChartCard.showDays(fromDate, toDate)) viewType = 'day';
+		else if (BarChartCard.showWeeks(fromDate, toDate)) viewType = 'week';
+		else if (BarChartCard.showMonths(fromDate, toDate)) viewType = 'month';
+		else if (BarChartCard.showQuarters(fromDate, toDate)) viewType = 'quarter';
+		else if (BarChartCard.showYears(fromDate, toDate)) viewType = 'year';
+		this.setState({ viewType });
 	}
 
 	mapExpensesByLabels(expenses, labels) {
@@ -37,10 +67,9 @@ class BarChartCard extends Component {
 				data: Array(labels.length).fill(0),
 				backgroundColor: tag ? tag.color : '#000'
 			};
-
 			let labelTip = 0;
 			values.forEach(value => {
-				while (labelTip < labels.length && labels[labelTip].isSameOrBefore(value.date)) labelTip++;
+				while (labelTip < labels.length && labels[labelTip] <= value.date) labelTip++;
 				datapoint.data[labelTip - 1] += value.amount;
 			});
 			datapoints.push(datapoint);
@@ -53,11 +82,11 @@ class BarChartCard extends Component {
 		const { expenses, fromDate, toDate } = this.props;
 		const datesRange = dateRangeToLabels(fromDate, toDate, viewType);
 		let mappedExpenses = this.mapExpensesByLabels(expenses, datesRange);
-		const labels = datesRange.map(d => d.format(this.viewTypeFormatMap[viewType]));
+		const labels = datesRange.map(d => d.toFormat(this.viewTypeFormatMap[viewType]));
 		return (
 			<Card fluid>
 				<ButtonGroup toggle>
-					{toDate.diff(fromDate, 'months') <= 1 && (
+					{BarChartCard.showDays(fromDate, toDate) && (
 						<Button
 							active={viewType === 'day'}
 							onClick={() => {
@@ -68,18 +97,19 @@ class BarChartCard extends Component {
 							content={'Daily'}
 						/>
 					)}
-
-					<Button
-						active={viewType === 'week'}
-						onClick={() => {
-							this.setState({
-								viewType: 'week'
-							});
-						}}
-					>
-						Weekly
-					</Button>
-					{toDate.diff(fromDate, 'weeks') > 4 && (
+					{BarChartCard.showWeeks(fromDate, toDate) && (
+						<Button
+							active={viewType === 'week'}
+							onClick={() => {
+								this.setState({
+									viewType: 'week'
+								});
+							}}
+						>
+							Weekly
+						</Button>
+					)}
+					{BarChartCard.showMonths(fromDate, toDate) && (
 						<Button
 							active={viewType === 'month'}
 							onClick={() => {
@@ -90,7 +120,7 @@ class BarChartCard extends Component {
 							content={'Monthly'}
 						/>
 					)}
-					{toDate.diff(fromDate, 'months') >= 8 && (
+					{BarChartCard.showQuarters(fromDate, toDate) && (
 						<Button
 							active={viewType === 'quarter'}
 							onClick={() => {
@@ -101,7 +131,7 @@ class BarChartCard extends Component {
 							content={'Quarterly'}
 						/>
 					)}
-					{toDate.diff(fromDate, 'years') >= 1 && (
+					{BarChartCard.showYears(fromDate, toDate) && (
 						<Button
 							active={viewType === 'year'}
 							onClick={() => {
@@ -179,11 +209,6 @@ class BarChartCard extends Component {
 		);
 	}
 }
-
-BarChartCard.propTypes = {
-	expenses: PropTypes.object,
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag))
-};
 
 BarChartCard = connect(state => ({
 	fromDate: state.chartsView.selectedFromDate,

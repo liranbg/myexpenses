@@ -59,6 +59,10 @@ class ExpensesScreen extends Component {
 				{expenses.length >= ttlCardsPerPage && (
 					<Segment basic textAlign={'center'}>
 						<Pagination
+							firstItem={activePage === 1 ? null : undefined}
+							prevItem={activePage === 1 ? null : undefined}
+							nextItem={activePage === ttlPages ? null : undefined}
+							lastItem={activePage === ttlPages ? null : undefined}
 							activePage={activePage}
 							onPageChange={this.handlePaginationChange}
 							totalPages={ttlPages}
