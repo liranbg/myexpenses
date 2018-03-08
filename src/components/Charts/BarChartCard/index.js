@@ -24,6 +24,11 @@ class BarChartCard extends Component {
 		viewType: 'week'
 	};
 
+	componentWillMount() {
+		const viewType = BarChartCard.calcDefaultViewType(this.props.fromDate, this.props.toDate);
+		this.setState({ viewType });
+	}
+
 	static showDays(from, to) {
 		return to.diff(from).as('days') < 90;
 	}
@@ -44,14 +49,19 @@ class BarChartCard extends Component {
 		return to.diff(from).as('years') >= 1;
 	}
 
-	componentWillReceiveProps(nextProps) {
-		const { fromDate, toDate } = nextProps;
+	static calcDefaultViewType(fromDate, toDate) {
 		let viewType = 'week';
 		if (BarChartCard.showDays(fromDate, toDate)) viewType = 'day';
 		else if (BarChartCard.showWeeks(fromDate, toDate)) viewType = 'week';
 		else if (BarChartCard.showMonths(fromDate, toDate)) viewType = 'month';
 		else if (BarChartCard.showQuarters(fromDate, toDate)) viewType = 'quarter';
 		else if (BarChartCard.showYears(fromDate, toDate)) viewType = 'year';
+		return viewType;
+	}
+
+	componentWillReceiveProps(nextProps) {
+		const { fromDate, toDate } = nextProps;
+		const viewType = BarChartCard.calcDefaultViewType(fromDate, toDate);
 		this.setState({ viewType });
 	}
 
