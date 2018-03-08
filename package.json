@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "rm -rf ./dist && cross-env NODE_ENV=production parcel build ./src/index.html --public-url ./",
-    "deploy": "npm run build && firebase deploy",
+    "deploy": "yarn install && yarn install --cwd functions/tag-uses && yarn run build && firebase deploy",
     "prettify": "prettier --config .prettierrc --write '{src,functions,lib}/{**/*,*}.{js,jsx}' '!**/node_modules/**'",
     "start": "parcel ./src/index.html",
     "test": "jest"
