@@ -9,8 +9,13 @@ import SignIn from '../../components/SignIn';
 import { firestoreConnect } from 'react-redux-firebase';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import { replace } from 'react-router-redux';
 
 class MainApp extends Component {
+	componentWillReceiveProps(nextProps) {
+		if (nextProps.router.location.pathname === '/signin' && nextProps.profile.isLoaded)
+			this.props.dispatch(replace('/expenses'));
+	}
 	render() {
 		const { profile } = this.props;
 		return (
@@ -46,7 +51,8 @@ export default compose(
 		{ collection: 'expenses', orderBy: ['date'] },
 		{ collection: 'tags', orderBy: 'name' }
 	]),
-	connect(({ firebase: { profile } }) => ({
-		profile
+	connect(({ firebase: { profile }, router }) => ({
+		profile,
+		router
 	}))
 )(MainApp);

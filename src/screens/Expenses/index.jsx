@@ -22,10 +22,18 @@ class ExpensesScreen extends Component {
 		ttlCardsPerPage: 15
 	};
 
-	componentWillReceiveProps() {
-		this.setState({
-			activePage: 1
-		});
+	componentWillReceiveProps(nextProps) {
+		//If my current page is higher than next ttl pages -> set page as the 'next' prop last page
+		//else -> stay at the same page
+		const { ttlCardsPerPage, activePage } = this.state;
+		const nextExpenses = nextProps.expenses;
+		const nextTTLPages = Math.round(Math.ceil(nextExpenses.length / ttlCardsPerPage));
+
+		if (activePage > nextTTLPages) {
+			this.setState({
+				activePage: nextTTLPages
+			});
+		}
 	}
 
 	handleFilterByTag = (e, { value }) => {
