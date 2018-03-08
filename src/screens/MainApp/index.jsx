@@ -13,7 +13,11 @@ import { replace } from 'react-router-redux';
 
 class MainApp extends Component {
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.router.location.pathname === '/signin' && nextProps.profile.isLoaded)
+		if (
+			(nextProps.router.location.pathname === '/signin' ||
+				nextProps.router.location.pathname === '/') &&
+			nextProps.profile.isLoaded
+		)
 			this.props.dispatch(replace('/expenses'));
 	}
 	render() {
