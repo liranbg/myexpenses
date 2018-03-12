@@ -7,6 +7,11 @@ import { Tag } from '../../../proptypes';
 import 'chart.piecelabel.js';
 
 class DoughnutChartCard extends Component {
+	static propTypes = {
+		expenses: PropTypes.object,
+		tags: PropTypes.arrayOf(PropTypes.shape(Tag))
+	};
+
 	render() {
 		const { expenses, tags } = this.props;
 		const expensesTags = Object.keys(expenses);
@@ -82,10 +87,4 @@ class DoughnutChartCard extends Component {
 	}
 }
 
-DoughnutChartCard.propTypes = {
-	expenses: PropTypes.object,
-	tags: PropTypes.arrayOf(PropTypes.shape(Tag))
-};
-
-DoughnutChartCard = connect()(DoughnutChartCard);
-export default DoughnutChartCard;
+export default connect()(DoughnutChartCard);
