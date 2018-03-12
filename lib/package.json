@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase-admin": "^5.9.0"
+    "firebase-admin": "^5.10.0"
   },
   "devDependencies": {
-    "luxon": "^0.5.3"
+    "luxon": "^0.5.5"
   }
 }

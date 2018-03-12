@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TagColorPicker from '../TagColorPicker/index';
-import { Segment, Button, Icon, Label } from 'semantic-ui-react';
+import { Segment, Button, Icon } from 'semantic-ui-react';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { push } from 'react-router-redux';
@@ -9,9 +9,53 @@ import { filterExpensesByTag } from '../../../actions';
 import { Tag } from '../../../proptypes';
 import { connect } from 'react-redux';
 
-class TagSegment extends React.Component {
+class TagSegmentGroup extends Component {
 	static propTypes = {
 		tag: PropTypes.shape(Tag)
+	};
+
+	render() {
+		const { tag } = this.props;
+		const mainTag = (
+			<TagSegment
+				style={{
+					borderLeftWidth: 8,
+					borderLeftStyle: 'solid',
+					borderLeftColor: tag.color
+				}}
+				tag={tag}
+			/>
+		);
+
+		if (tag.children.length) {
+			return (
+				<Segment.Group>
+					{mainTag}
+					<Segment.Group>
+						{tag.children.map(subTag => (
+							<TagSegment
+								style={{
+									borderLeftWidth: 8,
+									borderLeftStyle: 'solid',
+									borderLeftColor: subTag.color
+								}}
+								key={subTag.id}
+								tag={subTag}
+							/>
+						))}
+					</Segment.Group>
+				</Segment.Group>
+			);
+		} else {
+			return mainTag;
+		}
+	}
+}
+
+class TagSegment extends Component {
+	static propTypes = {
+		tag: PropTypes.shape(Tag),
+		style: PropTypes.object
 	};
 
 	state = {
@@ -42,15 +86,7 @@ class TagSegment extends React.Component {
 	render() {
 		const { tag } = this.props;
 		return (
-			<Segment
-				style={{
-					borderRightWidth: 2,
-					borderBottomWidth: 2,
-					borderStyle: 'solid',
-					borderColor: tag.color
-					// cursor: 'pointer'
-				}}
-			>
+			<Segment style={this.props.style}>
 				<Button
 					loading={this.state.isDeleting}
 					active={!this.state.isDeleting && tag.uses === 0}
@@ -86,4 +122,6 @@ class TagSegment extends React.Component {
 	}
 }
 
-export default compose(firestoreConnect(), connect())(TagSegment);
+TagSegment = compose(firestoreConnect(), connect())(TagSegment);
+
+export default compose(firestoreConnect(), connect())(TagSegmentGroup);

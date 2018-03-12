@@ -13,7 +13,11 @@ const TagsDropDownSelection = props => {
 			placeholder="Tag"
 			search
 			defaultValue={'Untagged'}
-			options={props.tags.map(tag => ({ key: tag.id, value: tag.name, text: tag.name }))}
+			options={props.tags.map(tag => ({
+				key: tag.id,
+				value: tag.name,
+				text: tag.parent ? props.tags.find(t => t.id === tag.parent).name + '/' + tag.name : tag.name
+			}))}
 		/>
 	);
 };

@@ -29,7 +29,7 @@ export default class TagsSelection extends Component {
 				options={tags.map(tag => ({
 					key: tag.id,
 					value: tag.name,
-					text: tag.name
+					text: tag.parent ? tags.find(t => t.id === tag.parent).name + '/' + tag.name : tag.name
 				}))}
 			/>
 		);
