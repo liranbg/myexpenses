@@ -11,7 +11,7 @@ export default class TagsSelection extends Component {
 	static propTypes = {
 		onChange: PropTypes.func,
 		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-		selectedTags: PropTypes.array,
+		selectedTags: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
 		multiSelection: PropTypes.bool
 	};
 

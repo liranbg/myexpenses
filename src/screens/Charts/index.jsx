@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 import { Segment, Header, CardGroup, Container, Button, SegmentGroup } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Expense, Tag } from '../../proptypes';
-import { expensesDatesLuxonify, getFilteredExpensesByDates, tagsToHierarchy } from '../../helpers';
+import { expensesDatesLuxonify, getFilteredExpensesByDates, slugify, tagsToHierarchy } from '../../helpers';
 import { compose } from 'redux';
 import ChartDateSelection from '../../components/Charts/ChartDateSelection';
 import BarChartCard from '../../components/Charts/BarChartCard';
 import PieChartCard from '../../components/Charts/DoughnutChartCard';
 import { setDatesRange } from '../../actions';
 import { firestoreConnect } from 'react-redux-firebase';
+import TagsSelection from "../../components/TagsSelection";
 
 export class ChartsPage extends Component {
 	static propTypes = {
@@ -18,6 +19,10 @@ export class ChartsPage extends Component {
 		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
 		fromDate: PropTypes.object,
 		toDate: PropTypes.object
+	};
+
+	state = {
+		selectedTag: null
 	};
 
 	narrowDatesByExpenses = () => {
@@ -57,14 +62,27 @@ export class ChartsPage extends Component {
 		return aggregatedTags;
 	};
 
+    handleSelectTag = (e, {value}) => {
+    	this.setState({selectedTag:value})
+	};
+
+    renderSingleTagCharts(groupedExpenses, tagsHierarchy) {
+        const houseTag = tagsHierarchy.find(t => t.id === slugify(this.state.selectedTag));
+        const houseTags = [houseTag, ...houseTag.children];
+        return (<React.Fragment>
+            <BarChartCard
+                expenses={this.aggregateExpensesTagsByParent(groupedExpenses, houseTag)}
+                tags={houseTags}
+            />
+            <PieChartCard expenses={this.aggregateExpensesTagsByParent(groupedExpenses, houseTag)} tags={houseTags} />
+        </React.Fragment>)
+	}
+
 	render() {
 		const { tags, expenses, selectedFromDate, selectedToDate } = this.props;
 		const filteredExpenses = getFilteredExpensesByDates(expenses, selectedFromDate, selectedToDate);
 		const groupedExpenses = _.groupBy(filteredExpenses, 'tag');
 		const tagsHierarchy = tagsToHierarchy(tags);
-
-		const houseTag = tagsHierarchy.find(t => t.id === 'house');
-		const houseTags = [houseTag, ...houseTag.children];
 
 		const parentalGroupedExpenses = this.aggregateExpensesByTagsParents(
 			groupedExpenses,
@@ -78,18 +96,27 @@ export class ChartsPage extends Component {
 					<Segment textAlign={'center'}>
 						<Button basic primary onClick={this.narrowDatesByExpenses} content={'Narrow Dates'} />
 					</Segment>
+					<Segment.Group horizontal>
+
+                        <Segment >
+							<TagsSelection tags={tagsHierarchy}
+                                       multiSelection={false}
+                                       onChange={this.handleSelectTag}
+                                       selectedTags={this.state.selectedTag}
+                        />
+						</Segment>
+                        <Segment style={{flex: "inherit"}}>
+                            <Button basic negative onClick={()=>this.setState({selectedTag: null})} content={'X'} icon={"trash"} />
+                        </Segment>
+					</Segment.Group>
 				</SegmentGroup>
-				{!!Object.keys(groupedExpenses).length &&
-					tags && (
-						<CardGroup>
-							<BarChartCard expenses={parentalGroupedExpenses} tags={tags} />
-							<BarChartCard
-								expenses={this.aggregateExpensesTagsByParent(groupedExpenses, houseTag)}
-								tags={houseTags}
-							/>
-							<PieChartCard expenses={parentalGroupedExpenses} tags={tags} />
-						</CardGroup>
-					)}
+				{tags &&
+				!!Object.keys(groupedExpenses).length &&
+				(this.state.selectedTag? this.renderSingleTagCharts(groupedExpenses, tagsHierarchy):
+					<CardGroup>
+						<BarChartCard expenses={parentalGroupedExpenses} tags={tags} />
+						<PieChartCard expenses={parentalGroupedExpenses} tags={tags} />
+                	</CardGroup>)}
 			</Container>
 		);
 	}
