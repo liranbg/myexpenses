@@ -5,11 +5,14 @@ import { Dropdown } from 'semantic-ui-react';
 import sortBy from 'lodash/sortBy';
 
 const TagsDropDownSelection = props => {
-	const tags = sortBy(props.tags.map(tag => ({
-		key: tag.id,
-		value: tag.name,
-		text: tag.parent ? props.tags.find(t => t.id === tag.parent).name + '/' + tag.name : tag.name
-	})), ['text']);
+	const tags = sortBy(
+		props.tags.map(tag => ({
+			key: tag.id,
+			value: tag.name,
+			text: tag.parent ? props.tags.find(t => t.id === tag.parent).name + '/' + tag.name : tag.name
+		})),
+		['text']
+	);
 	return (
 		<Dropdown
 			onChange={props.onChange}

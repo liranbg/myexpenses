@@ -77,15 +77,6 @@ class TagAdder extends Component {
 					focus
 					placeholder="New Tag Name..."
 				/>
-				<Checkbox
-					checked={createWithParent}
-					onChange={() => this.setState({ createWithParent: !createWithParent })}
-					label={'Parent:'}
-				/>
-				<TagsDropDownSelection
-					onChange={(e, { value }) => this.setState({ newTagParent: slugify(value) })}
-					tags={this.props.tags || []}
-				/>
 				<Button
 					loading={actionAddTagLoading}
 					disabled={actionAddTagLoading}
@@ -95,6 +86,17 @@ class TagAdder extends Component {
 					icon={'plus'}
 					onClick={this.addTag}
 				/>
+				<div style={{ display: 'grid', float: 'right' }}>
+					<Checkbox
+						checked={createWithParent}
+						onChange={() => this.setState({ createWithParent: !createWithParent })}
+						label={'Parent'}
+					/>
+					<TagsDropDownSelection
+						onChange={(e, { value }) => this.setState({ newTagParent: slugify(value) })}
+						tags={this.props.tags || []}
+					/>
+				</div>
 			</Segment>
 		);
 	}
