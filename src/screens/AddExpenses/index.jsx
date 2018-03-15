@@ -89,6 +89,14 @@ class AddExpensesScreen extends Component {
 						{DateFormat(expense[property], 'mmmm dS, yyyy')} (<TimeAgo date={expense[property]} />)
 					</React.Fragment>
 				);
+			case 'tag':
+				const { tags } = this.props;
+				const tag = tags.find(tag => tag.name === expense[property]);
+				const tagName = tag.parent
+					? `${tags.find(t => t.id === tag.parent).name}/${tag.name}`
+					: tag.name;
+
+				return <React.Fragment>{tagName}</React.Fragment>;
 			default:
 				return expense[property];
 		}

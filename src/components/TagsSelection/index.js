@@ -11,7 +11,7 @@ export default class TagsSelection extends Component {
 	static propTypes = {
 		onChange: PropTypes.func,
 		tags: PropTypes.arrayOf(PropTypes.shape(Tag)),
-		selectedTags: PropTypes.array,
+		selectedTags: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
 		multiSelection: PropTypes.bool
 	};
 
@@ -29,7 +29,7 @@ export default class TagsSelection extends Component {
 				options={tags.map(tag => ({
 					key: tag.id,
 					value: tag.name,
-					text: tag.name
+					text: tag.parent ? tags.find(t => t.id === tag.parent).name + '/' + tag.name : tag.name
 				}))}
 			/>
 		);

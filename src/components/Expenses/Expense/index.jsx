@@ -23,6 +23,7 @@ import DateFormat from 'dateformat';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 import { createBatch } from '../../../firebase/index';
+import { tagsToHierarchy } from '../../../helpers';
 
 class DeleteExpenseModal extends Component {
 	state = { modalOpen: false };
@@ -150,17 +151,37 @@ class ExpenseCard extends Component {
 			isLoading: true,
 			value
 		});
+		const tagsTree = tagsToHierarchy(tags);
 		setTimeout(() => {
 			if (this.state.value.length < 1) return this.resetSearchComponent();
 			const re = new RegExp(_.escapeRegExp(this.state.value), 'i');
-			const isMatch = result => re.test(result.name);
-			let results = _.filter(tags.filter(tag => tag.name !== expense.tag), isMatch);
+			const isMatch = result => re.test(result.title);
+			const source = tagsTree.reduce((memo, tag) => {
+				if (tag.name === expense.tag) return memo;
+				memo[tag.name] = {
+					name: tag.name,
+					results: [
+						{ title: tag.name },
+						...tag.children.reduce((m, c, i) => {
+							m[i] = { title: c.name };
+							return m;
+						}, [])
+					]
+				};
+				return memo;
+			}, {});
+			const filteredResults = _.reduce(
+				source,
+				(memo, data, name) => {
+					const results = _.filter(data.results, isMatch);
+					if (results.length) memo[name] = { name, results };
+					return memo;
+				},
+				{}
+			);
 			this.setState({
 				isLoading: false,
-				results: results.map(tag => ({
-					...tag,
-					title: tag.name
-				}))
+				results: filteredResults
 			});
 		}, 100);
 	};
@@ -319,6 +340,7 @@ class ExpenseCard extends Component {
 								/>
 							</Container>
 							<Search
+								category
 								style={{
 									marginTop: 15
 								}}

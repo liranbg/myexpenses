@@ -49,6 +49,27 @@ export function getFilteredExpensesByDates(expenses, fromDate, toDate) {
 	);
 }
 
+export function tagsToHierarchy(tags) {
+	const idAttr = 'id'; //given
+	const parentAttr = 'parent'; //given
+	const childrenAttr = 'children'; //added
+
+	let treeList = [];
+	let lookup = {};
+	tags.forEach(function(obj) {
+		lookup[obj[idAttr]] = obj;
+		obj[childrenAttr] = [];
+	});
+	tags.forEach(function(obj) {
+		if (obj[parentAttr] != null) {
+			lookup[obj[parentAttr]][childrenAttr].push(obj);
+		} else {
+			treeList.push(obj);
+		}
+	});
+	return treeList;
+}
+
 function currencySignToText(sign) {
 	switch (sign) {
 		case '₪':
@@ -109,3 +130,15 @@ export function buildExpensesByRows(rows) {
 			misparShover: r[misparShoverIndex]
 		}));
 }
+
+export const slugify = text => {
+	return text
+		.toString()
+		.toLowerCase()
+		.replace(/\s+/g, '-') // Replace spaces with -
+		.replace(/&/g, '-and-') // Replace & with 'and'
+		.replace(/[^\w\-]+/g, '') // Remove all non-word chars
+		.replace(/\-\-+/g, '-') // Replace multiple - with single -
+		.replace(/^-+/, '') // Trim - from start of text
+		.replace(/-+$/, ''); // Trim - from end of text
+};
